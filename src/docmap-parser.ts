@@ -81,40 +81,55 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
       status = 'This preprint has been published and publicly reviewed, but a reviewing group has not published a sumary evaulation';
 
       // get the peerReviews
-      const peerReviews = currentStep.actions.map((action) => {
-        const evaluations = action.outputs.map((output) => {
-          const content = output.content.filter((content) => content.type == 'web-content');
-          if (content.length === 1) {
-            return {
-              reviewType: stringToReviewType(output.type),
-              date: output.published,
-              participants: action.participants.map((participant) => ({
-                name: participant.actor.name,
-                institution: 'unknown', // TODO
-                role: participant.role,
-              })),
-              text: `fetched content for ${content[0].url}`,
-            };
+      const evaluations = currentStep.actions.map((action) => {
+        const outputs = action.outputs.map((output) => {
+          if (output.content.length === 0) {
+            return undefined;
           }
-        }).filter((evaluation): evaluation is Evaluation => evaluation !== undefined);
-        console.log(evaluations);
+          const content = output.content.filter((content) => content.type === 'web-content');
+          const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
 
-        const editorEvaluation = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
-        const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
-        const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+          return {
+            reviewType: stringToReviewType(output.type),
+            date: output.published,
+            participants: action.participants.map((participant) => ({
+              name: participant.actor.name,
+              institution: 'unknown', // TODO
+              role: participant.role,
+            })),
+            text: text,
+          };
+        }).filter((output): output is Evaluation => output !== undefined);
 
-        return {
-          evaluationSummary: editorEvaluation[0],
-          reviews: reviews,
-          authorResponse: authorResponse[0],
+        if (outputs.length === 0) {
+          return undefined;
         }
-      });
 
-      console.log(peerReviews);
+        const outputWithText = outputs.filter((output) => output?.text !== undefined)
+        if (outputWithText.length === 1) {
+          return outputWithText[0];
+        }
 
-      if (peerReviews.length > 0) {
-        peerReview = peerReviews[0];
-      }
+        // Assumption: if none of the outputs have text available, just return 1
+        const outputWithoutText = outputs[0];
+        return {
+          ...outputWithoutText,
+          text: 'Text unavailable',
+        };
+      }).filter((output): output is Evaluation => output !== undefined);
+
+
+
+      const editorEvaluation = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
+      const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
+      const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+
+      peerReview = {
+        evaluationSummary: editorEvaluation[0],
+        reviews: reviews,
+        authorResponse: authorResponse[0],
+      };
+
     }
     if (currentStep.assertions.find((assertion) => assertion.status === 'enhanced') !== undefined) {
       type = reviewed ? 'Revised Preprint' : 'Reviewed Preprint';
