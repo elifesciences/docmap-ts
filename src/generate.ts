@@ -1,4 +1,4 @@
-import { addNextStep, generateAction, generateAssertion, generateContent, generateDocMap, generateInput, generateOutput, generatePersonParticipant, generateStep } from './docmap-generator'
+import { addNextStep, generateAction, generateAssertion, generateDocMap, generatePersonParticipant, generateStep, generatePreprintWithDoiAndUrl, generateWebContent, generatePeerReview, generateEvaluationSummary } from './docmap-generator'
 import { parsePreprintDocMap } from './docmap-parser';
 
 const publisher = {
@@ -12,47 +12,60 @@ const publisher = {
   }
 };
 
-const preprint = generateInput('preprint/article1', 'https://doi.org/preprint/article1', new Date('2022-03-01'));
+const preprint = generatePreprintWithDoiAndUrl('preprint/article1', undefined, 'https://doi.org/preprint/article1');
 
 const anonymousReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
-const peerReview1Content = generateContent('web-content', 'https://doi.org/elife/peerreview1');
-const peerReview1Output = generateOutput('peer-review', new Date('2022-04-12'), [peerReview1Content]);
-const peerReview1 = generateAction([anonymousReviewerParticipant], [peerReview1Output]);
+const peerReview1 = generatePeerReview(
+  new Date('2022-04-12'),
+  [generateWebContent('https://sciety.org/articles/activity/preprint/article1#hypothesis:peerreview1')],
+  'elife/peerreview1',
+  'https://doi.org/elife/peerreview1'
+);
+const peerReview1Action = generateAction([anonymousReviewerParticipant], [peerReview1]);
 
-const peerReview2Content = generateContent('web-content', 'https://doi.org/elife/peerreview2');
-const peerReview2Output = generateOutput('peer-review', new Date('2022-04-12'), [peerReview2Content]);
-const peerReview2 = generateAction([anonymousReviewerParticipant], [peerReview2Output]);
+const peerReview2 = generatePeerReview(
+  new Date('2022-04-12'),
+  [generateWebContent('https://sciety.org/articles/activity/preprint/article1#hypothesis:peerreview2')],
+  'elife/peerreview2',
+  'https://doi.org/elife/peerreview2'
+);
+const peerReview2Action = generateAction([anonymousReviewerParticipant], [peerReview2]);
 
 const editor1 = generatePersonParticipant('Aloke Finn', 'editor');
 const editor2 = generatePersonParticipant('Carlos Isales', 'senior-editor');
-const editorsEvaluationContent = generateContent('web-content', 'https://doi.org/elife/editorsevalation1');
-const editorsEvaluationOutput = generateOutput('evaluation-summary', new Date('2022-04-14'), [editorsEvaluationContent]);
-const editorsEvaluation = generateAction([editor1, editor2], [editorsEvaluationOutput]);
+const editorsEvaluation = generateEvaluationSummary(
+  new Date('2022-04-14'),
+  [generateWebContent('https://sciety.org/articles/activity/preprint/article1#hypothesis:editorsevalation1')],
+  'elife/editorsevalation1',
+  'https://doi.org/elife/editorsevalation1'
+);
+const editorsEvaluationAction = generateAction([editor1, editor2], [editorsEvaluation]);
 
 const firstStep = generateStep(
   [preprint],
-  [peerReview1, peerReview2, editorsEvaluation],
+  [peerReview1Action, peerReview2Action, editorsEvaluationAction],
   [generateAssertion('peer-reviewed')],
 );
 
-const publishedPeerReview1 = generateInput('elife/peerreview1', 'https://doi.org/elife/peerreview1', new Date('2022-04-12'));
-const publishedPeerReview2 = generateInput('elife/peerreview2', 'https://doi.org/elife/peerreview2', new Date('2022-04-12'));
-const publishedEditorsEvaluation = generateInput('elife/editorsevalation1', 'https://doi.org/elife/editorsevalation1', new Date('2022-04-14'));
-const reviewedPreprintContent = generateContent('web-content', 'https://doi.org/elife/reviewedpreprint1');
-const reviewedPreprintOutput = generateOutput('review-article', new Date('2022-04-15'), [reviewedPreprintContent]);
-const reviewedPreprint1 = generateAction([anonymousReviewerParticipant], [reviewedPreprintOutput]);
+const reviewedPreprint = generatePeerReview(
+  new Date('2022-04-15'),
+  [generateWebContent('https://elifesciences.org/review-preprints/reviewedpreprint1')],
+  'elife/peerreview2',
+  'https://doi.org/elife/reviewedpreprint1'
+);
+const reviewedPreprintAction = generateAction([anonymousReviewerParticipant], [reviewedPreprint]);
 
 
 addNextStep(firstStep, generateStep(
-  [preprint, publishedPeerReview1, publishedPeerReview2, publishedEditorsEvaluation],
-  [reviewedPreprint1],
+  [preprint, peerReview1, peerReview2, editorsEvaluation],
+  [reviewedPreprintAction],
   [generateAssertion('enhanced')],
 ));
 
 const docmap = generateDocMap("testID", publisher, firstStep);
 
 const replacer = (key: string, value: any) => {
-  if (key === 'steps') {
+  if (key === 'steps' && value['@id'] !== 'pwo:hasStep') {
     return Object.fromEntries(value);
   } else {
     return value;
@@ -60,5 +73,5 @@ const replacer = (key: string, value: any) => {
 }
 // console.log(docmap);
 console.log(JSON.stringify(docmap, replacer, "  "));
-const parsedDocMap = parsePreprintDocMap(docmap);
-console.log(JSON.stringify(parsedDocMap, undefined, "  "));
+// const parsedDocMap = parsePreprintDocMap(docmap);
+// console.log(JSON.stringify(parsedDocMap, undefined, "  "));
