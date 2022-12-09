@@ -1,4 +1,4 @@
-import { DocMap } from './docmap';
+import { DocMap, ExpressionType } from './docmap';
 
 
 enum ReviewType {
@@ -44,15 +44,17 @@ export type TimelineEvent = {
   }
 };
 
-type ParseResult = {
+type EnhancedPreprintStatus = {
+  doi: string,
+  version: number,
   status: string,
   type: string,
   timeline: TimelineEvent[],
-  peerReview?: PeerReview
+  peerReview?: PeerReview,
 }
 
 
-export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
+export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
   const steps = Array.from(docMap.steps.values());
   if (steps.length === 0) {
     throw Error('couldn\'t parse preprint docmap - no steps');
@@ -63,30 +65,53 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
   }
 
   const timelineEvents: TimelineEvent[] = [];
-  let status = 'unknown';
-  let type = 'unknown';
-  let reviewed = false;
+  let status:string = 'unknown';
+  let type:string = 'unknown';
+  let doi:string = '';
   let peerReview: PeerReview | undefined = undefined;
+
   while (currentStep !== undefined) {
     if (currentStep.assertions.find((assertion) => assertion.status === 'peer-reviewed') !== undefined) {
-      //assumption - there is only 1 input for a peer-reviewed material
-      const preprint = currentStep.inputs[0];
+      // assumption - there is only 1 input for a peer-reviewed material
+      const preprint = currentStep.inputs.find((input) => input.type === ExpressionType.Preprint);
+
       if (preprint !== undefined && preprint.published !== undefined) {
+        const link = !preprint.doi || !preprint.url ? undefined : {
+          text: preprint.doi.startsWith('10.1101/') ? 'Go to BioRxiv' : 'Go to preprint',
+          url: preprint.url,
+        };
         timelineEvents.push({
-          name: 'Preprint published',
-          date: preprint.published.toDateString(),
+          name: 'Preprint posted',
+          date: formatDate(preprint.published),
+          link,
+        });
+        if (typeof preprint.doi == 'string') {
+          doi = preprint.doi;
+        }
+      }
+      type = 'Reviewed preprint';
+      status = 'This preprint has been published and publicly reviewed, but a reviewing group has not published a sumary evaulation';
+
+      const revisedPreprint = currentStep.inputs.find((input) => input.type === ExpressionType.RevisedPreprint);
+      if (revisedPreprint !== undefined && revisedPreprint.published !== undefined) {
+        timelineEvents.push({
+          name: 'Revised Preprint',
+          date: formatDate(revisedPreprint.published),
         });
       }
-      type = 'Peer reviewed preprint';
-      status = 'This preprint has been published and publicly reviewed, but a reviewing group has not published a sumary evaulation';
+      type = 'Revised preprint';
+      status = 'This preprint has been published and publicly reviewed, and an author has responded to feedback by publishing a revision';
 
       // get the peerReviews
       const evaluations = currentStep.actions.map((action) => {
         const outputs = action.outputs.map((output) => {
+          if (output.content === undefined) {
+            return undefined;
+          }
           if (output.content.length === 0) {
             return undefined;
           }
-          const content = output.content.filter((content) => content.type === 'web-content');
+          const content = output.content.filter((content) => content.type === 'web-page');
           const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
 
           return {
@@ -118,8 +143,6 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
         };
       }).filter((output): output is Evaluation => output !== undefined);
 
-
-
       const editorEvaluation = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
       const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
       const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
@@ -131,17 +154,16 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
       };
 
     }
+
     if (currentStep.assertions.find((assertion) => assertion.status === 'enhanced') !== undefined) {
-      type = reviewed ? 'Revised Preprint' : 'Reviewed Preprint';
       status = `This Reviewed Preprint was published after peer review and assessment by ${docMap.publisher.name}`;
-      reviewed = true;
     }
 
     // assumption - all peer-reviewed material was published at the same time
-    const publishedDate = currentStep.actions[0].outputs[0].published;
+    const publishedDate = currentStep.actions[0]?.outputs?.[0].published;
     timelineEvents.push({
       name: type,
-      date: publishedDate.toDateString(),
+      date: formatDate(publishedDate),
     });
 
     if (typeof currentStep['next-step'] === 'string') {
@@ -151,10 +173,24 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
     }
   }
 
+  if (doi === '') {
+    throw Error('couldn\'t parse preprint docmap - no preprint found as a valid step input');
+  }
+
   return {
+    doi,
+    version: 1,
     type,
     status,
     timeline: timelineEvents,
     peerReview,
   }
+};
+
+const formatDate = (date?: Date): string => {
+  if (!date) {
+    return 'unknown'; // TODO: what if we don't have a published date
+  }
+  const month = date.getUTCMonth()+1;
+  return `${date.getUTCFullYear()}-${month.toString().padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`;
 };
