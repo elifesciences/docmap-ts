@@ -1,4 +1,4 @@
-import { addNextStep, generateAction, generateAssertion, generateDocMap, generatePersonParticipant, generateStep, generatePreprintWithDoiAndUrl, generateWebContent, generatePeerReview, generateEvaluationSummary } from './docmap-generator'
+import { addNextStep, generateAction, generateDocMap, generatePersonParticipant, generateStep, generatePreprintWithDoiAndUrl, generateWebContent, generatePeerReview, generateEvaluationSummary, generatePeerReviewedAssertion, generateEnhancedAssertion } from './docmap-generator'
 import { parsePreprintDocMap } from './docmap-parser';
 
 const publisher = {
@@ -44,7 +44,7 @@ const editorsEvaluationAction = generateAction([editor1, editor2], [editorsEvalu
 const firstStep = generateStep(
   [preprint],
   [peerReview1Action, peerReview2Action, editorsEvaluationAction],
-  [generateAssertion('peer-reviewed')],
+  [generatePeerReviewedAssertion()],
 );
 
 const reviewedPreprint = generatePeerReview(
@@ -59,7 +59,7 @@ const reviewedPreprintAction = generateAction([anonymousReviewerParticipant], [r
 addNextStep(firstStep, generateStep(
   [preprint, peerReview1, peerReview2, editorsEvaluation],
   [reviewedPreprintAction],
-  [generateAssertion('enhanced')],
+  [generateEnhancedAssertion()],
 ));
 
 const docmap = generateDocMap("testID", publisher, firstStep);

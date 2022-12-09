@@ -1,4 +1,4 @@
-import { Action, Assertion, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, JsonLDFrame, ManifestationType, Output, Participant, PeerReview, Publisher, Step, Url, WebPage } from './docmap';
+import { Action, Assertion, AssertionStatus, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, JsonLDFrame, ManifestationType, Output, Participant, PeerReview, Publisher, Step, Url, WebPage } from './docmap';
 
 type Steps = {
   'first-step': string,
@@ -64,9 +64,25 @@ export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
   return nextStep
 };
 
-export const generateAssertion = (status: string): Assertion => ({
-  status,
-});
+export const generatePublishedAssertion = (): Assertion => {
+  return { status: AssertionStatus.Published };
+}
+
+export const generatePeerReviewedAssertion = (): Assertion => {
+  return { status: AssertionStatus.PeerReviewed };
+}
+
+export const generateEnhancedAssertion = (): Assertion => {
+  return { status: AssertionStatus.Enhanced };
+}
+
+export const generateUnderReviewAssertion = (): Assertion => {
+  return { status: AssertionStatus.UnderReview };
+}
+
+export const generateVersionOfRecordAssertion = (): Assertion => {
+  return { status: AssertionStatus.VersionOfRecord };
+}
 
 const dereferenceSteps = (firstStep: Step): Steps => {
   const steps = new Map<string, Step>();

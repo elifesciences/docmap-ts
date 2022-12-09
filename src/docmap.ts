@@ -85,8 +85,16 @@ export type Action = {
   outputs: Output[],
 };
 
+export enum AssertionStatus {
+  Published = 'published',
+  UnderReview = 'under-review',
+  PeerReviewed = 'peer-reviewed',
+  Enhanced = 'enhanced',
+  VersionOfRecord = 'version-of-record',
+};
+
 export type Assertion = {
-  status: string,
+  status: AssertionStatus,
 }
 
 export type Step = {
