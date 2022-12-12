@@ -99,7 +99,7 @@ const reviewedPreprintAction = generateAction([], [reviewedPreprint]);
 const secondStep = addNextStep(firstStep, generateStep(
   [simplePreprint, simplifyExpression(peerReview1), simplifyExpression(peerReview2), simplifyExpression(editorsEvaluation)],
   [reviewedPreprintAction],
-  [generateEnhancedAssertion(preprint)],
+  [generateEnhancedAssertion(simplePreprint)],
 ));
 writeFileSync(
   'examples/generated/2.enhanced_preprintv1.json',
