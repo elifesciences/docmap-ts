@@ -1,4 +1,4 @@
-import { generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprintWithDoiAndUrl, generateStep, generateWebContent } from './docmap-generator';
+import { generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generateStep, generateWebContent } from './docmap-generator';
 import { parsePreprintDocMap } from './docmap-parser';
 
 const publisher = {
@@ -14,7 +14,7 @@ const publisher = {
 
 describe('docmap-parser', () => {
   it('finds a preprint from a docmap describing a sent for peer review', () => {
-    const preprint = generatePreprintWithDoiAndUrl('preprint/article1', new Date('2022-03-01'), 'https://doi.org/preprint/article1');
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://doi.org/preprint/article1');
     const anonymousReviewer = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-12'),
@@ -27,7 +27,7 @@ describe('docmap-parser', () => {
     const firstStep = generateStep(
       [preprint],
       [peerReview1Action],
-      [generatePeerReviewedAssertion()],
+      [generatePeerReviewedAssertion(preprint)],
     );
     const docmap = generateDocMap('test', publisher, firstStep);
 
@@ -43,7 +43,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds a bioRxiv preprint and labels it', () => {
-    const preprint = generatePreprintWithDoiAndUrl('10.1101/article1', new Date('2022-03-01'), 'https://doi.org/10.1101/article1');
+    const preprint = generatePreprint('10.1101/article1', new Date('2022-03-01'), 'https://doi.org/10.1101/article1');
     const anonymousReviewer = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-12'),
@@ -56,7 +56,7 @@ describe('docmap-parser', () => {
     const firstStep = generateStep(
       [preprint],
       [peerReview1Action],
-      [generatePeerReviewedAssertion()],
+      [generatePeerReviewedAssertion(preprint)],
     );
     const docmap = generateDocMap('test', publisher, firstStep);
 

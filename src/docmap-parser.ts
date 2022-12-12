@@ -1,4 +1,5 @@
 import { DocMap, ExpressionType } from './docmap';
+import { formatDate } from './utils';
 
 
 enum ReviewType {
@@ -47,7 +48,6 @@ export type TimelineEvent = {
 type EnhancedPreprintStatus = {
   doi: string,
   version: number,
-  status: string,
   type: string,
   timeline: TimelineEvent[],
   peerReview?: PeerReview,
@@ -65,17 +65,33 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
   }
 
   const timelineEvents: TimelineEvent[] = [];
-  let status:string = 'unknown';
   let type:string = 'unknown';
   let doi:string = '';
   let peerReview: PeerReview | undefined = undefined;
+  let version = 0;
 
   while (currentStep !== undefined) {
     if (currentStep.assertions.find((assertion) => assertion.status === 'peer-reviewed') !== undefined) {
       // assumption - there is only 1 input for a peer-reviewed material
       const preprint = currentStep.inputs.find((input) => input.type === ExpressionType.Preprint);
+      if (preprint === undefined) {
+        continue;
+      }
 
-      if (preprint !== undefined && preprint.published !== undefined) {
+      // set the type as reviewed preprint
+      if (type === 'Reviewed preprint') {
+        type = 'Revised preprint';
+      } else {
+        type = 'Reviewed preprint';
+      }
+
+      // set preprint DOI if we have it
+      if (typeof preprint.doi == 'string') {
+        doi = preprint.doi;
+      }
+
+      // if we have a published date, add an event
+      if (preprint.published !== undefined) {
         const link = !preprint.doi || !preprint.url ? undefined : {
           text: preprint.doi.startsWith('10.1101/') ? 'Go to BioRxiv' : 'Go to preprint',
           url: preprint.url,
@@ -85,22 +101,7 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
           date: formatDate(preprint.published),
           link,
         });
-        if (typeof preprint.doi == 'string') {
-          doi = preprint.doi;
-        }
       }
-      type = 'Reviewed preprint';
-      status = 'This preprint has been published and publicly reviewed, but a reviewing group has not published a sumary evaulation';
-
-      const revisedPreprint = currentStep.inputs.find((input) => input.type === ExpressionType.RevisedPreprint);
-      if (revisedPreprint !== undefined && revisedPreprint.published !== undefined) {
-        timelineEvents.push({
-          name: 'Revised Preprint',
-          date: formatDate(revisedPreprint.published),
-        });
-      }
-      type = 'Revised preprint';
-      status = 'This preprint has been published and publicly reviewed, and an author has responded to feedback by publishing a revision';
 
       // get the peerReviews
       const evaluations = currentStep.actions.map((action) => {
@@ -153,18 +154,15 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
         authorResponse: authorResponse[0],
       };
 
+      // assumption - all peer-reviewed material was published at the same time
+      const publishedDate = currentStep.actions[0]?.outputs?.[0].published;
+      timelineEvents.push({
+        name: `${type} - version ${++version}`,
+        date: formatDate(publishedDate),
+      });
+
     }
 
-    if (currentStep.assertions.find((assertion) => assertion.status === 'enhanced') !== undefined) {
-      status = `This Reviewed Preprint was published after peer review and assessment by ${docMap.publisher.name}`;
-    }
-
-    // assumption - all peer-reviewed material was published at the same time
-    const publishedDate = currentStep.actions[0]?.outputs?.[0].published;
-    timelineEvents.push({
-      name: type,
-      date: formatDate(publishedDate),
-    });
 
     if (typeof currentStep['next-step'] === 'string') {
       currentStep = docMap.steps.get(currentStep['next-step']);
@@ -181,16 +179,7 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
     doi,
     version: 1,
     type,
-    status,
     timeline: timelineEvents,
     peerReview,
   }
-};
-
-const formatDate = (date?: Date): string => {
-  if (!date) {
-    return 'unknown'; // TODO: what if we don't have a published date
-  }
-  const month = date.getUTCMonth()+1;
-  return `${date.getUTCFullYear()}-${month.toString().padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`;
 };
