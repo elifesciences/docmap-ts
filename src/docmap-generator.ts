@@ -67,6 +67,12 @@ export const generateStep = (inputs: Input[], actions: Action[], assertions: Ass
   actions,
 });
 
+export const simplifyExpression = (expression: Expression): Expression => ({
+  type: expression.type,
+  doi: expression.doi,
+  url: expression.doi === undefined ? expression.url : undefined,
+});
+
 export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
   previousStep['next-step'] = nextStep;
   nextStep['previous-step'] = previousStep;
@@ -124,8 +130,8 @@ const dereferenceSteps = (firstStep: Step): Steps => {
       actions: currentStep.actions,
       assertions: currentStep.assertions,
       inputs: currentStep.inputs,
-      "next-step": nextStepId ? '_:b'+nextStepId : undefined,
-      "previous-step": previousStepId ? '_:b'+previousStepId : undefined,
+      "next-step": nextStepId  !== undefined ? '_:b'+nextStepId : undefined,
+      "previous-step": previousStepId !== undefined ? '_:b'+previousStepId : undefined,
     });
 
     previousStepId = currentStepId;
