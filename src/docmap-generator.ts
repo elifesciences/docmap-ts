@@ -1,11 +1,11 @@
-import { Action, Assertion, AssertionStatus, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, JsonLDFrame, ManifestationType, Output, Participant, PeerReview, Publisher, Step, Url, WebPage } from './docmap';
+import { Action, Assertion, AssertionStatus, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, Item, JsonLDAddonFrame, JsonLDFrameUrl, ManifestationType, Output, Participant, PeerReview, Preprint, Publisher, Step, Url, WebPage } from './docmap';
 
 type Steps = {
   'first-step': string,
   steps: Map<string, Step>
 }
 
-export const generatePreprintWithDoiAndUrl = (doi: DOI, published?: Date, url?: Url): Input => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url): Input => ({
   type: ExpressionType.Preprint,
   doi,
   url,
@@ -25,6 +25,16 @@ export const generateEvaluationSummary = (published: Date, content: WebPage[], d
   doi,
   published,
   url,
+  content,
+});
+
+export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, published: Date, url: Url, content: WebPage[]): Preprint => ({
+  identifier,
+  versionIdentifier: version,
+  type: ExpressionType.Preprint,
+  doi,
+  url,
+  published,
   content,
 });
 
@@ -64,24 +74,39 @@ export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
   return nextStep
 };
 
-export const generatePublishedAssertion = (): Assertion => {
-  return { status: AssertionStatus.Published };
+export const generatePublishedAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.Published
+  };
 }
 
-export const generatePeerReviewedAssertion = (): Assertion => {
-  return { status: AssertionStatus.PeerReviewed };
+export const generatePeerReviewedAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.PeerReviewed
+  };
 }
 
-export const generateEnhancedAssertion = (): Assertion => {
-  return { status: AssertionStatus.Enhanced };
+export const generateEnhancedAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.Enhanced
+  };
 }
 
-export const generateUnderReviewAssertion = (): Assertion => {
-  return { status: AssertionStatus.UnderReview };
+export const generateUnderReviewAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.UnderReview
+  };
 }
 
-export const generateVersionOfRecordAssertion = (): Assertion => {
-  return { status: AssertionStatus.VersionOfRecord };
+export const generateVersionOfRecordAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.VersionOfRecord
+  };
 }
 
 const dereferenceSteps = (firstStep: Step): Steps => {
@@ -121,7 +146,7 @@ const dereferenceSteps = (firstStep: Step): Steps => {
 export const generateDocMap = (id: string, publisher: Publisher, firstStep: Step): DocMap => {
   const steps = dereferenceSteps(firstStep);
   return {
-    '@context': JsonLDFrame,
+    '@context': [ JsonLDFrameUrl, JsonLDAddonFrame ],
     type: 'docmap',
     id: id,
     created: new Date('2022-09-06T09:10:16.834Z'),

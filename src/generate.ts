@@ -1,4 +1,4 @@
-import { addNextStep, generateAction, generateDocMap, generatePersonParticipant, generateStep, generatePreprintWithDoiAndUrl, generateWebContent, generatePeerReview, generateEvaluationSummary, generatePeerReviewedAssertion, generateEnhancedAssertion } from './docmap-generator'
+import { addNextStep, generateAction, generateDocMap, generatePersonParticipant, generateStep, generatePreprint, generateWebContent, generatePeerReview, generateEvaluationSummary, generatePeerReviewedAssertion, generateEnhancedAssertion, generateEnhancedPreprint } from './docmap-generator'
 import { parsePreprintDocMap } from './docmap-parser';
 
 const publisher = {
@@ -12,7 +12,7 @@ const publisher = {
   }
 };
 
-const preprint = generatePreprintWithDoiAndUrl('preprint/article1', undefined, 'https://doi.org/preprint/article1');
+const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://doi.org/preprint/article1');
 
 const anonymousReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
 const peerReview1 = generatePeerReview(
@@ -44,14 +44,16 @@ const editorsEvaluationAction = generateAction([editor1, editor2], [editorsEvalu
 const firstStep = generateStep(
   [preprint],
   [peerReview1Action, peerReview2Action, editorsEvaluationAction],
-  [generatePeerReviewedAssertion()],
+  [generatePeerReviewedAssertion(preprint)],
 );
 
-const reviewedPreprint = generatePeerReview(
+const reviewedPreprint = generateEnhancedPreprint(
+  '12345',
+  '1',
+  'elife/12345.1',
   new Date('2022-04-15'),
+  'https://doi.org/elife/12345.1',
   [generateWebContent('https://elifesciences.org/review-preprints/reviewedpreprint1')],
-  'elife/peerreview2',
-  'https://doi.org/elife/reviewedpreprint1'
 );
 const reviewedPreprintAction = generateAction([anonymousReviewerParticipant], [reviewedPreprint]);
 
@@ -59,7 +61,7 @@ const reviewedPreprintAction = generateAction([anonymousReviewerParticipant], [r
 addNextStep(firstStep, generateStep(
   [preprint, peerReview1, peerReview2, editorsEvaluation],
   [reviewedPreprintAction],
-  [generateEnhancedAssertion()],
+  [generateEnhancedAssertion(preprint)],
 ));
 
 const docmap = generateDocMap("testID", publisher, firstStep);
@@ -67,11 +69,10 @@ const docmap = generateDocMap("testID", publisher, firstStep);
 const replacer = (key: string, value: any) => {
   if (key === 'steps' && value['@id'] !== 'pwo:hasStep') {
     return Object.fromEntries(value);
-  } else {
-    return value;
   }
+  return value;
 }
 // console.log(docmap);
 console.log(JSON.stringify(docmap, replacer, "  "));
-// const parsedDocMap = parsePreprintDocMap(docmap);
-// console.log(JSON.stringify(parsedDocMap, undefined, "  "));
+const parsedDocMap = parsePreprintDocMap(docmap);
+console.log(JSON.stringify(parsedDocMap, undefined, "  "));
