@@ -58,10 +58,29 @@ const reviewedPreprint = generateEnhancedPreprint(
 const reviewedPreprintAction = generateAction([anonymousReviewerParticipant], [reviewedPreprint]);
 
 
-addNextStep(firstStep, generateStep(
+const secondStep = addNextStep(firstStep, generateStep(
   [preprint, peerReview1, peerReview2, editorsEvaluation],
   [reviewedPreprintAction],
   [generateEnhancedAssertion(preprint)],
+));
+
+const preprint2 = generatePreprint('preprint/article1', new Date('2022-04-21'), 'https://doi.org/preprint/article1');
+const thirdStep = addNextStep(secondStep, generateStep(
+  [preprint2],
+  [reviewedPreprintAction],
+  [],
+));
+const editorsEvaluation2 = generateEvaluationSummary(
+  new Date('2022-04-14'),
+  [generateWebContent('https://sciety.org/articles/activity/preprint/article1#hypothesis:editorsevalation1')],
+  'elife/editorsevalation1',
+  'https://doi.org/elife/editorsevalation1'
+);
+const editorsEvaluationAction2 = generateAction([editor1, editor2], [editorsEvaluation]);
+addNextStep(thirdStep, generateStep(
+  [preprint2],
+  [editorsEvaluationAction2],
+  [generatePeerReviewedAssertion(preprint2)],
 ));
 
 const docmap = generateDocMap("testID", publisher, firstStep);
