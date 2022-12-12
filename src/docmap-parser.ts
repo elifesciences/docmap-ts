@@ -177,7 +177,7 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
 
   return {
     doi,
-    version: 1,
+    version,
     type,
     timeline: timelineEvents,
     peerReview,
