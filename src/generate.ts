@@ -1,5 +1,5 @@
 import { writeFileSync } from 'fs';
-import { addNextStep, generateAction, generateDocMap, generatePersonParticipant, generateStep, generatePreprint, generateWebContent, generatePeerReview, generateEvaluationSummary, generatePeerReviewedAssertion, generateEnhancedAssertion, generateEnhancedPreprint, simplifyExpression } from './docmap-generator'
+import { addNextStep, generateAction, generateDocMap, generatePersonParticipant, generateStep, generatePreprint, generateWebContent, generatePeerReview, generateEvaluationSummary, generatePeerReviewedAssertion, generateEnhancedAssertion, generateEnhancedPreprint, simplifyExpression, generatePublishedAssertion } from './docmap-generator'
 import { parsePreprintDocMap } from './docmap-parser';
 
 // used for outputting JSON
@@ -22,6 +22,22 @@ const publisher = {
 };
 
 const preprint = generatePreprint('10.1101/2022.06.24.497502', new Date('2022-06-26'), 'https://doi.org/10.1101/2022.06.24.497502');
+const preprintAction = generateAction([], [preprint]);
+const preprintStep = generateStep(
+  [],
+  [preprintAction],
+  [generatePublishedAssertion(preprint)],
+);
+writeFileSync(
+  'examples/generated/0.preprint.json',
+  JSON.stringify(
+    generateDocMap("testID", publisher, preprintStep),
+    replacer,
+    "  ",
+  ),
+);
+
+
 const simplePreprint = simplifyExpression(preprint);
 const anonymousReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
 const peerReview1 = generatePeerReview(
@@ -72,15 +88,15 @@ const editorsEvaluation = generateEvaluationSummary(
   'https://doi.org/10.7554/eLife.80494.sa4'
 );
 const editorsEvaluationAction = generateAction([editor1, editor2], [editorsEvaluation]);
-const firstStep = generateStep(
+const firstStep = addNextStep(preprintStep, generateStep(
   [preprint],
   [peerReview1Action, peerReview2Action, peerReview3Action, editorsEvaluationAction],
   [generatePeerReviewedAssertion(simplePreprint)],
-);
+));
 writeFileSync(
   'examples/generated/1.preprintv1.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, firstStep),
+    generateDocMap("testID", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -104,7 +120,7 @@ const secondStep = addNextStep(firstStep, generateStep(
 writeFileSync(
   'examples/generated/2.enhanced_preprintv1.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, firstStep),
+    generateDocMap("testID", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -120,7 +136,7 @@ const thirdStep = addNextStep(secondStep, generateStep(
 writeFileSync(
   'examples/generated/3.preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, firstStep),
+    generateDocMap("testID", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -141,7 +157,7 @@ const fourthStep = addNextStep(thirdStep, generateStep(
 writeFileSync(
   'examples/generated/4.revised_preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, firstStep),
+    generateDocMap("testID", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -164,7 +180,7 @@ const fifthStep = addNextStep(fourthStep, generateStep(
 writeFileSync(
   'examples/generated/5.enhanced_revised_preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, firstStep),
+    generateDocMap("testID", publisher, preprintStep),
     replacer,
     "  ",
   ),

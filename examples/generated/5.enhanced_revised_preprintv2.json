@@ -29,6 +29,34 @@
     "_:b0": {
       "actions": [
         {
+          "participants": [],
+          "outputs": [
+            {
+              "type": "preprint",
+              "doi": "10.1101/2022.06.24.497502",
+              "url": "https://doi.org/10.1101/2022.06.24.497502",
+              "published": "2022-06-26T00:00:00.000Z"
+            }
+          ]
+        }
+      ],
+      "assertions": [
+        {
+          "item": {
+            "type": "preprint",
+            "doi": "10.1101/2022.06.24.497502",
+            "url": "https://doi.org/10.1101/2022.06.24.497502",
+            "published": "2022-06-26T00:00:00.000Z"
+          },
+          "status": "published"
+        }
+      ],
+      "inputs": [],
+      "next-step": "_:b1"
+    },
+    "_:b1": {
+      "actions": [
+        {
           "participants": [
             {
               "actor": {
@@ -185,9 +213,10 @@
           "published": "2022-06-26T00:00:00.000Z"
         }
       ],
-      "next-step": "_:b1"
+      "next-step": "_:b2",
+      "previous-step": "_:b0"
     },
-    "_:b1": {
+    "_:b2": {
       "actions": [
         {
           "participants": [],
@@ -236,10 +265,10 @@
           "doi": "10.7554/eLife.80494.sa4"
         }
       ],
-      "next-step": "_:b2",
-      "previous-step": "_:b0"
+      "next-step": "_:b3",
+      "previous-step": "_:b1"
     },
-    "_:b2": {
+    "_:b3": {
       "actions": [
         {
           "participants": [],
@@ -270,10 +299,10 @@
           "published": "2022-04-21T00:00:00.000Z"
         }
       ],
-      "next-step": "_:b3",
-      "previous-step": "_:b1"
+      "next-step": "_:b4",
+      "previous-step": "_:b2"
     },
-    "_:b3": {
+    "_:b4": {
       "actions": [
         {
           "participants": [
@@ -333,10 +362,10 @@
           "published": "2022-04-21T00:00:00.000Z"
         }
       ],
-      "next-step": "_:b4",
-      "previous-step": "_:b2"
+      "next-step": "_:b5",
+      "previous-step": "_:b3"
     },
-    "_:b4": {
+    "_:b5": {
       "actions": [
         {
           "participants": [],
@@ -377,7 +406,7 @@
           "doi": "elife/editorsevalation1"
         }
       ],
-      "previous-step": "_:b3"
+      "previous-step": "_:b4"
     }
   }
 }
