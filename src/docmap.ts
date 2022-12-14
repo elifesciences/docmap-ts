@@ -120,7 +120,6 @@ export type DocMap = {
   steps: Map<string, Step>,
 };
 
-
 export const JsonLDFrameUrl = 'https://w3id.org/docmaps/context.jsonld';
 
 export const JsonLDAddonFrame =  {
@@ -129,5 +128,5 @@ export const JsonLDAddonFrame =  {
   "preprint": "fabio:Preprint",
   "review-article": "fabio:ReviewArticle",
   "version-of-record": "fabio:DefinitiveVersion",
-  "identifier": "prism:identifier",
+  "identifier": "dcterms:identifier",
 };

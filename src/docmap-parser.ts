@@ -155,7 +155,7 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
       };
 
       // assumption - all peer-reviewed material was published at the same time
-      const publishedDate = currentStep.actions[0]?.outputs?.[0].published;
+      const publishedDate = evaluations[0].date;
       timelineEvents.push({
         name: `${type} - version ${++version}`,
         date: formatDate(publishedDate),

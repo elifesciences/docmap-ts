@@ -5,7 +5,7 @@ type Steps = {
   steps: Map<string, Step>
 }
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url): Input => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,

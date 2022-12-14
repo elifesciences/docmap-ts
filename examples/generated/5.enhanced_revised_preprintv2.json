@@ -7,7 +7,7 @@
       "preprint": "fabio:Preprint",
       "review-article": "fabio:ReviewArticle",
       "version-of-record": "fabio:DefinitiveVersion",
-      "identifier": "prism:identifier"
+      "identifier": "dcterms:identifier"
     }
   ],
   "type": "docmap",
