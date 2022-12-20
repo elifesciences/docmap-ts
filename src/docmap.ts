@@ -21,6 +21,8 @@ export enum ExpressionType {
   PeerReview = 'review-article',
   EvaluationSummary = 'evaluation-summary',
   VersionOfRecord = 'version-of-record',
+  AuthorResponse = 'author-response',
+  UpdateSummary = 'update-summary',
 };
 
 export enum ManifestationType {
@@ -56,9 +58,18 @@ export type EvaluationSummary = Expression & {
   type: ExpressionType.EvaluationSummary,
 };
 
+export type AuthorResponse = Expression & {
+  type: ExpressionType.AuthorResponse,
+};
+
 export type RevisedPreprint = Expression & {
   type: ExpressionType.RevisedPreprint,
 };
+
+export type UpdateSummary = Expression & {
+  type: ExpressionType.UpdateSummary,
+};
+
 
 export type VersionOfRecord = Expression & {
   type: ExpressionType.VersionOfRecord,
@@ -89,11 +100,13 @@ export type Action = {
 };
 
 export enum AssertionStatus {
-  Published = 'published',
+  Draft = 'draft',
+  Published = 'manuscript-published',
   UnderReview = 'under-review',
   PeerReviewed = 'peer-reviewed',
   Enhanced = 'enhanced',
   VersionOfRecord = 'version-of-record',
+  Revised = 'revised',
 };
 
 export type Assertion = {
@@ -132,6 +145,9 @@ export const JsonLDAddonFrame =  {
   "preprint": "fabio:Preprint",
   "review-article": "fabio:ReviewArticle",
   "version-of-record": "fabio:DefinitiveVersion",
+  "update-summary": "fabio:ExecutiveSummary",
+  "draft": "pso:draft",
+  "manuscript-published": "pso:published",
   "identifier": "dcterms:identifier",
   "happened": "pwo:happened",
   "versionIdentifier": "prism:versionIdentifier"

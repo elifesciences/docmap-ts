@@ -1,4 +1,4 @@
-import { Action, Assertion, AssertionStatus, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, Item, JsonLDAddonFrame, JsonLDFrameUrl, ManifestationType, Output, Participant, PeerReview, Preprint, Publisher, Step, Url, WebPage } from './docmap';
+import { Action, Assertion, AssertionStatus, AuthorResponse, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, Item, JsonLDAddonFrame, JsonLDFrameUrl, ManifestationType, Output, Participant, PeerReview, Preprint, Publisher, RevisedPreprint, Step, UpdateSummary, Url, VersionOfRecord, WebPage } from './docmap';
 
 type Steps = {
   'first-step': string,
@@ -11,6 +11,25 @@ export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?
   url,
   published,
   versionIdentifier: version,
+});
+
+export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string): RevisedPreprint => ({
+  type: ExpressionType.RevisedPreprint,
+  doi,
+  url,
+  published,
+  versionIdentifier: version,
+});
+
+
+export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, published: Date, url: Url, content: WebPage[]): Preprint => ({
+  identifier,
+  versionIdentifier: version,
+  type: ExpressionType.Preprint,
+  doi,
+  url,
+  published,
+  content,
 });
 
 export const generatePeerReview = (published: Date, content: WebPage[], doi?: DOI, url?: Url): PeerReview => ({
@@ -29,13 +48,27 @@ export const generateEvaluationSummary = (published: Date, content: WebPage[], d
   content,
 });
 
-export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, published: Date, url: Url, content: WebPage[]): Preprint => ({
-  identifier,
-  versionIdentifier: version,
-  type: ExpressionType.Preprint,
+export const generateAuthorResponse = (published: Date, content: WebPage[], doi?: DOI, url?: Url): AuthorResponse => ({
+  type: ExpressionType.AuthorResponse,
   doi,
-  url,
   published,
+  url,
+  content,
+});
+
+export const generateUpdateSummary = (published: Date, content: WebPage[], doi?: DOI, url?: Url): UpdateSummary => ({
+  type: ExpressionType.UpdateSummary,
+  doi,
+  published,
+  url,
+  content,
+});
+
+export const generateVersionOfRecord = (published: Date, content: WebPage[], doi?: DOI, url?: Url): VersionOfRecord => ({
+  type: ExpressionType.VersionOfRecord,
+  doi,
+  published,
+  url,
   content,
 });
 
@@ -72,7 +105,6 @@ export const simplifyExpression = (expression: Expression): Expression => ({
   type: expression.type,
   doi: expression.doi,
   url: expression.doi === undefined ? expression.url : undefined,
-  versionIdentifier: expression.versionIdentifier,
 });
 
 export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
@@ -103,6 +135,13 @@ export const generateEnhancedAssertion = (item: Item): Assertion => {
   };
 }
 
+export const generateRevisedAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.Revised
+  };
+}
+
 export const generateUnderReviewAssertion = (item: Item): Assertion => {
   return {
     item,
@@ -117,8 +156,28 @@ export const generateVersionOfRecordAssertion = (item: Item): Assertion => {
   };
 }
 
-const dereferenceSteps = (firstStep: Step): Steps => {
+export const generateDraftAssertion = (item: Item): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.Draft
+  };
+}
+
+const findFirstStep = (step: Step): Step => {
+  if (typeof step['previous-step'] === 'string') {
+    throw Error('Cannot find first step, this step has already been dereferenced');
+  }
+  if (step['previous-step']) {
+    return findFirstStep(step['previous-step']);
+  }
+
+  return step;
+};
+
+const dereferenceSteps = (step: Step): Steps => {
   const steps = new Map<string, Step>();
+
+  const firstStep = findFirstStep(step);
 
   let currentStep: Step | undefined = firstStep;
   let currentStepId: number | undefined = 0;
@@ -157,8 +216,8 @@ export const generateDocMap = (id: string, publisher: Publisher, firstStep: Step
     '@context': [ JsonLDFrameUrl, JsonLDAddonFrame ],
     type: 'docmap',
     id: id,
-    created: new Date('2022-09-06T09:10:16.834Z'),
-    updated: new Date('2022-09-06T09:10:20.344Z'),
+    created: new Date(),
+    updated: new Date(),
     publisher: publisher,
     ...steps,
   };

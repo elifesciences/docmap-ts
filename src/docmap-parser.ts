@@ -171,9 +171,9 @@ export const parsePreprintDocMap = (docMap: DocMap): EnhancedPreprintStatus => {
     }
   }
 
-  if (doi === '') {
-    throw Error('couldn\'t parse preprint docmap - no preprint found as a valid step input');
-  }
+  // if (doi === '') {
+  //   throw Error('couldn\'t parse preprint docmap - no preprint found as a valid step input');
+  // }
 
   return {
     doi,
