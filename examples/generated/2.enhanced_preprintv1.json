@@ -11,7 +11,7 @@
     }
   ],
   "type": "docmap",
-  "id": "testID",
+  "id": "http://docmaps.elifesciences.org/testid.docmap.json",
   "created": "2022-09-06T09:10:16.834Z",
   "updated": "2022-09-06T09:10:20.344Z",
   "publisher": {

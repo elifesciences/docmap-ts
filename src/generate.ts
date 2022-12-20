@@ -30,9 +30,9 @@ const preprintStep = generateStep(
   [generatePublishedAssertion(simplePreprint)],
 );
 writeFileSync(
-  'examples/generated/0.preprint.json',
+  'examples/generated/1.preprint.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -96,7 +96,7 @@ const firstStep = addNextStep(preprintStep, generateStep(
 writeFileSync(
   'examples/generated/1.preprintv1.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -120,7 +120,7 @@ const secondStep = addNextStep(firstStep, generateStep(
 writeFileSync(
   'examples/generated/2.enhanced_preprintv1.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -136,7 +136,7 @@ const thirdStep = addNextStep(secondStep, generateStep(
 writeFileSync(
   'examples/generated/3.preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -157,7 +157,7 @@ const fourthStep = addNextStep(thirdStep, generateStep(
 writeFileSync(
   'examples/generated/4.revised_preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
@@ -180,12 +180,12 @@ const fifthStep = addNextStep(fourthStep, generateStep(
 writeFileSync(
   'examples/generated/5.enhanced_revised_preprintv2.json',
   JSON.stringify(
-    generateDocMap("testID", publisher, preprintStep),
+    generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, preprintStep),
     replacer,
     "  ",
   ),
 );
 
-const docmap = generateDocMap("testID", publisher, firstStep);
+const docmap = generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, firstStep);
 const parsedDocMap = parsePreprintDocMap(docmap);
 console.log(JSON.stringify(parsedDocMap, undefined, "  "));
