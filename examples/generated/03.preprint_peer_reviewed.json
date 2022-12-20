@@ -1,0 +1,272 @@
+{
+  "@context": [
+    "https://w3id.org/docmaps/context.jsonld",
+    {
+      "updated": {
+        "@id": "dcterms:updated",
+        "@type": "xsd:date"
+      },
+      "author-response": "fabio:Reply",
+      "decision-letter": "fabio:Letter",
+      "preprint": "fabio:Preprint",
+      "review-article": "fabio:ReviewArticle",
+      "version-of-record": "fabio:DefinitiveVersion",
+      "update-summary": "fabio:ExecutiveSummary",
+      "draft": "pso:draft",
+      "manuscript-published": "pso:published",
+      "identifier": "dcterms:identifier",
+      "happened": "pwo:happened",
+      "versionIdentifier": "prism:versionIdentifier"
+    }
+  ],
+  "type": "docmap",
+  "id": "http://docmaps.elifesciences.org/testid.docmap.json",
+  "created": "2022-12-20T16:13:34.763Z",
+  "updated": "2022-12-20T16:13:34.763Z",
+  "publisher": {
+    "id": "https://elifesciences.org/",
+    "name": "eLife",
+    "logo": "https://sciety.org/static/groups/elife--b560187e-f2fb-4ff9-a861-a204f3fc0fb0.png",
+    "homepage": "https://elifesciences.org/",
+    "account": {
+      "id": "https://sciety.org/groups/elife",
+      "service": "https://sciety.org"
+    }
+  },
+  "first-step": "_:b0",
+  "steps": {
+    "_:b0": {
+      "actions": [
+        {
+          "participants": [],
+          "outputs": [
+            {
+              "type": "preprint",
+              "doi": "10.1101/2022.06.24.497502",
+              "url": "https://doi.org/10.1101/2022.06.24.497502",
+              "published": "2022-06-26T00:00:00.000Z",
+              "versionIdentifier": "1"
+            }
+          ]
+        }
+      ],
+      "assertions": [
+        {
+          "item": {
+            "type": "preprint",
+            "doi": "10.1101/2022.06.24.497502"
+          },
+          "status": "manuscript-published"
+        }
+      ],
+      "inputs": [],
+      "next-step": "_:b1"
+    },
+    "_:b1": {
+      "actions": [
+        {
+          "participants": [],
+          "outputs": [
+            {
+              "identifier": "80494",
+              "versionIdentifier": "1",
+              "type": "preprint",
+              "doi": "10.7554/eLife.80494.1",
+              "url": "https://doi.org/10.7554/eLife.80494.1",
+              "published": "2022-10-20T00:00:00.000Z",
+              "content": [
+                {
+                  "type": "web-page",
+                  "url": "https://elifesciences.org/review-preprints/80494v1"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "assertions": [
+        {
+          "item": {
+            "type": "preprint",
+            "doi": "10.1101/2022.06.24.497502"
+          },
+          "status": "under-review"
+        },
+        {
+          "item": {
+            "type": "preprint",
+            "doi": "10.7554/eLife.80494.1"
+          },
+          "status": "draft"
+        }
+      ],
+      "inputs": [
+        {
+          "type": "preprint",
+          "doi": "10.1101/2022.06.24.497502"
+        }
+      ],
+      "next-step": "_:b2",
+      "previous-step": "_:b0"
+    },
+    "_:b2": {
+      "actions": [
+        {
+          "participants": [
+            {
+              "actor": {
+                "name": "anonymous",
+                "type": "person"
+              },
+              "role": "peer-reviewer"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "review-article",
+              "doi": "10.7554/eLife.80494.sa1",
+              "published": "2022-09-06T00:00:00.000Z",
+              "url": "https://doi.org/10.7554/eLife.80494.sa1",
+              "content": [
+                {
+                  "type": "web-page",
+                  "url": "https://hypothes.is/a/hVq6MC3DEe2ERdPL5ARqAA"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/articles/activity/10.1101/2022.06.24.497502#hypothesis:hVq6MC3DEe2ERdPL5ARqAA"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/evaluations/hypothesis:hVq6MC3DEe2ERdPL5ARqAA/content"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "participants": [
+            {
+              "actor": {
+                "name": "anonymous",
+                "type": "person"
+              },
+              "role": "peer-reviewer"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "review-article",
+              "doi": "10.7554/eLife.80494.sa2",
+              "published": "2022-09-06T00:00:00.000Z",
+              "url": "https://doi.org/10.7554/eLife.80494.sa2",
+              "content": [
+                {
+                  "type": "web-page",
+                  "url": "https://hypothes.is/a/hgzitC3DEe2SBN9NIUxw5A"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/articles/activity/10.1101/2022.06.24.497502#hypothesis:hgzitC3DEe2SBN9NIUxw5A"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/evaluations/hypothesis:hgzitC3DEe2SBN9NIUxw5A/content"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "participants": [
+            {
+              "actor": {
+                "name": "anonymous",
+                "type": "person"
+              },
+              "role": "peer-reviewer"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "review-article",
+              "doi": "10.7554/eLife.80494.sa3",
+              "published": "2022-09-06T00:00:00.000Z",
+              "url": "https://doi.org/10.7554/eLife.80494.sa3",
+              "content": [
+                {
+                  "type": "web-page",
+                  "url": "https://hypothes.is/a/hmP-bi3DEe2C9QtcFZcxmQ"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/articles/activity/10.1101/2022.06.24.497502#hypothesis:hmP-bi3DEe2C9QtcFZcxmQ"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/evaluations/hypothesis:hmP-bi3DEe2C9QtcFZcxmQ/content"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "participants": [
+            {
+              "actor": {
+                "name": "Aloke Finn",
+                "type": "person"
+              },
+              "role": "editor"
+            },
+            {
+              "actor": {
+                "name": "Carlos Isales",
+                "type": "person"
+              },
+              "role": "senior-editor"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "evaluation-summary",
+              "doi": "10.7554/eLife.80494.sa4",
+              "published": "2022-09-06T00:00:00.000Z",
+              "url": "https://doi.org/10.7554/eLife.80494.sa4",
+              "content": [
+                {
+                  "type": "web-page",
+                  "url": "https://hypothes.is/a/hrlVWC3DEe2hhdsGW6wNvg"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/articles/activity/10.1101/2022.06.24.497502#hypothesis:hrlVWC3DEe2hhdsGW6wNvg"
+                },
+                {
+                  "type": "web-page",
+                  "url": "https://sciety.org/evaluations/hypothesis:hrlVWC3DEe2hhdsGW6wNvg/content"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "assertions": [
+        {
+          "item": {
+            "type": "preprint",
+            "doi": "10.1101/2022.06.24.497502"
+          },
+          "status": "peer-reviewed"
+        }
+      ],
+      "inputs": [
+        {
+          "type": "preprint",
+          "doi": "10.1101/2022.06.24.497502"
+        }
+      ],
+      "previous-step": "_:b1"
+    }
+  }
+}
