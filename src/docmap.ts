@@ -123,10 +123,16 @@ export type DocMap = {
 export const JsonLDFrameUrl = 'https://w3id.org/docmaps/context.jsonld';
 
 export const JsonLDAddonFrame =  {
+  "updated": {
+    "@id": "dcterms:updated",
+    "@type": "xsd:date"
+  },
   "author-response": "fabio:Reply",
   "decision-letter": "fabio:Letter",
   "preprint": "fabio:Preprint",
   "review-article": "fabio:ReviewArticle",
   "version-of-record": "fabio:DefinitiveVersion",
   "identifier": "dcterms:identifier",
+  "happened": "pwo:happened",
+  "versionIdentifier": "prism:versionIdentifier"
 };

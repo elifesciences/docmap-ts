@@ -21,7 +21,7 @@ const publisher = {
   }
 };
 
-const preprint = generatePreprint('10.1101/2022.06.24.497502', new Date('2022-06-26'), 'https://doi.org/10.1101/2022.06.24.497502');
+const preprint = generatePreprint('10.1101/2022.06.24.497502', new Date('2022-06-26'), 'https://doi.org/10.1101/2022.06.24.497502', '1');
 const simplePreprint = simplifyExpression(preprint);
 const preprintAction = generateAction([], [preprint]);
 const preprintStep = generateStep(

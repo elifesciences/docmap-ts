@@ -5,11 +5,12 @@ type Steps = {
   steps: Map<string, Step>
 }
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
   published,
+  versionIdentifier: version,
 });
 
 export const generatePeerReview = (published: Date, content: WebPage[], doi?: DOI, url?: Url): PeerReview => ({
@@ -71,6 +72,7 @@ export const simplifyExpression = (expression: Expression): Expression => ({
   type: expression.type,
   doi: expression.doi,
   url: expression.doi === undefined ? expression.url : undefined,
+  versionIdentifier: expression.versionIdentifier,
 });
 
 export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
