@@ -50,7 +50,7 @@ step = doStep(() => {
     [preprintAction],
     [generatePublishedAssertion(preprintv1)],
   );
-}, '1.preprint');
+}, '01.preprint');
 
 
 
@@ -69,7 +69,7 @@ step = doStep(() => {
       [generateAction([], [fullReviewedPreprintv1])],
       [generateUnderReviewAssertion(preprintv1), generateDraftAssertion(reviewedPreprintv1)],
     )
-}, '2.sent_for_review_preprint', step);
+}, '02.sent_for_review_preprint', step);
 
 
 
@@ -129,7 +129,7 @@ step = doStep(() => {
       ],
       [generatePeerReviewedAssertion(preprintv1)],
     )
-}, '3.preprint_peer_reviewed', step);
+}, '03.preprint_peer_reviewed', step);
 
 
 
@@ -146,7 +146,7 @@ step = doStep(() => {
       ],
       [generateEnhancedAssertion(preprintv1), generatePublishedAssertion(reviewedPreprintv1)],
     )
-}, '4.reviewed_preprintv1', step);
+}, '04.reviewed_preprintv1', step);
 
 const fullAuthorResponsev1 = generateAuthorResponse(
   new Date('2022-09-22'),
@@ -166,7 +166,7 @@ step = doStep(() => {
       ],
       [generateRevisedAssertion(reviewedPreprintv1)],
     )
-}, '5.author_responded_preprintv1', step);
+}, '05.author_responded_preprintv1', step);
 
 const authorResponsev1 = simplifyExpression(fullAuthorResponsev1);
 const fullPreprintv2 = generatePreprint('10.1101/2022.06.24.497502', new Date('2022-10-26'), 'https://doi.org/10.1101/2022.06.24.497502', '2');
@@ -179,7 +179,7 @@ step = doStep(() => {
       ],
       [generateRevisedAssertion(preprintv1), generatePublishedAssertion(preprintv2)],
     )
-}, '6.preprintv2', step);
+}, '06.preprintv2', step);
 
 
 const fullReviewedPreprintv2 = generateEnhancedPreprint(
@@ -199,7 +199,7 @@ step = doStep(() => {
       ],
       [generateDraftAssertion(reviewedPreprintv2), generateUnderReviewAssertion(preprintv2)],
     )
-}, '7.preprintv2_sent_for_review', step);
+}, '07.preprintv2_sent_for_review', step);
 
 const fullUpdateSummary = generateUpdateSummary(
   new Date('2022-11-06'),
@@ -219,7 +219,7 @@ step = doStep(() => {
       ],
       [generatePeerReviewedAssertion(preprintv2)],
     )
-}, '8.preprintv2_peer_reviewed', step);
+}, '08.preprintv2_peer_reviewed', step);
 
 
 const updateSummary = simplifyExpression(fullUpdateSummary);
@@ -231,7 +231,7 @@ step = doStep(() => {
       ],
       [generatePublishedAssertion(reviewedPreprintv2), generateEnhancedAssertion(preprintv2)],
     )
-}, '9.reviewed_preprintv2', step);
+}, '09.reviewed_preprintv2', step);
 
 
 
