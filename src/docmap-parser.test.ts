@@ -1,5 +1,5 @@
 import { DocMap, Step } from './docmap';
-import { generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
+import { addNextStep, generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
 import { parsePreprintDocMap, ParseResult } from './docmap-parser';
 
 const publisher = {
@@ -56,7 +56,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintURL).toStrictEqual('https://somewhere.org/preprint/article1');
     expect(parsedData.versions[0].type).toStrictEqual('Preprint');
-    expect(parsedData.versions[0].version).toStrictEqual('1');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
   });
 
 
@@ -87,7 +87,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
     expect(parsedData.versions[0].type).toStrictEqual('Preprint');
-    expect(parsedData.versions[0].version).toStrictEqual('1');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
   });
 
   it('finds a preprint from a docmap describing under review assertion', () => {
@@ -104,7 +104,7 @@ describe('docmap-parser', () => {
     const parsedData = parsePreprintDocMap(docmap);
 
     expect(parsedData.timeline.length).toStrictEqual(1);
-    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-04-12');
     expect(parsedData.timeline[0].name).toStrictEqual('Sent for review');
     expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
     expect(parsedData.timeline[0].link?.url).toStrictEqual('https://something.org/preprint/article1');
@@ -115,7 +115,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintURL).toStrictEqual('https://something.org/preprint/article1');
     expect(parsedData.versions[0].type).toStrictEqual('Reviewed preprint (preview)');
-    expect(parsedData.versions[0].version).toStrictEqual('1');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
   });
 
   it('finds a preprint from a docmap describing under review assertion without URL', () => {
@@ -132,7 +132,7 @@ describe('docmap-parser', () => {
     const parsedData = parsePreprintDocMap(docmap);
 
     expect(parsedData.timeline.length).toStrictEqual(1);
-    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-04-12');
     expect(parsedData.timeline[0].name).toStrictEqual('Sent for review');
     expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
     expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
@@ -143,7 +143,93 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
     expect(parsedData.versions[0].type).toStrictEqual('Reviewed preprint (preview)');
-    expect(parsedData.versions[0].version).toStrictEqual('1');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
+  });
+
+  it('finds a single version when a step makes an assertion about an existing version', () => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
+
+    const firstStep = generateStep(
+      [],
+      [],
+      [generatePublishedAssertion(preprint, new Date('2022-03-01'))],
+    );
+    addNextStep(firstStep, generateStep(
+      [],
+      [],
+      [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
+    ));
+    const docmap = generateDocMap('test', publisher, firstStep);
+
+
+    const parsedData = parsePreprintDocMap(docmap);
+
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+
+    expect(formatDate(parsedData.timeline[1].date)).toStrictEqual('2022-04-12');
+    expect(parsedData.timeline[1].name).toStrictEqual('Sent for review');
+    expect(parsedData.timeline[1].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[1].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].id).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData.versions[0].type).toStrictEqual('Reviewed preprint (preview)');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
+  });
+
+  it('finds two versions when a step makes an assertion about a new version', () => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const preprintv2 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, 'v4');
+
+    const firstStep = generateStep(
+      [],
+      [],
+      [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
+    );
+    addNextStep(firstStep, generateStep(
+      [],
+      [],
+      [generatePublishedAssertion(preprintv2, new Date('2022-04-12'))],
+    ));
+    const docmap = generateDocMap('test', publisher, firstStep);
+
+
+    const parsedData = parsePreprintDocMap(docmap);
+
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+
+    expect(formatDate(parsedData.timeline[1].date)).toStrictEqual('2022-04-12');
+    expect(parsedData.timeline[1].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[1].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[1].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+
+    expect(parsedData.versions.length).toStrictEqual(2);
+    expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].id).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData.versions[0].type).toStrictEqual('Preprint');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
+    expect(parsedData.versions[0].versionIdentifier).toBeUndefined();
+
+    expect(parsedData.versions[1].doi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[1].id).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[1].preprintDoi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[1].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData.versions[1].type).toStrictEqual('Preprint');
+    expect(parsedData.versions[1].version).toStrictEqual(2);
+    expect(parsedData.versions[1].versionIdentifier).toStrictEqual('v4');
   });
 
   it.todo('finds reviews and editor evaluations from a docmap');

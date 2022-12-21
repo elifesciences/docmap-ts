@@ -1,3 +1,4 @@
+import { version } from 'os';
 import { Assertion, AssertionStatus, DocMap, Expression, ExpressionType, Preprint, Step } from './docmap';
 import { formatDate } from './utils';
 
@@ -47,7 +48,8 @@ export type TimelineEvent = {
 
 export type Version = {
   id: string,
-  version: string,
+  version: number,
+  versionIdentifier?: string,
   doi: string,
   preprintDoi: string,
   preprintURL: string,
@@ -60,7 +62,7 @@ export type ParseResult = {
   versions: Version[],
 }
 
-const getEventFromExpression = (expression: Expression, name: string): TimelineEvent | undefined => {
+const getEventFromExpression = (expression: Expression, name: string, date?: Date): TimelineEvent | undefined => {
   if (expression.published) {
     const url = expression.url ?? (expression.doi ? `https://doi.org/${expression.doi}` : undefined);
     const bioRxiv = expression.doi?.startsWith('10.1101') ?? false;
@@ -68,7 +70,7 @@ const getEventFromExpression = (expression: Expression, name: string): TimelineE
 
     return {
       name,
-      date: expression.published ?? undefined,
+      date: date ?? expression.published ?? undefined,
       link: link,
     };
   }
@@ -86,7 +88,7 @@ const getTimelineEventFrom = (step: Step): TimelineEvent | undefined => {
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published && assertion.item.type === ExpressionType.Preprint)
   if (preprintPublishedAssertion) {
     if (preprintPublishedAssertion.item.published) {
-      const event = getEventFromExpression(preprintPublishedAssertion.item, 'Preprint posted');
+      const event = getEventFromExpression(preprintPublishedAssertion.item, 'Preprint posted', preprintPublishedAssertion.happened);
       if (event) { return event; }
     }
   }
@@ -94,13 +96,13 @@ const getTimelineEventFrom = (step: Step): TimelineEvent | undefined => {
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview && assertion.item.type === ExpressionType.Preprint);
   if (preprintUnderReviewAssertion) {
     if (preprintUnderReviewAssertion.item.published) {
-      const event = getEventFromExpression(preprintUnderReviewAssertion.item, 'Sent for review');
+      const event = getEventFromExpression(preprintUnderReviewAssertion.item, 'Sent for review', preprintUnderReviewAssertion.happened);
       if (event) { return event; }
     }
   }
 };
 
-const getVersionFromExpression = (expression: Expression, type: string, version: string): Version | undefined => {
+const getVersionFromExpression = (expression: Expression, type: string, version: number): Version | undefined => {
   if (expression.doi) {
     return {
       type,
@@ -109,31 +111,54 @@ const getVersionFromExpression = (expression: Expression, type: string, version:
       preprintDoi: expression.doi,
       preprintURL: expression.url ?? `https://doi.org/${expression.doi}`,
       version: version,
+      versionIdentifier: expression.versionIdentifier
     };
   }
+}
+
+const isVersionAboutExpression = (version: Version, expression: Expression): boolean => {
+  if (expression.doi !== version.doi) {
+    return false;
+  }
+
+  if (expression.versionIdentifier && expression.versionIdentifier !== version.versionIdentifier) {
+    return false;
+  }
+
+  return true;
 }
 
 const createNewVersionFrom = (step: Step, currentVersion?: Version): Version | undefined => {
   const preprint = step.inputs.find((input): input is Preprint => input.type === ExpressionType.Preprint);
   if (preprint && preprint.doi !== currentVersion?.doi) {
-    const version = getVersionFromExpression(preprint, 'Preprint', currentVersion?.version ? `${currentVersion?.version+1}` : '1');
+    const version = getVersionFromExpression(preprint, 'Preprint', currentVersion?.version ? currentVersion?.version+1 : 1);
     if (version) { return version; }
   }
 
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published && assertion.item.type === ExpressionType.Preprint)
-  if (preprintPublishedAssertion && preprintPublishedAssertion.item.doi !== currentVersion?.doi) {
-    const version = getVersionFromExpression(preprintPublishedAssertion.item, 'Preprint', currentVersion?.version ? `${currentVersion?.version+1}` : '1');
+  if (preprintPublishedAssertion && (!currentVersion || !isVersionAboutExpression(currentVersion, preprintPublishedAssertion.item))) {
+    const version = getVersionFromExpression(preprintPublishedAssertion.item, 'Preprint', currentVersion?.version ? currentVersion?.version+1 : 1);
     if (version) { return version; }
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview && assertion.item.type === ExpressionType.Preprint)
-  if (preprintUnderReviewAssertion && preprintUnderReviewAssertion.item.doi !== currentVersion?.doi) {
-    const version = getVersionFromExpression(preprintUnderReviewAssertion.item, 'Reviewed preprint (preview)', currentVersion?.version ? `${currentVersion?.version+1}` : '1');
+  if (preprintUnderReviewAssertion && (!currentVersion || !isVersionAboutExpression(currentVersion, preprintUnderReviewAssertion.item))) {
+    const version = getVersionFromExpression(preprintUnderReviewAssertion.item, 'Reviewed preprint (preview)', currentVersion?.version ? currentVersion?.version+1 : 1);
     if (version) { return version; }
   }
 }
 
-const getNewInformationForCurrentVersionFrom = (step: Step, currentVersion?: Version) => currentVersion;
+const getNewInformationForCurrentVersionFrom = (step: Step, currentVersion: Version): Version => {
+  const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview && assertion.item.type === ExpressionType.Preprint)
+  if (preprintUnderReviewAssertion && preprintUnderReviewAssertion.item.doi === currentVersion?.doi) {
+    return {
+      ...currentVersion,
+      type: 'Reviewed preprint (preview)',
+    };
+  }
+
+  return currentVersion;
+};
 
 
 export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
@@ -173,7 +198,9 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
     }
 
     // augment any current version with new information
-    currentVersion = getNewInformationForCurrentVersionFrom(currentStep, currentVersion);
+    if (currentVersion) {
+      currentVersion = getNewInformationForCurrentVersionFrom(currentStep, currentVersion);
+    }
 
     if (typeof currentStep['next-step'] === 'string') {
       currentStep = docMap.steps.get(currentStep['next-step']);
