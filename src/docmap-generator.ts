@@ -122,6 +122,14 @@ export const generatePublishedAssertion = (item: Item, date?: Date): Assertion =
   };
 }
 
+export const generateRepublishedAssertion = (item: Item, date?: Date): Assertion => {
+  return {
+    item,
+    status: AssertionStatus.Republished,
+    happened: date,
+  };
+}
+
 export const generatePeerReviewedAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,

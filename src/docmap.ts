@@ -107,6 +107,7 @@ export enum AssertionStatus {
   Enhanced = 'enhanced',
   VersionOfRecord = 'version-of-record',
   Revised = 'revised',
+  Republished = 'republished',
 };
 
 export type Assertion = {
@@ -149,6 +150,7 @@ export const JsonLDAddonFrame =  {
   "update-summary": "fabio:ExecutiveSummary",
   "draft": "pso:draft",
   "manuscript-published": "pso:published",
+  "republished": "pso:republished",
   "identifier": "dcterms:identifier",
   "happened": {
     "@id": "pwo:happened",
