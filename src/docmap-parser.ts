@@ -63,7 +63,8 @@ export type ParseResult = {
 const getEventFromExpression = (expression: Expression, name: string): TimelineEvent | undefined => {
   if (expression.published) {
     const url = expression.url ?? (expression.doi ? `https://doi.org/${expression.doi}` : undefined);
-    const link = url ? {text: 'Go to preprint', url: url} : undefined;
+    const bioRxiv = expression.doi?.startsWith('10.1101') ?? false;
+    const link = url ? {text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url: url} : undefined;
 
     return {
       name,
