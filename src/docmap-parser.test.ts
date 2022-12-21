@@ -1,5 +1,6 @@
+import { DocMap, Step } from './docmap';
 import { generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generateStep, generateWebContent } from './docmap-generator';
-import { parsePreprintDocMap } from './docmap-parser';
+import { parsePreprintDocMap, ParseResult } from './docmap-parser';
 
 const publisher = {
   id: "https://elifesciences.org/",
@@ -12,37 +13,80 @@ const publisher = {
   }
 };
 
+const parseDocMapFromFirstStep = (step: Step): ParseResult => {
+  const docmap = generateDocMap('test', publisher, step);
+  return parsePreprintDocMap(docmap);
+}
+
+const formatDate = (date: Date): string => date.toISOString().substring(0, 10);
+
 describe('docmap-parser', () => {
-  it('finds a preprint from a docmap describing a sent for peer review', () => {
+  it('returns empty result without any steps', () => {
+    const docmap = generateDocMap('test', publisher, {assertions: [], inputs: [], actions: []});
+    docmap.steps = new Map();
+    const parsedData = parsePreprintDocMap(docmap);
+
+    expect(parsedData.timeline.length).toStrictEqual(0);
+    expect(parsedData.versions.length).toStrictEqual(0);
+  });
+
+  it('returns empty result when it cant find the first step', () => {
+    const docmap = generateDocMap('test', publisher, {assertions: [], inputs: [], actions: []});
+    docmap['first-step'] = 'wrongid';
+    const parsedData = parsePreprintDocMap(docmap);
+
+    expect(parsedData.timeline.length).toStrictEqual(0);
+    expect(parsedData.versions.length).toStrictEqual(0);
+  });
+
+  it('finds a published preprint from input step with URL', () => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://somewhere.org/preprint/article1');
+    const firstStep = generateStep([preprint], [], []);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://somewhere.org/preprint/article1');
+  });
+
+  it('finds a published preprint from input step with DOI', () => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const firstStep = generateStep([preprint], [], []);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+  });
+
+  it.failing('finds a preprint from a docmap describing a sent for peer review', () => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://doi.org/preprint/article1');
-    const anonymousReviewer = generatePersonParticipant('anonymous', 'peer-reviewer');
-    const peerReview1 = generatePeerReview(
-      new Date('2022-04-12'),
-      [generateWebContent('https://sciety.org/articles/activity/preprint/article1#hypothesis:peerreview1')],
-      'elife/peerreview1',
-      'https://doi.org/elife/peerreview1'
-    );
-    const peerReview1Action = generateAction([anonymousReviewer], [peerReview1]);
 
     const firstStep = generateStep(
       [preprint],
-      [peerReview1Action],
-      [generatePeerReviewedAssertion(preprint)],
+      [],
+      [generatePeerReviewedAssertion(preprint, new Date('2022-04-12'))],
     );
     const docmap = generateDocMap('test', publisher, firstStep);
 
 
-    const parsedEPPData = parsePreprintDocMap(docmap);
+    const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedEPPData.doi).toStrictEqual('preprint/article1');
-    expect(parsedEPPData.timeline.length).toStrictEqual(2);
-    expect(parsedEPPData.timeline[0].date).toStrictEqual('2022-03-01');
-    expect(parsedEPPData.timeline[0].name).toStrictEqual('Preprint posted');
-    expect(parsedEPPData.timeline[0].link?.text).toStrictEqual('Go to preprint');
-    expect(parsedEPPData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData).toBeDefined();
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline[0].date).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
   });
 
-  it('finds a bioRxiv preprint and labels it', () => {
+  it.failing('finds a bioRxiv preprint and labels it', () => {
     const preprint = generatePreprint('10.1101/article1', new Date('2022-03-01'), 'https://doi.org/10.1101/article1');
     const anonymousReviewer = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -61,14 +105,16 @@ describe('docmap-parser', () => {
     const docmap = generateDocMap('test', publisher, firstStep);
 
 
-    const parsedEPPData = parsePreprintDocMap(docmap);
+    const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedEPPData.doi).toStrictEqual('10.1101/article1');
-    expect(parsedEPPData.timeline.length).toStrictEqual(2);
-    expect(parsedEPPData.timeline[0].date).toStrictEqual('2022-03-01');
-    expect(parsedEPPData.timeline[0].name).toStrictEqual('Preprint posted');
-    expect(parsedEPPData.timeline[0].link?.text).toStrictEqual('Go to BioRxiv');
-    expect(parsedEPPData.timeline[0].link?.url).toStrictEqual('https://doi.org/10.1101/article1');
+    expect(parsedData).toBeDefined();
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline[0].date).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to BioRxiv');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/10.1101/article1');
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
   });
 
   it.todo('finds reviews and editor evaluations from a docmap');
