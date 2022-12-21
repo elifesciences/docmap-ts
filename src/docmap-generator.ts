@@ -114,52 +114,59 @@ export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
   return nextStep
 };
 
-export const generatePublishedAssertion = (item: Item): Assertion => {
+export const generatePublishedAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.Published
+    status: AssertionStatus.Published,
+    happened: date,
   };
 }
 
-export const generatePeerReviewedAssertion = (item: Item): Assertion => {
+export const generatePeerReviewedAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.PeerReviewed
+    status: AssertionStatus.PeerReviewed,
+    happened: date,
   };
 }
 
-export const generateEnhancedAssertion = (item: Item): Assertion => {
+export const generateEnhancedAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.Enhanced
+    status: AssertionStatus.Enhanced,
+    happened: date,
   };
 }
 
-export const generateRevisedAssertion = (item: Item): Assertion => {
+export const generateRevisedAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.Revised
+    status: AssertionStatus.Revised,
+    happened: date,
   };
 }
 
-export const generateUnderReviewAssertion = (item: Item): Assertion => {
+export const generateUnderReviewAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.UnderReview
+    status: AssertionStatus.UnderReview,
+    happened: date,
   };
 }
 
-export const generateVersionOfRecordAssertion = (item: Item): Assertion => {
+export const generateVersionOfRecordAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.VersionOfRecord
+    status: AssertionStatus.VersionOfRecord,
+    happened: date,
   };
 }
 
-export const generateDraftAssertion = (item: Item): Assertion => {
+export const generateDraftAssertion = (item: Item, date?: Date): Assertion => {
   return {
     item,
-    status: AssertionStatus.Draft
+    status: AssertionStatus.Draft,
+    happened: date,
   };
 }
 

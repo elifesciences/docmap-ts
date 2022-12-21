@@ -112,6 +112,7 @@ export enum AssertionStatus {
 export type Assertion = {
   item: Item,
   status: AssertionStatus,
+  happened?: Date,
 }
 
 export type Step = {
@@ -149,6 +150,9 @@ export const JsonLDAddonFrame =  {
   "draft": "pso:draft",
   "manuscript-published": "pso:published",
   "identifier": "dcterms:identifier",
-  "happened": "pwo:happened",
+  "happened": {
+    "@id": "pwo:happened",
+    "@type": "xsd:date"
+  },
   "versionIdentifier": "prism:versionIdentifier"
 };
