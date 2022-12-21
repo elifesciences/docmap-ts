@@ -1,5 +1,5 @@
 import { DocMap, Step } from './docmap';
-import { addNextStep, generateAction, generateDocMap, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
+import { addNextStep, generateAction, generateDocMap, generateEnhancedAssertion, generateEnhancedPreprint, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateRepublishedAssertion, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
 import { parsePreprintDocMap, ParseResult } from './docmap-parser';
 
 const publisher = {
@@ -98,16 +98,16 @@ describe('docmap-parser', () => {
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     );
-    const docmap = generateDocMap('test', publisher, firstStep);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
 
 
-    const parsedData = parsePreprintDocMap(docmap);
-
-    expect(parsedData.timeline.length).toStrictEqual(1);
-    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-04-12');
-    expect(parsedData.timeline[0].name).toStrictEqual('Sent for review');
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
     expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
     expect(parsedData.timeline[0].link?.url).toStrictEqual('https://something.org/preprint/article1');
+    expect(formatDate(parsedData.timeline[1].date)).toStrictEqual('2022-04-12');
+    expect(parsedData.timeline[1].name).toStrictEqual('Sent for review');
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
@@ -126,16 +126,15 @@ describe('docmap-parser', () => {
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     );
-    const docmap = generateDocMap('test', publisher, firstStep);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
-    const parsedData = parsePreprintDocMap(docmap);
-
-    expect(parsedData.timeline.length).toStrictEqual(1);
-    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-04-12');
-    expect(parsedData.timeline[0].name).toStrictEqual('Sent for review');
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
     expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
     expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+    expect(formatDate(parsedData.timeline[1].date)).toStrictEqual('2022-04-12');
+    expect(parsedData.timeline[1].name).toStrictEqual('Sent for review');
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
@@ -159,10 +158,7 @@ describe('docmap-parser', () => {
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     ));
-    const docmap = generateDocMap('test', publisher, firstStep);
-
-
-    const parsedData = parsePreprintDocMap(docmap);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
@@ -172,8 +168,6 @@ describe('docmap-parser', () => {
 
     expect(formatDate(parsedData.timeline[1].date)).toStrictEqual('2022-04-12');
     expect(parsedData.timeline[1].name).toStrictEqual('Sent for review');
-    expect(parsedData.timeline[1].link?.text).toStrictEqual('Go to preprint');
-    expect(parsedData.timeline[1].link?.url).toStrictEqual('https://doi.org/preprint/article1');
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
@@ -198,10 +192,8 @@ describe('docmap-parser', () => {
       [],
       [generatePublishedAssertion(preprintv2, new Date('2022-04-12'))],
     ));
-    const docmap = generateDocMap('test', publisher, firstStep);
+    const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
-    const parsedData = parsePreprintDocMap(docmap);
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
@@ -230,6 +222,39 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[1].type).toStrictEqual('Preprint');
     expect(parsedData.versions[1].version).toStrictEqual(2);
     expect(parsedData.versions[1].versionIdentifier).toStrictEqual('v4');
+  });
+
+  it('detect and find information when a step makes a republished assertion', () => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined);
+    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-03-01'), undefined, '1');
+
+    const firstStep = generateStep(
+      [],
+      [],
+      [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
+    );
+    addNextStep(firstStep, generateStep(
+      [preprintv1],
+      [generateAction([], [preprintv2])],
+      [generateRepublishedAssertion(preprintv2, new Date('2022-04-12'))],
+    ));
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+    console.log(parsedData);
+
+    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(formatDate(parsedData.timeline[0].date)).toStrictEqual('2022-03-01');
+    expect(parsedData.timeline[0].name).toStrictEqual('Preprint posted');
+    expect(parsedData.timeline[0].link?.text).toStrictEqual('Go to preprint');
+    expect(parsedData.timeline[0].link?.url).toStrictEqual('https://doi.org/preprint/article1');
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].doi).toStrictEqual('elife/12345.1');
+    expect(parsedData.versions[0].id).toStrictEqual('elife/12345.1');
+    expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
+    expect(parsedData.versions[0].type).toStrictEqual('Reviewed preprint');
+    expect(parsedData.versions[0].version).toStrictEqual(1);
+    expect(parsedData.versions[0].versionIdentifier).toStrictEqual('1');
   });
 
   it.todo('finds reviews and editor evaluations from a docmap');
