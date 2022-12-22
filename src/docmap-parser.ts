@@ -6,16 +6,18 @@ import { formatDate } from './utils';
 export enum ReviewType {
   EvaluationSummary = 'evaluation-summary',
   Review = 'review-article',
-  AuthorResponse = 'reply',
+  AuthorResponse = 'author-response',
 }
 
-const stringToReviewType = (reviewTypeString: string): ReviewType => {
+const stringToReviewType = (reviewTypeString: string): ReviewType | undefined => {
   if (reviewTypeString === ReviewType.EvaluationSummary) {
     return ReviewType.EvaluationSummary;
   } else if (reviewTypeString === ReviewType.AuthorResponse) {
     return ReviewType.AuthorResponse;
+  } else if (reviewTypeString === ReviewType.Review) {
+    return ReviewType.Review;
   }
-  return ReviewType.Review;
+  return;
 }
 
 type Participant = {
@@ -32,7 +34,7 @@ type Evaluation = {
 };
 
 type PeerReview = {
-  evaluationSummary: Evaluation,
+  evaluationSummary?: Evaluation,
   reviews: Evaluation[],
   authorResponse?: Evaluation,
 };
@@ -98,6 +100,33 @@ const isVersionAboutExpression = (version: Version, expression: Expression): boo
 
 const findVersionDescribedBy = (results: ParseResult, expression: Expression): Version | undefined => results.versions.find((version) => isVersionAboutExpression(version, expression));
 
+const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => {
+  return action.outputs.map((output) => {
+    const reviewType = stringToReviewType(output.type);
+    if (!reviewType || !Object.values(ReviewType).includes(reviewType)) {
+      return undefined;
+    }
+    if (output.content === undefined) {
+      return undefined;
+    }
+    if (output.content.length === 0) {
+      return undefined;
+    }
+    const content = output.content.filter((content) => content.type === 'web-page');
+    const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
+
+    return {
+      reviewType: stringToReviewType(output.type),
+      date: output.published,
+      participants: action.participants.map((participant) => ({
+        name: participant.actor.name,
+        institution: 'unknown', // TODO
+        role: participant.role,
+      })),
+      text: text,
+    };
+  });
+}).filter((output): output is Evaluation => output !== undefined);
 
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any inputs that need importing
@@ -107,7 +136,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       version = getVersionFromExpression(input);
       results.versions.push(version);
     }
-  })
+  });
 
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
   if (preprintPublishedAssertion) {
@@ -149,31 +178,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     }
   }
 
-  const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => {
-    return action.outputs.map((output) => {
-      if (output.content === undefined) {
-        return undefined;
-      }
-      if (output.content.length === 0) {
-        return undefined;
-      }
-      const content = output.content.filter((content) => content.type === 'web-page');
-      const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
-
-      return {
-        reviewType: stringToReviewType(output.type),
-        date: output.published,
-        participants: action.participants.map((participant) => ({
-          name: participant.actor.name,
-          institution: 'unknown', // TODO
-          role: participant.role,
-        })),
-        text: text,
-      };
-    });
-  }).filter((output): output is Evaluation => output !== undefined);
-
-  const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed)
+  const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
   if (preprintPeerReviewedAssertion) {
     var version = findVersionDescribedBy(results, preprintPeerReviewedAssertion.item);
     if (version) {
@@ -199,7 +204,29 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
           authorResponse,
         };
       }
+    }
+  }
 
+  // Enhanced can cover a multitude of enhancements to the paper.
+  const enhancedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Enhanced)
+  if (enhancedAssertion) {
+    var version = findVersionDescribedBy(results, enhancedAssertion.item);
+    if (version) {
+      // Decide what to do by examining the outputs
+      const evaluations = findAndFlatMapAllEvaluations(step.actions);
+      if (evaluations.length > 0) {
+        const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
+        const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
+        const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+        if (!version.peerReview) {
+          version.peerReview = {
+            reviews: []
+          };
+        }
+        version.peerReview.reviews.push(...reviews);
+        version.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : version.peerReview.evaluationSummary;
+        version.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : version.peerReview.authorResponse;
+      }
     }
   }
 

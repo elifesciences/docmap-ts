@@ -1,5 +1,5 @@
 import { DocMap, Step } from './docmap';
-import { addNextStep, generateAction, generateDocMap, generateEnhancedAssertion, generateEnhancedPreprint, generateEvaluationSummary, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateRepublishedAssertion, generateRevisedPreprint, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
+import { addNextStep, generateAction, generateAuthorResponse, generateDocMap, generateEnhancedAssertion, generateEnhancedPreprint, generateEvaluationSummary, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateRepublishedAssertion, generateRevisedPreprint, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
 import { parsePreprintDocMap, ParseResult, ReviewType, Version } from './docmap-parser';
 
 const publisher = {
@@ -17,8 +17,6 @@ const parseDocMapFromFirstStep = (step: Step): ParseResult => {
   const docmap = generateDocMap('test', publisher, step);
   return parsePreprintDocMap(docmap);
 }
-
-const formatDate = (date: Date): string => date.toISOString().substring(0, 10);
 
 describe('docmap-parser', () => {
   it('returns empty result without any steps', () => {
@@ -446,7 +444,175 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.todo('finds a revised preprint reviews and evaluations from a docmap');
+  it('finds author response after publishing reviewed preprint', () => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const peerReview1 = generatePeerReview(
+      new Date('2022-04-06'),
+      [
+        generateWebContent('https://content.com/12345.sa1'),
+      ],
+      'elife/eLife.12345.sa1'
+    );
+    const peerReview2 = generatePeerReview(
+      new Date('2022-04-07'),
+      [
+        generateWebContent('https://content.com/12345.sa2'),
+      ],
+      'elife/eLife.12345.sa2'
+    );
+    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editorsEvaluation = generateEvaluationSummary(
+      new Date('2022-04-10'),
+      [
+        generateWebContent('https://content.com/12345.sa3'),
+      ],
+      'elife/eLife.12345.sa3'
+    );
+    const author = generatePersonParticipant('Bugs Bunny', 'author');
+    const authorResponse = generateAuthorResponse(
+      new Date('2022-05-09'),
+      [
+        generateWebContent('https://content.com/12345.sa4'),
+      ],
+      'elife/eLife.12345.sa4'
+    );
+
+    const firstStep = generateStep( // preprint published
+      [],
+      [],
+      [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
+    );
+    let nextStep = addNextStep(firstStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([anonReviewerParticipant], [peerReview1]),
+        generateAction([anonReviewerParticipant], [peerReview2]),
+        generateAction([editor], [editorsEvaluation]),
+      ],
+      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-01'))],
+    ));
+    addNextStep(nextStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([author], [authorResponse]),
+      ],
+      [generateEnhancedAssertion(preprintv1, new Date('2022-05-09'))],
+    ));
+
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline[0]).toMatchObject({
+      name: 'Preprint v1 posted',
+      date: new Date('2022-03-01'),
+      link: {
+        text: 'Go to preprint',
+        url: 'https://doi.org/preprint/article1',
+      }
+    });
+    expect(parsedData.timeline[1]).toMatchObject({
+      name: 'Reviews received for Preprint',
+      date: new Date('2022-04-01'),
+    });
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<Version>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      type: 'Preprint',
+      status: 'Reviewed',
+      versionIdentifier: '1',
+      peerReview: {
+        reviews: [
+          {
+            reviewType: ReviewType.Review,
+            text: 'fetched content for https://content.com/12345.sa1',
+            date: new Date('2022-04-06'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          },
+          {
+            reviewType: ReviewType.Review,
+            text: 'fetched content for https://content.com/12345.sa2',
+            date: new Date('2022-04-07'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          }
+        ],
+        evaluationSummary: {
+          reviewType: ReviewType.EvaluationSummary,
+          text: 'fetched content for https://content.com/12345.sa3',
+          date: new Date('2022-04-10'),
+          participants: [{
+            name: 'Daffy Duck',
+            role: 'editor',
+            institution: 'unknown',
+          }],
+        },
+        authorResponse: {
+          reviewType: ReviewType.AuthorResponse,
+          text: 'fetched content for https://content.com/12345.sa4',
+          date: new Date('2022-05-09'),
+          participants: [{
+            name: 'Bugs Bunny',
+            role: 'author',
+            institution: 'unknown',
+          }],
+        }
+      },
+    });
+  });
+
+  it('finds a revised preprint reviews and evaluations from a docmap', () => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const peerReview1 = generatePeerReview(
+      new Date('2022-04-06'),
+      [
+        generateWebContent('https://content.com/12345.sa1'),
+      ],
+      'elife/eLife.12345.sa1'
+    );
+    const peerReview2 = generatePeerReview(
+      new Date('2022-04-07'),
+      [
+        generateWebContent('https://content.com/12345.sa2'),
+      ],
+      'elife/eLife.12345.sa2'
+    );
+    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editorsEvaluation = generateEvaluationSummary(
+      new Date('2022-04-10'),
+      [
+        generateWebContent('https://content.com/12345.sa3'),
+      ],
+      'elife/eLife.12345.sa3'
+    );
+
+    const firstStep = generateStep( // preprint published
+      [],
+      [],
+      [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
+    );
+    addNextStep(firstStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([anonReviewerParticipant], [peerReview1]),
+        generateAction([anonReviewerParticipant], [peerReview2]),
+        generateAction([editor], [editorsEvaluation]),
+      ],
+      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-01'))],
+    ));
+
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+  });
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
 })
