@@ -258,29 +258,17 @@ describe('docmap-parser', () => {
 
   it('finds a revised preprint from a docmap', () => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const reviewedPreprintv1 = generatePreprint('elife/12345.1', new Date('2022-05-01'), undefined, '1');
     const preprintv2 = generateRevisedPreprint('preprint/article1v2', new Date('2022-06-01'), undefined, '2');
-    const reviewedPreprintv2 = generatePreprint('elife/12345.2', new Date('2022-07-01'), undefined, '2');
 
     const firstStep = generateStep(
       [],
       [],
       [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
     );
-    let nextStep = addNextStep(firstStep, generateStep(
-      [preprintv1],
-      [generateAction([], [reviewedPreprintv1])],
-      [generateRepublishedAssertion(reviewedPreprintv1, new Date('2022-05-01'))],
-    ));
-    nextStep = addNextStep(nextStep, generateStep(
+    addNextStep(firstStep, generateStep(
       [],
       [],
       [generatePublishedAssertion(preprintv2, new Date('2022-06-01'))],
-    ));
-    nextStep = addNextStep(nextStep, generateStep(
-      [preprintv2],
-      [generateAction([], [reviewedPreprintv2])],
-      [generateRepublishedAssertion(reviewedPreprintv2, new Date('2022-07-01'))],
     ));
 
     const parsedData = parseDocMapFromFirstStep(firstStep);
@@ -296,24 +284,23 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[1].link?.url).toStrictEqual('https://doi.org/preprint/article1v2');
 
     expect(parsedData.versions.length).toStrictEqual(2);
-    expect(parsedData.versions[0].doi).toStrictEqual('elife/12345.1');
-    expect(parsedData.versions[0].id).toStrictEqual('elife/12345.1');
+    expect(parsedData.versions[0].doi).toStrictEqual('preprint/article1');
+    expect(parsedData.versions[0].id).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintDoi).toStrictEqual('preprint/article1');
     expect(parsedData.versions[0].preprintURL).toStrictEqual('https://doi.org/preprint/article1');
-    expect(parsedData.versions[0].type).toStrictEqual('Reviewed preprint');
+    expect(parsedData.versions[0].type).toStrictEqual('Preprint');
     expect(parsedData.versions[0].version).toStrictEqual(1);
     expect(parsedData.versions[0].versionIdentifier).toStrictEqual('1');
-    expect(parsedData.versions[1].doi).toStrictEqual('elife/12345.2');
-    expect(parsedData.versions[1].id).toStrictEqual('elife/12345.2');
+    expect(parsedData.versions[1].doi).toStrictEqual('preprint/article1v2');
+    expect(parsedData.versions[1].id).toStrictEqual('preprint/article1v2');
     expect(parsedData.versions[1].preprintDoi).toStrictEqual('preprint/article1v2');
     expect(parsedData.versions[1].preprintURL).toStrictEqual('https://doi.org/preprint/article1v2');
-    expect(parsedData.versions[1].type).toStrictEqual('Reviewed preprint');
+    expect(parsedData.versions[1].type).toStrictEqual('Preprint');
     expect(parsedData.versions[1].version).toStrictEqual(2);
     expect(parsedData.versions[1].versionIdentifier).toStrictEqual('2');
   });
 
   it.todo('finds reviews and editor evaluations from a docmap');
-
   it.todo('finds a revised preprint reviews and evaluations from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
