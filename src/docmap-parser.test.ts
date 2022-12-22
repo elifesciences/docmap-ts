@@ -613,6 +613,11 @@ describe('docmap-parser', () => {
 
     const parsedData = parseDocMapFromFirstStep(firstStep);
   });
+
+  it.todo('inference of reviewed preprint from input/outputs');
+  it.todo('inference of revised preprint from input/outputs');
+
+
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
 })
