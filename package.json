@@ -1,6 +1,7 @@
 {
   "scripts": {
     "generate": "ts-node src/generate.ts",
+    "parse": "ts-node src/parse.ts",
     "test": "jest"
   },
   "dependencies": {

@@ -292,7 +292,18 @@ const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versio
 // Removes any that has collected a superceded By property
 const reducedSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.supercededBy);
 
-export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
+const parseDocMapJson = (docMapJson: string): DocMap => {
+  const docMapStruct = JSON.parse(docMapJson);
+
+  docMapStruct.steps = new Map<string, Step>(Object.entries(docMapStruct.steps));
+
+  return docMapStruct as DocMap;
+}
+
+export const parsePreprintDocMap = (docMap: DocMap | string): ParseResult => {
+  if (typeof docMap === 'string') {
+    docMap = parseDocMapJson(docMap);
+  }
   let results: ParseResult = {
     timeline: [],
     versions: [],
