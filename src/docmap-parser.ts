@@ -177,6 +177,14 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     // Update type and sent for review date
     version.sentForReviewDate = preprintUnderReviewAssertion.happened;
     version.status = '(Preview) Reviewed';
+
+    // if there is an input and output preprint, let's assume it's a republish with the intent to review
+    if (preprintInputs.length === 1 && preprintOutputs.length === 1) {
+      var newVersion = findVersionDescribedBy(results, preprintOutputs[0]);
+      if (newVersion && newVersion !== version) {
+        version.supercededBy = newVersion;
+      }
+    }
   }
 
   const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished)
