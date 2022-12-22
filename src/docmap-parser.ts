@@ -1,9 +1,9 @@
 import { version } from 'os';
-import { Assertion, AssertionStatus, DocMap, Expression, ExpressionType, Preprint, Step } from './docmap';
+import { Action, Assertion, AssertionStatus, DocMap, Expression, ExpressionType, Preprint, Step } from './docmap';
 import { formatDate } from './utils';
 
 
-enum ReviewType {
+export enum ReviewType {
   EvaluationSummary = 'evaluation-summary',
   Review = 'review-article',
   AuthorResponse = 'reply',
@@ -48,18 +48,18 @@ export type TimelineEvent = {
 
 export type Version = {
   id: string,
-  version: number,
   versionIdentifier?: string,
   doi: string,
-  preprintDoi: string,
-  preprintURL: string,
+  url?: string,
   type: string,
+  status: string,
   peerReview?: PeerReview,
-  preprintPublishedDate?: Date,
   publishedDate?: Date,
   sentForReviewDate?: Date,
+  reviewedDate?: Date,
   authorResponseDate?: Date,
-
+  supercedes?: Version,
+  previousVersion?: Version,
 }
 
 export type ParseResult = {
@@ -67,19 +67,20 @@ export type ParseResult = {
   versions: Version[],
 }
 
-const getVersionFromExpression = (expression: Expression, type: string, version: number): Version => {
+const upperCaseFirstLetter = (string: string) => `${string.substring(0, 1).toUpperCase()}${string.substring(1)}`;
+
+const getVersionFromExpression = (expression: Expression): Version => {
   if (!expression.doi) {
     throw Error('Cannot identify Expression by DOI');
   }
   return {
-    type,
+    type: upperCaseFirstLetter(expression.type),
+    status: '',
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
-    preprintDoi: expression.doi,
-    preprintURL: expression.url ?? `https://doi.org/${expression.doi}`,
-    version: version,
+    url: expression.url ?? `https://doi.org/${expression.doi}`,
     versionIdentifier: expression.versionIdentifier,
-    preprintPublishedDate: expression.published,
+    publishedDate: expression.published,
   };
 }
 
@@ -103,7 +104,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   step.inputs.forEach((input) => {
     let version = findVersionDescribedBy(results, input);
     if (!version) {
-      version = getVersionFromExpression(input, 'Preprint', 1);
+      version = getVersionFromExpression(input);
       results.versions.push(version);
     }
   })
@@ -111,14 +112,17 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
   if (preprintPublishedAssertion) {
     let version = findVersionDescribedBy(results, preprintPublishedAssertion.item);
+    // assume there is only one input, which is the preprint
+    var previousVersion = step.inputs.length === 1 ? findVersionDescribedBy(results, step.inputs[0]) : undefined;
     if (!version) {
       // create new version and push into versions array
-      version = getVersionFromExpression(preprintPublishedAssertion.item, 'Preprint', results.versions.length+1);
+      version = getVersionFromExpression(preprintPublishedAssertion.item);
       results.versions.push(version);
     }
-    // update Version as necessary
-    version.type = 'Preprint';
-    version.preprintPublishedDate = preprintPublishedAssertion.happened;
+    // set this as a new version of the previous
+    if (previousVersion) {
+      version.previousVersion = previousVersion;
+    }
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview)
@@ -126,41 +130,77 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     var version = findVersionDescribedBy(results, preprintUnderReviewAssertion.item);
     if (!version) {
       // create new version and push into versions array
-      version = getVersionFromExpression(preprintUnderReviewAssertion.item, 'Preprint', results.versions.length+1)
+      version = getVersionFromExpression(preprintUnderReviewAssertion.item)
       results.versions.push(version);
     }
     // Update type and sent for review date
-    version.type = 'Reviewed preprint (preview)';
     version.sentForReviewDate = preprintUnderReviewAssertion.happened;
+    version.status = '(Preview) Reviewed';
   }
 
   const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished)
   if (preprintRepublishedAssertion) {
     // assume there is only one input, which is the preprint
     var preprint = step.inputs.length === 1 ? findVersionDescribedBy(results, step.inputs[0]) : undefined;
-    const reviewedPreprint = getVersionFromExpression(preprintRepublishedAssertion.item, 'Reviewed preprint', 1)
-    if (preprint && reviewedPreprint) {
-      // Update the publishing ids
-      preprint.doi = reviewedPreprint.doi;
-      preprint.id = reviewedPreprint.id;
-      preprint.versionIdentifier = reviewedPreprint.versionIdentifier;
-      preprint.type = reviewedPreprint.type;
+    const replacementPreprint = getVersionFromExpression(preprintRepublishedAssertion.item)
+    if (preprint && replacementPreprint) {
+      replacementPreprint.supercedes = preprint;
+      results.versions.push(replacementPreprint);
     }
   }
 
-  const preprintEnhancedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Enhanced)
-  if (preprintEnhancedAssertion) {
-    var version = findVersionDescribedBy(results, preprintEnhancedAssertion.item);
+  const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => {
+    return action.outputs.map((output) => {
+      if (output.content === undefined) {
+        return undefined;
+      }
+      if (output.content.length === 0) {
+        return undefined;
+      }
+      const content = output.content.filter((content) => content.type === 'web-page');
+      const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
+
+      return {
+        reviewType: stringToReviewType(output.type),
+        date: output.published,
+        participants: action.participants.map((participant) => ({
+          name: participant.actor.name,
+          institution: 'unknown', // TODO
+          role: participant.role,
+        })),
+        text: text,
+      };
+    });
+  }).filter((output): output is Evaluation => output !== undefined);
+
+  const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed)
+  if (preprintPeerReviewedAssertion) {
+    var version = findVersionDescribedBy(results, preprintPeerReviewedAssertion.item);
     if (version) {
       // Update type and sent for review date
-      version.type = 'Reviewed preprint';
-      version.publishedDate = preprintEnhancedAssertion.happened;
-      version.doi = version.doi;
-      version.id = version.id;
-      version.type = version.type;
-      version.versionIdentifier = version.versionIdentifier;
-    }
+      version.type = 'Preprint';
+      version.reviewedDate = preprintPeerReviewedAssertion.happened;
+      version.status = 'Reviewed';
 
+      //push all reviews into peerReview (override if necessary)
+      const evaluations = findAndFlatMapAllEvaluations(step.actions);
+      const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary)[0];
+      const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse)[0];
+      const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+
+      if (version.peerReview) {
+        version.peerReview.reviews.push(...reviews);
+        version.peerReview.evaluationSummary = evaluationSummary ?? version.peerReview.evaluationSummary;
+        version.peerReview.authorResponse = authorResponse ?? version.peerReview.authorResponse;
+      } else {
+        version.peerReview = {
+          reviews,
+          evaluationSummary,
+          authorResponse,
+        };
+      }
+
+    }
   }
 
   return results;
@@ -187,32 +227,33 @@ function* getSteps(docMap: DocMap): Generator<Step> {
 
 const getEventsFromVersion = (version: Version): TimelineEvent[] => {
   const events = [];
-  if (version.preprintPublishedDate) {
-    const url = version.preprintURL ?? (version.preprintDoi ? `https://doi.org/${version.preprintDoi}` : undefined);
-    const bioRxiv = version.preprintDoi?.startsWith('10.1101') ?? false;
+  if (version.publishedDate) {
+    const url = version.url ?? (version.doi ? `https://doi.org/${version.doi}` : undefined);
+    const bioRxiv = version.doi?.startsWith('10.1101') ?? false;
     const link = url ? {text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url: url} : undefined;
     events.push({
-      name: 'Preprint posted',
-      date: version.preprintPublishedDate,
-      link
+      name: `${version.type}${version.versionIdentifier ? ` v${version.versionIdentifier}` : ''} posted`,
+      date: version.publishedDate,
+      link,
     });
   }
 
   if (version.sentForReviewDate) {
     events.push({
-      name: 'Sent for review',
+      name: `${version.type} sent for review`,
       date: version.sentForReviewDate,
     });
   }
 
-  if (version.publishedDate) {
+  if (version.reviewedDate) {
     events.push({
-      name: `Reviewed preprint v${version.version} posted`,
-      date: version.publishedDate,
+      name: `Reviews received for ${version.type}`,
+      date: version.reviewedDate,
     });
   }
 
-  return events;
+  // sort by event dates
+  return events.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
 
@@ -242,66 +283,3 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
   results.timeline = getTimelineFromVersions(results.versions);
   return results;
 };
-
-
-
-
-//   // get the peerReviews
-//   const evaluations = currentStep.actions.map((action) => {
-//     const outputs = action.outputs.map((output) => {
-//       if (output.content === undefined) {
-//         return undefined;
-//       }
-//       if (output.content.length === 0) {
-//         return undefined;
-//       }
-//       const content = output.content.filter((content) => content.type === 'web-page');
-//       const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
-
-//       return {
-//         reviewType: stringToReviewType(output.type),
-//         date: output.published,
-//         participants: action.participants.map((participant) => ({
-//           name: participant.actor.name,
-//           institution: 'unknown', // TODO
-//           role: participant.role,
-//         })),
-//         text: text,
-//       };
-//     }).filter((output): output is Evaluation => output !== undefined);
-
-//     if (outputs.length === 0) {
-//       return undefined;
-//     }
-
-//     const outputWithText = outputs.filter((output) => output?.text !== undefined)
-//     if (outputWithText.length === 1) {
-//       return outputWithText[0];
-//     }
-
-//     // Assumption: if none of the outputs have text available, just return 1
-//     const outputWithoutText = outputs[0];
-//     return {
-//       ...outputWithoutText,
-//       text: 'Text unavailable',
-//     };
-//   }).filter((output): output is Evaluation => output !== undefined);
-
-//   const editorEvaluation = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
-//   const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
-//   const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
-
-//   peerReview = {
-//     evaluationSummary: editorEvaluation[0],
-//     reviews: reviews,
-//     authorResponse: authorResponse[0],
-//   };
-
-//   // assumption - all peer-reviewed material was published at the same time
-//   const publishedDate = evaluations[0].date;
-//   timelineEvents.push({
-//     name: `${type} - version ${++version}`,
-//     date: formatDate(publishedDate),
-//   });
-
-// }
