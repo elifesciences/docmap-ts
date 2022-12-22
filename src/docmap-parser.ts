@@ -130,13 +130,16 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
 
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any preprint inputs that need importing
-  step.inputs.forEach((input) => {
-    if (input.type !== 'preprint') {
+  const inputPreprints = step.inputs.filter((input) => input.type === 'preprint');
+  const outputPreprints = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
+
+  [ ...inputPreprints, ...outputPreprints ].forEach((preprint) => {
+    if (preprint.type !== 'preprint') {
       return;
     }
-    let version = findVersionDescribedBy(results, input);
+    let version = findVersionDescribedBy(results, preprint);
     if (!version) {
-      version = getVersionFromExpression(input);
+      version = getVersionFromExpression(preprint);
       results.versions.push(version);
     }
   });
