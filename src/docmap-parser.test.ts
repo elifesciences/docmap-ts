@@ -255,9 +255,9 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.failing('detect when a step makes a republished assertion', () => {
+  it('detect when a step makes a republished assertion', () => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined);
-    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-03-01'), undefined, '1');
+    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1');
 
     const firstStep = generateStep(
       [],
@@ -275,11 +275,11 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'elife/12345.1',
       id: 'elife/12345.1',
-      type: 'Reviewed preprint',
+      type: 'Preprint',
       versionIdentifier: '1',
     });
 
-    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint posted',
@@ -287,6 +287,10 @@ describe('docmap-parser', () => {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
       },
+    });
+    expect(parsedData.timeline[1]).toMatchObject({
+      date: new Date('2022-04-12'),
+      name: 'Preprint v1 posted',
     });
   });
 

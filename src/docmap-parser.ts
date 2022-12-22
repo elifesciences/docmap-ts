@@ -58,7 +58,7 @@ export type Version = {
   sentForReviewDate?: Date,
   reviewedDate?: Date,
   authorResponseDate?: Date,
-  supercedes?: Version,
+  supercededBy?: Version,
   previousVersion?: Version,
 }
 
@@ -144,7 +144,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     var preprint = step.inputs.length === 1 ? findVersionDescribedBy(results, step.inputs[0]) : undefined;
     const replacementPreprint = getVersionFromExpression(preprintRepublishedAssertion.item)
     if (preprint && replacementPreprint) {
-      replacementPreprint.supercedes = preprint;
+      preprint.supercededBy = replacementPreprint;
       results.versions.push(replacementPreprint);
     }
   }
@@ -262,6 +262,9 @@ const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versio
   return events;
 });
 
+// Removes any that has collected a superceded By property
+const reducedSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.supercededBy);
+
 export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
   let results: ParseResult = {
     timeline: [],
@@ -281,5 +284,6 @@ export const parsePreprintDocMap = (docMap: DocMap): ParseResult => {
   }
 
   results.timeline = getTimelineFromVersions(results.versions);
+  results.versions = reducedSupercededVersions(results.versions);
   return results;
 };
