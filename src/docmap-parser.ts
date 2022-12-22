@@ -129,8 +129,11 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
 }).filter((output): output is Evaluation => output !== undefined);
 
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
-  // look for any inputs that need importing
+  // look for any preprint inputs that need importing
   step.inputs.forEach((input) => {
+    if (input.type !== 'preprint') {
+      return;
+    }
     let version = findVersionDescribedBy(results, input);
     if (!version) {
       version = getVersionFromExpression(input);
