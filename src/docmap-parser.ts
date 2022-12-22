@@ -102,7 +102,6 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any inputs that need importing
   step.inputs.forEach((input) => {
     let version = findVersionDescribedBy(results, input);
-    console.log(version, results, input)
     if (!version) {
       version = getVersionFromExpression(input, 'Preprint', 1);
       results.versions.push(version);
@@ -144,7 +143,6 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       // Update the publishing ids
       preprint.doi = reviewedPreprint.doi;
       preprint.id = reviewedPreprint.id;
-      preprint.version = reviewedPreprint.version;
       preprint.versionIdentifier = reviewedPreprint.versionIdentifier;
       preprint.type = reviewedPreprint.type;
     }
