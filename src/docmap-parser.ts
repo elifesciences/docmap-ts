@@ -99,6 +99,20 @@ const isVersionAboutExpression = (version: Version, expression: Expression): boo
 }
 
 const findVersionDescribedBy = (results: ParseResult, expression: Expression): Version | undefined => results.versions.find((version) => isVersionAboutExpression(version, expression));
+const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expression: Expression): Version => {
+  const foundVersion = findVersionDescribedBy(results, expression);
+  const newVersion = getVersionFromExpression(expression);
+  if (foundVersion) {
+    // update any fields, defaulting to existing values
+    foundVersion.url = newVersion.url ?? foundVersion.url;
+    foundVersion.type = newVersion.type ?? foundVersion.type;
+    foundVersion.status = newVersion.status ?? foundVersion.status;
+    foundVersion.publishedDate = newVersion.publishedDate ?? foundVersion.publishedDate;
+    return foundVersion;
+  }
+  results.versions.push(newVersion);
+  return newVersion;
+}
 
 const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => {
   return action.outputs.map((output) => {
@@ -130,19 +144,11 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
 
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any preprint inputs that need importing
-  const inputPreprints = step.inputs.filter((input) => input.type === 'preprint');
-  const outputPreprints = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
+  const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
+  const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
 
-  [ ...inputPreprints, ...outputPreprints ].forEach((preprint) => {
-    if (preprint.type !== 'preprint') {
-      return;
-    }
-    let version = findVersionDescribedBy(results, preprint);
-    if (!version) {
-      version = getVersionFromExpression(preprint);
-      results.versions.push(version);
-    }
-  });
+  // create and import or update versions
+  [ ...preprintInputs, ...preprintOutputs ].forEach((preprint) => findAndUpdateOrCreateVersionDescribedBy(results, preprint));
 
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
   if (preprintPublishedAssertion) {
