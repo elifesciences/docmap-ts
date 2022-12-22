@@ -369,7 +369,7 @@ describe('docmap-parser', () => {
       'elife/eLife.12345.sa3'
     );
 
-    const firstStep = generateStep( // preprint published
+    const firstStep = generateStep(
       [],
       [],
       [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
@@ -478,7 +478,7 @@ describe('docmap-parser', () => {
       'elife/eLife.12345.sa4'
     );
 
-    const firstStep = generateStep( // preprint published
+    const firstStep = generateStep(
       [],
       [],
       [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
@@ -596,7 +596,7 @@ describe('docmap-parser', () => {
       'elife/eLife.12345.sa3'
     );
 
-    const firstStep = generateStep( // preprint published
+    const firstStep = generateStep(
       [],
       [],
       [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
@@ -612,6 +612,63 @@ describe('docmap-parser', () => {
     ));
 
     const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline[0]).toMatchObject({
+      name: 'Preprint v1 posted',
+      date: new Date('2022-03-01'),
+      link: {
+        text: 'Go to preprint',
+        url: 'https://doi.org/preprint/article1',
+      }
+    });
+    expect(parsedData.timeline[1]).toMatchObject({
+      name: 'Reviews received for Preprint',
+      date: new Date('2022-04-01'),
+    });
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<Version>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      type: 'Preprint',
+      status: 'Reviewed',
+      versionIdentifier: '1',
+      peerReview: {
+        reviews: [
+          {
+            reviewType: ReviewType.Review,
+            text: 'fetched content for https://content.com/12345.sa1',
+            date: new Date('2022-04-06'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          },
+          {
+            reviewType: ReviewType.Review,
+            text: 'fetched content for https://content.com/12345.sa2',
+            date: new Date('2022-04-07'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          }
+        ],
+        evaluationSummary: {
+          reviewType: ReviewType.EvaluationSummary,
+          text: 'fetched content for https://content.com/12345.sa3',
+          date: new Date('2022-04-10'),
+          participants: [{
+            name: 'Daffy Duck',
+            role: 'editor',
+            institution: 'unknown',
+          }],
+        },
+      },
+    });
   });
 
   it.todo('inference of reviewed preprint from input/outputs');
