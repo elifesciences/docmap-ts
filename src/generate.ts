@@ -66,7 +66,7 @@ step = doStep(() => {
   return generateStep(
       [preprintv1],
       [generateAction([], [fullReviewedPreprintv1])],
-      [generateUnderReviewAssertion(preprintv1), generateDraftAssertion(reviewedPreprintv1)],
+      [generateUnderReviewAssertion(preprintv1, new Date('2022-08-02')), generateDraftAssertion(reviewedPreprintv1)],
     )
 }, '02.sent_for_review_preprint', step);
 

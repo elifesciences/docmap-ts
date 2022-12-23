@@ -24,8 +24,8 @@
   ],
   "type": "docmap",
   "id": "http://docmaps.elifesciences.org/testid.docmap.json",
-  "created": "2022-12-23T11:52:00.116Z",
-  "updated": "2022-12-23T11:52:00.116Z",
+  "created": "2022-12-23T12:01:28.302Z",
+  "updated": "2022-12-23T12:01:28.302Z",
   "publisher": {
     "id": "https://elifesciences.org/",
     "name": "eLife",
@@ -94,7 +94,8 @@
             "doi": "10.1101/2022.06.24.497502",
             "versionIdentifier": "1"
           },
-          "status": "under-review"
+          "status": "under-review",
+          "happened": "2022-08-02T00:00:00.000Z"
         },
         {
           "item": {
