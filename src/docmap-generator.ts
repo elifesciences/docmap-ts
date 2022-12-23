@@ -104,6 +104,7 @@ export const generateStep = (inputs: Input[], actions: Action[], assertions: Ass
 export const simplifyExpression = (expression: Expression): Expression => ({
   type: expression.type,
   doi: expression.doi,
+  versionIdentifier: expression.versionIdentifier,
   url: expression.doi === undefined ? expression.url : undefined,
 });
 
