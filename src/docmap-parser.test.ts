@@ -1,26 +1,47 @@
-import { DocMap, Step } from './docmap';
-import { addNextStep, generateAction, generateAuthorResponse, generateDocMap, generateEnhancedAssertion, generateEnhancedPreprint, generateEvaluationSummary, generatePeerReview, generatePeerReviewedAssertion, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateRepublishedAssertion, generateRevisedPreprint, generateStep, generateUnderReviewAssertion, generateWebContent } from './docmap-generator';
-import { parsePreprintDocMap, ParseResult, ReviewType, Version } from './docmap-parser';
+import { Step } from './docmap';
+import {
+  addNextStep,
+  generateAction,
+  generateAuthorResponse,
+  generateDocMap,
+  generateEnhancedAssertion,
+  generateEvaluationSummary,
+  generatePeerReview,
+  generatePeerReviewedAssertion,
+  generatePersonParticipant,
+  generatePreprint,
+  generatePublishedAssertion,
+  generateRepublishedAssertion,
+  generateStep,
+  generateUnderReviewAssertion,
+  generateWebContent,
+} from './docmap-generator';
+import {
+  parsePreprintDocMap,
+  ParseResult,
+  ReviewType,
+  Version,
+} from './docmap-parser';
 
 const publisher = {
-  id: "https://elifesciences.org/",
-  name: "eLife",
-  logo: "https://sciety.org/static/groups/elife--b560187e-f2fb-4ff9-a861-a204f3fc0fb0.png",
-  homepage: "https://elifesciences.org/",
+  id: 'https://elifesciences.org/',
+  name: 'eLife',
+  logo: 'https://sciety.org/static/groups/elife--b560187e-f2fb-4ff9-a861-a204f3fc0fb0.png',
+  homepage: 'https://elifesciences.org/',
   account: {
-    id: "https://sciety.org/groups/elife",
-    service: "https://sciety.org"
-  }
+    id: 'https://sciety.org/groups/elife',
+    service: 'https://sciety.org',
+  },
 };
 
 const parseDocMapFromFirstStep = (step: Step): ParseResult => {
   const docmap = generateDocMap('test', publisher, step);
   return parsePreprintDocMap(docmap);
-}
+};
 
 describe('docmap-parser', () => {
   it('returns empty result without any steps', () => {
-    const docmap = generateDocMap('test', publisher, {assertions: [], inputs: [], actions: []});
+    const docmap = generateDocMap('test', publisher, { assertions: [], inputs: [], actions: [] });
     docmap.steps = new Map();
     const parsedData = parsePreprintDocMap(docmap);
 
@@ -29,7 +50,7 @@ describe('docmap-parser', () => {
   });
 
   it('returns empty result when it cant find the first step', () => {
-    const docmap = generateDocMap('test', publisher, {assertions: [], inputs: [], actions: []});
+    const docmap = generateDocMap('test', publisher, { assertions: [], inputs: [], actions: [] });
     docmap['first-step'] = 'wrongid';
     const parsedData = parsePreprintDocMap(docmap);
 
@@ -61,7 +82,6 @@ describe('docmap-parser', () => {
     });
   });
 
-
   it('finds a bioRxiv preprint and labels it', () => {
     const preprint = generatePreprint('10.1101/article1', new Date('2022-03-01'));
     const firstStep = generateStep([preprint], [], []);
@@ -70,7 +90,7 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0].link).toMatchObject({
       text: 'Go to BioRxiv',
-      url: 'https://doi.org/10.1101/article1'
+      url: 'https://doi.org/10.1101/article1',
     });
   });
 
@@ -98,17 +118,18 @@ describe('docmap-parser', () => {
   });
 
   it('finds a preprint from a docmap describing under review assertion', () => {
+    // Arrange
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://something.org/preprint/article1');
-
     const firstStep = generateStep(
       [],
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     );
+
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
-
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -133,15 +154,18 @@ describe('docmap-parser', () => {
   });
 
   it('finds a preprint from a docmap describing under review assertion without URL', () => {
+    // Arrange
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
-
     const firstStep = generateStep(
       [],
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     );
+
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -166,8 +190,8 @@ describe('docmap-parser', () => {
   });
 
   it('finds a single version when a step makes an assertion about an existing version', () => {
+    // Arrange
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
-
     const firstStep = generateStep(
       [],
       [],
@@ -178,9 +202,11 @@ describe('docmap-parser', () => {
       [],
       [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
     ));
+
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -205,9 +231,9 @@ describe('docmap-parser', () => {
   });
 
   it('finds two versions when a step makes an assertion about a new version', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const preprintv2 = generatePreprint('preprint/article1', new Date('2022-04-12'), undefined, '4');
-
     const firstStep = generateStep(
       [],
       [],
@@ -218,21 +244,24 @@ describe('docmap-parser', () => {
       [],
       [generatePublishedAssertion(preprintv2, new Date('2022-04-12'))],
     ));
+
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
       type: 'Preprint',
       versionIdentifier: undefined,
-    })
+    });
     expect(parsedData.versions[1]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
       type: 'Preprint',
       versionIdentifier: '4',
-    })
+    });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
@@ -241,7 +270,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -249,11 +278,12 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
   });
 
   it('detect when a step makes a republished assertion', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined);
     const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1');
 
@@ -267,8 +297,11 @@ describe('docmap-parser', () => {
       [generateAction([], [preprintv2])],
       [generateRepublishedAssertion(preprintv2, new Date('2022-04-12'))],
     ));
+
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'elife/12345.1',
@@ -293,6 +326,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds a revised preprint from a docmap', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const preprintv2 = generatePreprint('preprint/article1v2', new Date('2022-06-01'), undefined, '2');
 
@@ -307,9 +341,10 @@ describe('docmap-parser', () => {
       [generatePublishedAssertion(preprintv2, new Date('2022-06-01'))],
     ));
 
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -344,6 +379,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds reviews and editor evaluations from a docmap', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -351,14 +387,14 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa1'),
       ],
-      'elife/eLife.12345.sa1'
+      'elife/eLife.12345.sa1',
     );
     const peerReview2 = generatePeerReview(
       new Date('2022-04-07'),
       [
         generateWebContent('https://content.com/12345.sa2'),
       ],
-      'elife/eLife.12345.sa2'
+      'elife/eLife.12345.sa2',
     );
     const editor = generatePersonParticipant('Daffy Duck', 'editor');
     const editorsEvaluation = generateEvaluationSummary(
@@ -366,7 +402,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa3'),
       ],
-      'elife/eLife.12345.sa3'
+      'elife/eLife.12345.sa3',
     );
 
     const firstStep = generateStep(
@@ -384,8 +420,10 @@ describe('docmap-parser', () => {
       [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-01'))],
     ));
 
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
+    // Assert
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
@@ -393,7 +431,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -428,7 +466,7 @@ describe('docmap-parser', () => {
               role: 'peer-reviewer',
               institution: 'unknown',
             }],
-          }
+          },
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
@@ -439,7 +477,7 @@ describe('docmap-parser', () => {
             role: 'editor',
             institution: 'unknown',
           }],
-        }
+        },
       },
     });
   });
@@ -452,14 +490,14 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa1'),
       ],
-      'elife/eLife.12345.sa1'
+      'elife/eLife.12345.sa1',
     );
     const peerReview2 = generatePeerReview(
       new Date('2022-04-07'),
       [
         generateWebContent('https://content.com/12345.sa2'),
       ],
-      'elife/eLife.12345.sa2'
+      'elife/eLife.12345.sa2',
     );
     const editor = generatePersonParticipant('Daffy Duck', 'editor');
     const editorsEvaluation = generateEvaluationSummary(
@@ -467,7 +505,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa3'),
       ],
-      'elife/eLife.12345.sa3'
+      'elife/eLife.12345.sa3',
     );
     const author = generatePersonParticipant('Bugs Bunny', 'author');
     const authorResponse = generateAuthorResponse(
@@ -475,7 +513,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa4'),
       ],
-      'elife/eLife.12345.sa4'
+      'elife/eLife.12345.sa4',
     );
 
     const firstStep = generateStep(
@@ -483,7 +521,7 @@ describe('docmap-parser', () => {
       [],
       [generatePublishedAssertion(preprintv1, new Date('2022-03-01'))],
     );
-    let nextStep = addNextStep(firstStep, generateStep( //
+    const nextStep = addNextStep(firstStep, generateStep( //
       [preprintv1],
       [
         generateAction([anonReviewerParticipant], [peerReview1]),
@@ -509,7 +547,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -544,7 +582,7 @@ describe('docmap-parser', () => {
               role: 'peer-reviewer',
               institution: 'unknown',
             }],
-          }
+          },
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
@@ -565,7 +603,7 @@ describe('docmap-parser', () => {
             role: 'author',
             institution: 'unknown',
           }],
-        }
+        },
       },
     });
   });
@@ -578,14 +616,14 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa1'),
       ],
-      'elife/eLife.12345.sa1'
+      'elife/eLife.12345.sa1',
     );
     const peerReview2 = generatePeerReview(
       new Date('2022-04-07'),
       [
         generateWebContent('https://content.com/12345.sa2'),
       ],
-      'elife/eLife.12345.sa2'
+      'elife/eLife.12345.sa2',
     );
     const editor = generatePersonParticipant('Daffy Duck', 'editor');
     const editorsEvaluation = generateEvaluationSummary(
@@ -593,7 +631,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa3'),
       ],
-      'elife/eLife.12345.sa3'
+      'elife/eLife.12345.sa3',
     );
 
     const firstStep = generateStep(
@@ -641,7 +679,7 @@ describe('docmap-parser', () => {
               role: 'peer-reviewer',
               institution: 'unknown',
             }],
-          }
+          },
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
@@ -663,7 +701,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -672,6 +710,7 @@ describe('docmap-parser', () => {
   });
 
   it('inference of reviewed preprint from input/outputs', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -679,14 +718,14 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa1'),
       ],
-      'elife/eLife.12345.sa1'
+      'elife/eLife.12345.sa1',
     );
     const peerReview2 = generatePeerReview(
       new Date('2022-04-07'),
       [
         generateWebContent('https://content.com/12345.sa2'),
       ],
-      'elife/eLife.12345.sa2'
+      'elife/eLife.12345.sa2',
     );
     const editor = generatePersonParticipant('Daffy Duck', 'editor');
     const editorsEvaluation = generateEvaluationSummary(
@@ -694,7 +733,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa3'),
       ],
-      'elife/eLife.12345.sa3'
+      'elife/eLife.12345.sa3',
     );
 
     const firstStep = generateStep(
@@ -707,9 +746,10 @@ describe('docmap-parser', () => {
       [],
     );
 
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
@@ -738,7 +778,7 @@ describe('docmap-parser', () => {
               role: 'peer-reviewer',
               institution: 'unknown',
             }],
-          }
+          },
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
@@ -760,7 +800,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -769,6 +809,7 @@ describe('docmap-parser', () => {
   });
 
   it('inference of revised preprint from input/outputs', () => {
+    // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -776,14 +817,14 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa1'),
       ],
-      'elife/eLife.12345.sa1'
+      'elife/eLife.12345.sa1',
     );
     const peerReview2 = generatePeerReview(
       new Date('2022-04-07'),
       [
         generateWebContent('https://content.com/12345.sa2'),
       ],
-      'elife/eLife.12345.sa2'
+      'elife/eLife.12345.sa2',
     );
     const editor = generatePersonParticipant('Daffy Duck', 'editor');
     const editorsEvaluation = generateEvaluationSummary(
@@ -791,7 +832,7 @@ describe('docmap-parser', () => {
       [
         generateWebContent('https://content.com/12345.sa3'),
       ],
-      'elife/eLife.12345.sa3'
+      'elife/eLife.12345.sa3',
     );
 
     const firstStep = generateStep(
@@ -804,9 +845,10 @@ describe('docmap-parser', () => {
       [],
     );
 
+    // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-
+    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
@@ -835,7 +877,7 @@ describe('docmap-parser', () => {
               role: 'peer-reviewer',
               institution: 'unknown',
             }],
-          }
+          },
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
@@ -857,7 +899,7 @@ describe('docmap-parser', () => {
       link: {
         text: 'Go to preprint',
         url: 'https://doi.org/preprint/article1',
-      }
+      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -865,7 +907,6 @@ describe('docmap-parser', () => {
     });
   });
 
-
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
-})
+});

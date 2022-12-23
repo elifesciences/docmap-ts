@@ -11,7 +11,8 @@
     "generate": "ts-node src/generate.ts",
     "parse": "ts-node src/parse.ts",
     "fetch-and-test-data-hub-docmap": "ts-node src/fetch-and-parse.ts",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --ext .tsx,.ts src/"
   },
   "dependencies": {
     "ts-node": "^10.9.1",
@@ -20,6 +21,12 @@
   "devDependencies": {
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.13",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
+    "eslint": "^8.30.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "jest": "^29.3.1",
     "ts-jest": "^29.0.3"
   }
