@@ -58,7 +58,6 @@ const fullReviewedPreprintv1 = generateEnhancedPreprint(
   '80494',
   '1',
   '10.7554/eLife.80494.1',
-  new Date('2022-10-20'),
   'https://doi.org/10.7554/eLife.80494.1',
   [generateWebContent('https://elifesciences.org/review-preprints/80494v1')],
 );
@@ -144,7 +143,7 @@ step = doStep(() => {
       [
         generateAction([], [reviewedPreprintv1]),
       ],
-      [generateEnhancedAssertion(preprintv1), generatePublishedAssertion(reviewedPreprintv1)],
+      [generateEnhancedAssertion(preprintv1), generatePublishedAssertion(reviewedPreprintv1, new Date('2022-10-20'))],
     )
 }, '04.reviewed_preprintv1', step);
 
@@ -186,7 +185,6 @@ const fullReviewedPreprintv2 = generateEnhancedPreprint(
   '80494',
   '2',
   '10.7554/eLife.80494.2',
-  new Date('2022-10-26'),
   'https://doi.org/10.7554/eLife.80494.2',
   [generateWebContent('https://elifesciences.org/review-preprints/80494v2')],
 );
@@ -229,7 +227,7 @@ step = doStep(() => {
       [
         generateAction([], [preprintv2]),
       ],
-      [generatePublishedAssertion(reviewedPreprintv2), generateEnhancedAssertion(preprintv2)],
+      [generatePublishedAssertion(reviewedPreprintv2, new Date('2022-10-26')), generateEnhancedAssertion(preprintv2)],
     )
 }, '09.reviewed_preprintv2', step);
 
@@ -278,4 +276,5 @@ step = doStep(() => {
 
 const docmap = generateDocMap("http://docmaps.elifesciences.org/testid.docmap.json", publisher, step);
 const parsedDocMap = parsePreprintDocMap(docmap);
+console.log(parsedDocMap);
 console.log(JSON.stringify(parsedDocMap, undefined, "  "));

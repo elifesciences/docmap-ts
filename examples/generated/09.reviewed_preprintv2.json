@@ -24,8 +24,8 @@
   ],
   "type": "docmap",
   "id": "http://docmaps.elifesciences.org/testid.docmap.json",
-  "created": "2022-12-23T11:33:43.775Z",
-  "updated": "2022-12-23T11:33:43.775Z",
+  "created": "2022-12-23T11:52:00.115Z",
+  "updated": "2022-12-23T11:52:00.115Z",
   "publisher": {
     "id": "https://elifesciences.org/",
     "name": "eLife",
@@ -77,7 +77,6 @@
               "type": "preprint",
               "doi": "10.7554/eLife.80494.1",
               "url": "https://doi.org/10.7554/eLife.80494.1",
-              "published": "2022-10-20T00:00:00.000Z",
               "content": [
                 {
                   "type": "web-page",
@@ -306,7 +305,8 @@
             "doi": "10.7554/eLife.80494.1",
             "versionIdentifier": "1"
           },
-          "status": "manuscript-published"
+          "status": "manuscript-published",
+          "happened": "2022-10-20T00:00:00.000Z"
         }
       ],
       "inputs": [
@@ -441,7 +441,6 @@
               "type": "preprint",
               "doi": "10.7554/eLife.80494.2",
               "url": "https://doi.org/10.7554/eLife.80494.2",
-              "published": "2022-10-26T00:00:00.000Z",
               "content": [
                 {
                   "type": "web-page",
@@ -548,7 +547,8 @@
             "doi": "10.7554/eLife.80494.2",
             "versionIdentifier": "2"
           },
-          "status": "manuscript-published"
+          "status": "manuscript-published",
+          "happened": "2022-10-26T00:00:00.000Z"
         },
         {
           "item": {
