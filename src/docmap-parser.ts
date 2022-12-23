@@ -61,7 +61,6 @@ export type Version = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   supercededBy?: Version,
-  previousVersion?: Version,
 }
 
 export type ParseResult = {
@@ -176,40 +175,23 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
 
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
   if (preprintPublishedAssertion) {
-    let version = findVersionDescribedBy(results, preprintPublishedAssertion.item);
-    // assume there is only one input, which is the preprint
-    var previousVersion = step.inputs.length === 1 ? findVersionDescribedBy(results, step.inputs[0]) : undefined;
-    if (!version) {
-      // create new version and push into versions array
-      version = getVersionFromExpression(preprintPublishedAssertion.item);
-      results.versions.push(version);
-    }
-    // set this as a new version of the previous
-    if (previousVersion) {
-      version.previousVersion = previousVersion;
-    }
+    findAndUpdateOrCreateVersionDescribedBy(results, preprintPublishedAssertion.item);
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview)
   if (preprintUnderReviewAssertion) {
-    var version = findVersionDescribedBy(results, preprintUnderReviewAssertion.item);
-    if (!version) {
-      // create new version and push into versions array
-      version = getVersionFromExpression(preprintUnderReviewAssertion.item)
-      results.versions.push(version);
-    }
     // Update type and sent for review date
+    const version = findAndUpdateOrCreateVersionDescribedBy(results, preprintUnderReviewAssertion.item);
     version.sentForReviewDate = preprintUnderReviewAssertion.happened;
     version.status = '(Preview) Reviewed';
 
     // if there is an input and output preprint, let's assume it's a republish with the intent to review
     if (preprintInputs.length === 1 && preprintOutputs.length === 1) {
-      var newVersion = findVersionDescribedBy(results, preprintOutputs[0]);
+      const newVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
       if (newVersion && newVersion !== version) {
         version.supercededBy = newVersion;
 
-        // Update type and sent for review date
-        newVersion.sentForReviewDate = preprintUnderReviewAssertion.happened;
+        // Update type
         newVersion.status = '(Preview) Reviewed';
       }
     }
@@ -329,9 +311,19 @@ const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versio
 const reducedSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.supercededBy);
 
 const parseDocMapJson = (docMapJson: string): DocMap => {
-  const docMapStruct = JSON.parse(docMapJson);
-
-  docMapStruct.steps = new Map<string, Step>(Object.entries(docMapStruct.steps));
+  const docMapStruct = JSON.parse(docMapJson, (key, value) => {
+    if (key === 'steps') {
+      return new Map<string, Step>(Object.entries(value));
+    }
+    const dateFields = [
+      'happened',
+      'published'
+    ];
+    if (dateFields.includes(key)) {
+      return new Date(value);
+    }
+    return value;
+  });
 
   return docMapStruct as DocMap;
 }
