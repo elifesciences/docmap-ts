@@ -145,7 +145,6 @@ export const JsonLDAddonFrame =  {
   "author-response": "fabio:Reply",
   "decision-letter": "fabio:Letter",
   "preprint": "fabio:Preprint",
-  "review-article": "fabio:ReviewArticle",
   "version-of-record": "fabio:DefinitiveVersion",
   "update-summary": "fabio:ExecutiveSummary",
   "draft": "pso:draft",
