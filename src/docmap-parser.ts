@@ -142,6 +142,20 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   });
 }).filter((output): output is Evaluation => output !== undefined);
 
+const addEvaluationsToVersion = (version: Version, evaluations: Evaluation[]) => {
+  const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
+  const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
+  const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+  if (!version.peerReview) {
+    version.peerReview = {
+      reviews: []
+    };
+  }
+  version.peerReview.reviews.push(...reviews);
+  version.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : version.peerReview.evaluationSummary;
+  version.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : version.peerReview.authorResponse;
+}
+
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any preprint inputs that need importing
   const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
@@ -149,6 +163,16 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
 
   // create and import or update versions
   [ ...preprintInputs, ...preprintOutputs ].forEach((preprint) => findAndUpdateOrCreateVersionDescribedBy(results, preprint));
+
+  // useful to infer actions from inputs and output types
+  const evaluationTypes = [
+    ExpressionType.AuthorResponse.toString(),
+    ExpressionType.EvaluationSummary.toString(),
+    ExpressionType.PeerReview.toString(),
+  ];
+  const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
+  const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
+
 
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
   if (preprintPublishedAssertion) {
@@ -183,6 +207,10 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       var newVersion = findVersionDescribedBy(results, preprintOutputs[0]);
       if (newVersion && newVersion !== version) {
         version.supercededBy = newVersion;
+
+        // Update type and sent for review date
+        newVersion.sentForReviewDate = preprintUnderReviewAssertion.happened;
+        newVersion.status = '(Preview) Reviewed';
       }
     }
   }
@@ -194,6 +222,13 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item)
     if (preprint && replacementPreprint) {
       preprint.supercededBy = replacementPreprint;
+    }
+  } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 &&  preprintOutputs.length === 1) {
+    // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
+    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
+    const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
+    if (outputVersion) {
+      inputVersion.supercededBy = outputVersion
     }
   }
 
@@ -208,21 +243,17 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
 
       //push all reviews into peerReview (override if necessary)
       const evaluations = findAndFlatMapAllEvaluations(step.actions);
-      const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary)[0];
-      const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse)[0];
-      const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
+      addEvaluationsToVersion(version, evaluations);
+    }
+  } else if (preprintInputs.length === 1 && evaluationOutputs.length > 0 && preprintOutputs.length === 0) {
+    // preprint input, evaluation output, but no preprint output = Reviewed Preprint (input)
+    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
 
-      if (version.peerReview) {
-        version.peerReview.reviews.push(...reviews);
-        version.peerReview.evaluationSummary = evaluationSummary ?? version.peerReview.evaluationSummary;
-        version.peerReview.authorResponse = authorResponse ?? version.peerReview.authorResponse;
-      } else {
-        version.peerReview = {
-          reviews,
-          evaluationSummary,
-          authorResponse,
-        };
-      }
+    const publishedDates = evaluationOutputs.map((evaluationOutput) => evaluationOutput.published).filter((publishedDate) => !!publishedDate);
+    if (publishedDates.length > 0) {
+      inputVersion.status = 'Reviewed';
+      inputVersion.reviewedDate = inputVersion.reviewedDate ?? publishedDates[0];
+      addEvaluationsToVersion(inputVersion, findAndFlatMapAllEvaluations(step.actions));
     }
   }
 
@@ -234,51 +265,10 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       // Decide what to do by examining the outputs
       const evaluations = findAndFlatMapAllEvaluations(step.actions);
       if (evaluations.length > 0) {
-        const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
-        const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
-        const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
-        if (!version.peerReview) {
-          version.peerReview = {
-            reviews: []
-          };
-        }
-        version.peerReview.reviews.push(...reviews);
-        version.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : version.peerReview.evaluationSummary;
-        version.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : version.peerReview.authorResponse;
+        addEvaluationsToVersion(version, evaluations);
       }
     }
   }
-
-  // inferred actions from inputs and output types
-  // we need to infer what status or transition has happened based on input/output types
-  const evaluationTypes = [
-    ExpressionType.AuthorResponse.toString(),
-    ExpressionType.EvaluationSummary.toString(),
-    ExpressionType.PeerReview.toString(),
-  ];
-  const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
-  const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
-
-  if (preprintInputs.length === 1) { // preprint input
-    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
-    if (evaluationOutputs.length > 0 && preprintOutputs.length === 0) { // evaluation output, but no preprint output = Reviewed Preprint (input)
-      const publishedDates = evaluationOutputs.map((evaluationOutput) => evaluationOutput.published).filter((publishedDate) => !!publishedDate);
-      if (publishedDates.length > 0) {
-        inputVersion.status = 'Reviewed';
-        inputVersion.reviewedDate = inputVersion.reviewedDate ?? publishedDates[0];
-      }
-
-    }
-    if (evaluationInputs.length > 0 &&  preprintOutputs.length === 1) { // evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
-      const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
-      if (outputVersion) {
-        inputVersion.supercededBy = outputVersion
-      }
-    }
-  }
-
-
-
   return results;
 }
 
