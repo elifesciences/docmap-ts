@@ -190,11 +190,10 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished)
   if (preprintRepublishedAssertion) {
     // assume there is only one input, which is the preprint
-    var preprint = step.inputs.length === 1 ? findVersionDescribedBy(results, step.inputs[0]) : undefined;
-    const replacementPreprint = getVersionFromExpression(preprintRepublishedAssertion.item)
+    var preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0])
+    const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item)
     if (preprint && replacementPreprint) {
       preprint.supercededBy = replacementPreprint;
-      results.versions.push(replacementPreprint);
     }
   }
 
@@ -249,6 +248,36 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       }
     }
   }
+
+  // inferred actions from inputs and output types
+  // we need to infer what status or transition has happened based on input/output types
+  const evaluationTypes = [
+    ExpressionType.AuthorResponse.toString(),
+    ExpressionType.EvaluationSummary.toString(),
+    ExpressionType.PeerReview.toString(),
+  ];
+  const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
+  const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
+
+  if (preprintInputs.length === 1) { // preprint input
+    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
+    if (evaluationOutputs.length > 0 && preprintOutputs.length === 0) { // evaluation output, but no preprint output = Reviewed Preprint (input)
+      const publishedDates = evaluationOutputs.map((evaluationOutput) => evaluationOutput.published).filter((publishedDate) => !!publishedDate);
+      if (publishedDates.length > 0) {
+        inputVersion.status = 'Reviewed';
+        inputVersion.reviewedDate = inputVersion.reviewedDate ?? publishedDates[0];
+      }
+
+    }
+    if (evaluationInputs.length > 0 &&  preprintOutputs.length === 1) { // evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
+      const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
+      if (outputVersion) {
+        inputVersion.supercededBy = outputVersion
+      }
+    }
+  }
+
+
 
   return results;
 }
