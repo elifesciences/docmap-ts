@@ -323,10 +323,7 @@ const getEventsFromVersion = (version: Version): TimelineEvent[] => {
 }
 
 
-const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versions.flatMap((version: Version): TimelineEvent[] => {
-  const events = getEventsFromVersion(version);
-  return events;
-});
+const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versions.flatMap((version: Version): TimelineEvent[] => getEventsFromVersion(version));
 
 // Removes any that has collected a superceded By property
 const reducedSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.supercededBy);
