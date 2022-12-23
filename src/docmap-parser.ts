@@ -1,7 +1,11 @@
-import { version } from 'os';
-import { Action, Assertion, AssertionStatus, DocMap, Expression, ExpressionType, Preprint, Step } from './docmap';
-import { formatDate } from './utils';
-
+import {
+  Action,
+  AssertionStatus,
+  DocMap,
+  Expression,
+  ExpressionType,
+  Step,
+} from './docmap';
 
 export enum ReviewType {
   EvaluationSummary = 'evaluation-summary',
@@ -12,13 +16,15 @@ export enum ReviewType {
 const stringToReviewType = (reviewTypeString: string): ReviewType | undefined => {
   if (reviewTypeString === ReviewType.EvaluationSummary) {
     return ReviewType.EvaluationSummary;
-  } else if (reviewTypeString === ReviewType.AuthorResponse) {
+  }
+  if (reviewTypeString === ReviewType.AuthorResponse) {
     return ReviewType.AuthorResponse;
-  } else if (reviewTypeString === ReviewType.Review) {
+  }
+  if (reviewTypeString === ReviewType.Review) {
     return ReviewType.Review;
   }
-  return;
-}
+  return undefined;
+};
 
 type Participant = {
   name: string,
@@ -61,12 +67,12 @@ export type Version = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   supercededBy?: Version,
-}
+};
 
 export type ParseResult = {
   timeline: TimelineEvent[],
   versions: Version[],
-}
+};
 
 const upperCaseFirstLetter = (string: string) => `${string.substring(0, 1).toUpperCase()}${string.substring(1)}`;
 
@@ -83,7 +89,7 @@ const getVersionFromExpression = (expression: Expression): Version => {
     versionIdentifier: expression.versionIdentifier,
     publishedDate: expression.published,
   };
-}
+};
 
 const isVersionAboutExpression = (version: Version, expression: Expression): boolean => {
   if (expression.doi !== version.doi) {
@@ -95,7 +101,7 @@ const isVersionAboutExpression = (version: Version, expression: Expression): boo
   }
 
   return true;
-}
+};
 
 const findVersionDescribedBy = (results: ParseResult, expression: Expression): Version | undefined => results.versions.find((version) => isVersionAboutExpression(version, expression));
 const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expression: Expression): Version => {
@@ -111,49 +117,49 @@ const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expressio
   }
   results.versions.push(newVersion);
   return newVersion;
-}
+};
 
-const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => {
-  return action.outputs.map((output) => {
-    const reviewType = stringToReviewType(output.type);
-    if (!reviewType || !Object.values(ReviewType).includes(reviewType)) {
-      return undefined;
-    }
-    if (output.content === undefined) {
-      return undefined;
-    }
-    if (output.content.length === 0) {
-      return undefined;
-    }
-    const content = output.content.filter((content) => content.type === 'web-page');
-    const text = (content.length === 1) ? `fetched content for ${content[0].url}` : undefined; // TODO
+const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => action.outputs.map((output) => {
+  const reviewType = stringToReviewType(output.type);
+  if (!reviewType || !Object.values(ReviewType).includes(reviewType)) {
+    return undefined;
+  }
+  if (output.content === undefined) {
+    return undefined;
+  }
+  if (output.content.length === 0) {
+    return undefined;
+  }
+  const allContent = output.content.filter((content) => content.type === 'web-page');
+  const text = (allContent.length === 1) ? `fetched content for ${allContent[0].url}` : undefined; // TODO
 
-    return {
-      reviewType: stringToReviewType(output.type),
-      date: output.published,
-      participants: action.participants.map((participant) => ({
-        name: participant.actor.name,
-        institution: 'unknown', // TODO
-        role: participant.role,
-      })),
-      text: text,
-    };
-  });
-}).filter((output): output is Evaluation => output !== undefined);
+  return {
+    reviewType: stringToReviewType(output.type),
+    date: output.published,
+    participants: action.participants.map((participant) => ({
+      name: participant.actor.name,
+      institution: 'unknown', // TODO
+      role: participant.role,
+    })),
+    text,
+  };
+})).filter((output): output is Evaluation => output !== undefined);
 
 const addEvaluationsToVersion = (version: Version, evaluations: Evaluation[]) => {
-  const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.EvaluationSummary);
-  const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.AuthorResponse);
-  const reviews = evaluations.filter((evaluation) => evaluation?.reviewType == ReviewType.Review);
-  if (!version.peerReview) {
-    version.peerReview = {
-      reviews: []
+  const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.EvaluationSummary);
+  const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.AuthorResponse);
+  const reviews = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.Review);
+
+  const thisVersion = version;
+  if (!thisVersion.peerReview) {
+    thisVersion.peerReview = {
+      reviews: [],
     };
   }
-  version.peerReview.reviews.push(...reviews);
-  version.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : version.peerReview.evaluationSummary;
-  version.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : version.peerReview.authorResponse;
-}
+  thisVersion.peerReview.reviews.push(...reviews);
+  thisVersion.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : thisVersion.peerReview.evaluationSummary;
+  thisVersion.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisVersion.peerReview.authorResponse;
+};
 
 const parseStep = (step: Step, results: ParseResult): ParseResult => {
   // look for any preprint inputs that need importing
@@ -161,7 +167,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
 
   // create and import or update versions
-  [ ...preprintInputs, ...preprintOutputs ].forEach((preprint) => findAndUpdateOrCreateVersionDescribedBy(results, preprint));
+  [...preprintInputs, ...preprintOutputs].forEach((preprint) => findAndUpdateOrCreateVersionDescribedBy(results, preprint));
 
   // useful to infer actions from inputs and output types
   const evaluationTypes = [
@@ -172,13 +178,12 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
   const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
 
-
-  const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published)
+  const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published);
   if (preprintPublishedAssertion) {
     findAndUpdateOrCreateVersionDescribedBy(results, preprintPublishedAssertion.item);
   }
 
-  const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview)
+  const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
   if (preprintUnderReviewAssertion) {
     // Update type and sent for review date
     const version = findAndUpdateOrCreateVersionDescribedBy(results, preprintUnderReviewAssertion.item);
@@ -197,33 +202,33 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     }
   }
 
-  const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished)
+  const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished);
   if (preprintRepublishedAssertion) {
     // assume there is only one input, which is the preprint
-    var preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0])
-    const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item)
+    const preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0]);
+    const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item);
     if (preprint && replacementPreprint) {
       preprint.supercededBy = replacementPreprint;
     }
-  } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 &&  preprintOutputs.length === 1) {
+  } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
     const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
     const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
     if (outputVersion) {
-      inputVersion.supercededBy = outputVersion
+      inputVersion.supercededBy = outputVersion;
     }
   }
 
   const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
   if (preprintPeerReviewedAssertion) {
-    var version = findVersionDescribedBy(results, preprintPeerReviewedAssertion.item);
+    const version = findVersionDescribedBy(results, preprintPeerReviewedAssertion.item);
     if (version) {
       // Update type and sent for review date
       version.type = 'Preprint';
       version.reviewedDate = preprintPeerReviewedAssertion.happened;
       version.status = 'Reviewed';
 
-      //push all reviews into peerReview (override if necessary)
+      // push all reviews into peerReview (override if necessary)
       const evaluations = findAndFlatMapAllEvaluations(step.actions);
       addEvaluationsToVersion(version, evaluations);
     }
@@ -240,9 +245,9 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
   }
 
   // Enhanced can cover a multitude of enhancements to the paper.
-  const enhancedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Enhanced)
+  const enhancedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Enhanced);
   if (enhancedAssertion) {
-    var version = findVersionDescribedBy(results, enhancedAssertion.item);
+    const version = findVersionDescribedBy(results, enhancedAssertion.item);
     if (version) {
       // Decide what to do by examining the outputs
       const evaluations = findAndFlatMapAllEvaluations(step.actions);
@@ -252,7 +257,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     }
   }
   return results;
-}
+};
 
 function* getSteps(docMap: DocMap): Generator<Step> {
   let currentStep = docMap.steps.get(docMap['first-step']);
@@ -266,11 +271,9 @@ function* getSteps(docMap: DocMap): Generator<Step> {
     if (typeof currentStep['next-step'] === 'string') {
       currentStep = docMap.steps.get(currentStep['next-step']);
     } else {
-      currentStep = currentStep['next-step']
+      currentStep = currentStep['next-step'];
     }
   }
-
-  return;
 }
 
 const getEventsFromVersion = (version: Version): TimelineEvent[] => {
@@ -278,7 +281,7 @@ const getEventsFromVersion = (version: Version): TimelineEvent[] => {
   if (version.publishedDate) {
     const url = version.url ?? (version.doi ? `https://doi.org/${version.doi}` : undefined);
     const bioRxiv = version.doi?.startsWith('10.1101') ?? false;
-    const link = url ? {text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url: url} : undefined;
+    const link = url ? { text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url } : undefined;
     events.push({
       name: `${version.type}${version.versionIdentifier ? ` v${version.versionIdentifier}` : ''} posted`,
       date: version.publishedDate,
@@ -302,8 +305,7 @@ const getEventsFromVersion = (version: Version): TimelineEvent[] => {
 
   // sort by event dates
   return events.sort((a, b) => a.date.getTime() - b.date.getTime());
-}
-
+};
 
 const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versions.flatMap((version: Version): TimelineEvent[] => getEventsFromVersion(version));
 
@@ -317,7 +319,7 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
     }
     const dateFields = [
       'happened',
-      'published'
+      'published',
     ];
     if (dateFields.includes(key)) {
       return new Date(value);
@@ -326,23 +328,22 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
   });
 
   return docMapStruct as DocMap;
-}
+};
 
 export const parsePreprintDocMap = (docMap: DocMap | string): ParseResult => {
-  if (typeof docMap === 'string') {
-    docMap = parseDocMapJson(docMap);
-  }
+  const docMapStruct = typeof docMap === 'string' ? parseDocMapJson(docMap) : docMap;
+
   let results: ParseResult = {
     timeline: [],
     versions: [],
-  }
+  };
 
-  const steps = Array.from(docMap.steps.values());
+  const steps = Array.from(docMapStruct.steps.values());
   if (steps.length === 0) {
     return results;
   }
 
-  const stepsIterator = getSteps(docMap);
+  const stepsIterator = getSteps(docMapStruct);
   let currentStep = stepsIterator.next().value;
   while (currentStep) {
     results = parseStep(currentStep, results);

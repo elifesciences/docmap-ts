@@ -1,4 +1,3 @@
-
 export type Account = {
   id: string,
   service: string,
@@ -23,11 +22,11 @@ export enum ExpressionType {
   VersionOfRecord = 'version-of-record',
   AuthorResponse = 'author-response',
   UpdateSummary = 'update-summary',
-};
+}
 
 export enum ManifestationType {
   WebPage = 'web-page',
-};
+}
 
 export type Expression = {
   type: ExpressionType,
@@ -70,14 +69,13 @@ export type UpdateSummary = Expression & {
   type: ExpressionType.UpdateSummary,
 };
 
-
 export type VersionOfRecord = Expression & {
   type: ExpressionType.VersionOfRecord,
 };
 
 export type WebPage = Manifestation & {
   type: ManifestationType.WebPage,
-}
+};
 
 export type Item = Preprint | PeerReview | PeerReview | EvaluationSummary | VersionOfRecord | Expression;
 export type Input = Item;
@@ -93,7 +91,6 @@ export type Participant = {
   role: string,
 };
 
-
 export type Action = {
   participants: Participant[],
   outputs: Output[],
@@ -108,13 +105,13 @@ export enum AssertionStatus {
   VersionOfRecord = 'version-of-record',
   Revised = 'revised',
   Republished = 'republished',
-};
+}
 
 export type Assertion = {
   item: Item,
   status: AssertionStatus,
   happened?: Date,
-}
+};
 
 export type Step = {
   assertions: Assertion[],
@@ -137,7 +134,10 @@ export type DocMap = {
 
 export const JsonLDFrameUrl = 'https://w3id.org/docmaps/context.jsonld';
 
-export const JsonLDAddonFrame =  {
+/* eslint-disable quote-props */
+/* eslint-disable @typescript-eslint/quotes */
+/* eslint-disable @typescript-eslint/comma-dangle */
+export const JsonLDAddonFrame = {
   "updated": {
     "@id": "dcterms:updated",
     "@type": "xsd:date"
@@ -157,3 +157,6 @@ export const JsonLDAddonFrame =  {
   },
   "versionIdentifier": "prism:versionIdentifier"
 };
+/* eslint-enable quote-props */
+/* eslint-enable @typescript-eslint/quotes */
+/* eslint-enable @typescript-eslint/comma-dangle */

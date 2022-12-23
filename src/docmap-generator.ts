@@ -1,9 +1,35 @@
-import { Action, Assertion, AssertionStatus, AuthorResponse, DocMap, DOI, EvaluationSummary, Expression, ExpressionType, Input, Item, JsonLDAddonFrame, JsonLDFrameUrl, ManifestationType, Output, Participant, PeerReview, Preprint, Publisher, RevisedPreprint, Step, UpdateSummary, Url, VersionOfRecord, WebPage } from './docmap';
+import {
+  Action,
+  Assertion,
+  AssertionStatus,
+  AuthorResponse,
+  DocMap,
+  DOI,
+  EvaluationSummary,
+  Expression,
+  ExpressionType,
+  Input,
+  Item,
+  JsonLDAddonFrame,
+  JsonLDFrameUrl,
+  ManifestationType,
+  Output,
+  Participant,
+  PeerReview,
+  Preprint,
+  Publisher,
+  RevisedPreprint,
+  Step,
+  UpdateSummary,
+  Url,
+  VersionOfRecord,
+  WebPage,
+} from './docmap';
 
 type Steps = {
   'first-step': string,
   steps: Map<string, Step>
-}
+};
 
 export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string): Preprint => ({
   type: ExpressionType.Preprint,
@@ -20,7 +46,6 @@ export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, v
   published,
   versionIdentifier: version,
 });
-
 
 export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url: Url, content: WebPage[], published?: Date): Preprint => ({
   identifier,
@@ -109,75 +134,61 @@ export const simplifyExpression = (expression: Expression): Expression => ({
 });
 
 export const addNextStep = (previousStep: Step, nextStep: Step): Step => {
+  // eslint-disable-next-line no-param-reassign
   previousStep['next-step'] = nextStep;
+  // eslint-disable-next-line no-param-reassign
   nextStep['previous-step'] = previousStep;
 
-  return nextStep
+  return nextStep;
 };
 
-export const generatePublishedAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.Published,
-    happened: date,
-  };
-}
+export const generatePublishedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Published,
+  happened: date,
+});
 
-export const generateRepublishedAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.Republished,
-    happened: date,
-  };
-}
+export const generateRepublishedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Republished,
+  happened: date,
+});
 
-export const generatePeerReviewedAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.PeerReviewed,
-    happened: date,
-  };
-}
+export const generatePeerReviewedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.PeerReviewed,
+  happened: date,
+});
 
-export const generateEnhancedAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.Enhanced,
-    happened: date,
-  };
-}
+export const generateEnhancedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Enhanced,
+  happened: date,
+});
 
-export const generateRevisedAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.Revised,
-    happened: date,
-  };
-}
+export const generateRevisedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Revised,
+  happened: date,
+});
 
-export const generateUnderReviewAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.UnderReview,
-    happened: date,
-  };
-}
+export const generateUnderReviewAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.UnderReview,
+  happened: date,
+});
 
-export const generateVersionOfRecordAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.VersionOfRecord,
-    happened: date,
-  };
-}
+export const generateVersionOfRecordAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.VersionOfRecord,
+  happened: date,
+});
 
-export const generateDraftAssertion = (item: Item, date?: Date): Assertion => {
-  return {
-    item,
-    status: AssertionStatus.Draft,
-    happened: date,
-  };
-}
+export const generateDraftAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Draft,
+  happened: date,
+});
 
 const findFirstStep = (step: Step): Step => {
   if (typeof step['previous-step'] === 'string') {
@@ -197,18 +208,18 @@ const dereferenceSteps = (step: Step): Steps => {
 
   let currentStep: Step | undefined = firstStep;
   let currentStepId: number | undefined = 0;
-  let previousStepId: number | undefined = undefined;
-  let nextStepId: number | undefined = undefined;
+  let previousStepId: number | undefined;
+  let nextStepId: number | undefined;
 
   while (currentStep !== undefined) {
     nextStepId = currentStep['next-step'] !== undefined ? currentStepId + 1 : undefined;
 
-    steps.set('_:b'+currentStepId, {
+    steps.set(`_:b${currentStepId}`, {
       actions: currentStep.actions,
       assertions: currentStep.assertions,
       inputs: currentStep.inputs,
-      "next-step": nextStepId  !== undefined ? '_:b'+nextStepId : undefined,
-      "previous-step": previousStepId !== undefined ? '_:b'+previousStepId : undefined,
+      'next-step': nextStepId !== undefined ? `_:b${nextStepId}` : undefined,
+      'previous-step': previousStepId !== undefined ? `_:b${previousStepId}` : undefined,
     });
 
     previousStepId = currentStepId;
@@ -217,6 +228,7 @@ const dereferenceSteps = (step: Step): Steps => {
     } else {
       currentStep = currentStep['next-step'];
     }
+    // eslint-disable-next-line no-plusplus
     currentStepId++;
   }
 
@@ -229,12 +241,12 @@ const dereferenceSteps = (step: Step): Steps => {
 export const generateDocMap = (id: string, publisher: Publisher, firstStep: Step): DocMap => {
   const steps = dereferenceSteps(firstStep);
   return {
-    '@context': [ JsonLDFrameUrl, JsonLDAddonFrame ],
+    '@context': [JsonLDFrameUrl, JsonLDAddonFrame],
     type: 'docmap',
-    id: id,
+    id,
     created: new Date(),
     updated: new Date(),
-    publisher: publisher,
+    publisher,
     ...steps,
   };
 };

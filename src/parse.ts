@@ -8,7 +8,7 @@ if (argv[2] === undefined) {
   exit(1);
 }
 try {
-  accessSync(argv[2], R_OK)
+  accessSync(argv[2], R_OK);
 } catch (error) {
   console.log('cannot read the provided file');
   exit(1);
@@ -16,4 +16,4 @@ try {
 
 const docMapJson = readFileSync(argv[2]).toString('utf-8');
 const parsedDocMap = parsePreprintDocMap(docMapJson);
-console.log(JSON.stringify(parsedDocMap, undefined, "  "));
+console.log(JSON.stringify(parsedDocMap, undefined, '  '));
