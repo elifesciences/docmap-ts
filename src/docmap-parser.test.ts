@@ -613,20 +613,6 @@ describe('docmap-parser', () => {
 
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
-    expect(parsedData.timeline.length).toStrictEqual(2);
-    expect(parsedData.timeline[0]).toMatchObject({
-      name: 'Preprint v1 posted',
-      date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      }
-    });
-    expect(parsedData.timeline[1]).toMatchObject({
-      name: 'Reviews received for Preprint',
-      date: new Date('2022-04-01'),
-    });
-
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
@@ -669,9 +655,22 @@ describe('docmap-parser', () => {
         },
       },
     });
+
+    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline[0]).toMatchObject({
+      name: 'Preprint v1 posted',
+      date: new Date('2022-03-01'),
+      link: {
+        text: 'Go to preprint',
+        url: 'https://doi.org/preprint/article1',
+      }
+    });
+    expect(parsedData.timeline[1]).toMatchObject({
+      name: 'Reviews received for Preprint',
+      date: new Date('2022-04-01'),
+    });
   });
 
-  it.todo('inference of reviewed preprint from input/outputs');
   it.todo('inference of revised preprint from input/outputs');
 
 
