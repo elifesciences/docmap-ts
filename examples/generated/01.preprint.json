@@ -9,20 +9,23 @@
       "author-response": "fabio:Reply",
       "decision-letter": "fabio:Letter",
       "preprint": "fabio:Preprint",
-      "review-article": "fabio:ReviewArticle",
       "version-of-record": "fabio:DefinitiveVersion",
       "update-summary": "fabio:ExecutiveSummary",
       "draft": "pso:draft",
       "manuscript-published": "pso:published",
+      "republished": "pso:republished",
       "identifier": "dcterms:identifier",
-      "happened": "pwo:happened",
+      "happened": {
+        "@id": "pwo:happened",
+        "@type": "xsd:date"
+      },
       "versionIdentifier": "prism:versionIdentifier"
     }
   ],
   "type": "docmap",
   "id": "http://docmaps.elifesciences.org/testid.docmap.json",
-  "created": "2022-12-20T16:13:34.759Z",
-  "updated": "2022-12-20T16:13:34.759Z",
+  "created": "2022-12-23T08:50:37.184Z",
+  "updated": "2022-12-23T08:50:37.184Z",
   "publisher": {
     "id": "https://elifesciences.org/",
     "name": "eLife",
