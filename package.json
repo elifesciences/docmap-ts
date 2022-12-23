@@ -2,6 +2,7 @@
   "scripts": {
     "generate": "ts-node src/generate.ts",
     "parse": "ts-node src/parse.ts",
+    "fetch-and-test-data-hub-docmap": "ts-node src/fetch-and-parse.ts",
     "test": "jest"
   },
   "dependencies": {
