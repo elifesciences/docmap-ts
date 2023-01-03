@@ -7,6 +7,7 @@
     "type": "git",
     "url": "https://github.com/scottaubrey/docmap-ts.git"
   },
+  "main": "src/index.ts",
   "scripts": {
     "generate": "ts-node src/generate.ts",
     "parse": "ts-node src/parse.ts",
