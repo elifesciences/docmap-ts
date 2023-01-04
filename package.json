@@ -1,6 +1,6 @@
 {
   "name": "@scottaubrey/docmap-ts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Scott Aubrey <scott@aubrey.org.uk>",
   "license": "MIT",
   "type": "module",
