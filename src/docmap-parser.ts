@@ -125,7 +125,6 @@ const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expressio
 
     newVersion.contentUrls.forEach((contentUrl) => foundVersion.contentUrls.includes(contentUrl) || foundVersion.contentUrls.push(contentUrl));
 
-
     return foundVersion;
   }
   results.versions.push(newVersion);
