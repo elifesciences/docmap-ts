@@ -196,7 +196,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     // if there is an input and output preprint, let's assume it's a republish with the intent to review
     if (preprintInputs.length === 1 && preprintOutputs.length === 1) {
       const newVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
-      if (newVersion && newVersion !== version) {
+      if (newVersion !== version) {
         version.superceded = true;
         newVersion.supercedes = version;
         newVersion.originalContentDoi = version.originalContentDoi ?? version.doi;
@@ -212,20 +212,16 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     // assume there is only one input, which is the preprint
     const preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0]);
     const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item);
-    if (preprint && replacementPreprint) {
-      preprint.superceded = true;
-      replacementPreprint.supercedes = preprint;
-      replacementPreprint.originalContentDoi = preprint.originalContentDoi ?? preprint.doi;
-    }
+    preprint.superceded = true;
+    replacementPreprint.supercedes = preprint;
+    replacementPreprint.originalContentDoi = preprint.originalContentDoi ?? preprint.doi;
   } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
     const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
     const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
-    if (outputVersion) {
-      inputVersion.superceded = true;
-      outputVersion.supercedes = inputVersion;
-      outputVersion.originalContentDoi = inputVersion.originalContentDoi ?? inputVersion.doi;
-    }
+    inputVersion.superceded = true;
+    outputVersion.supercedes = inputVersion;
+    outputVersion.originalContentDoi = inputVersion.originalContentDoi ?? inputVersion.doi;
   }
 
   const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
