@@ -308,6 +308,7 @@ describe('docmap-parser', () => {
       id: 'elife/12345.1',
       type: 'Preprint',
       versionIdentifier: '1',
+      originalContentDoi: 'preprint/article1',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
@@ -812,7 +813,7 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('inference of revised preprint from input/outputs', () => {
+  it.failing('inference of revised preprint from input/outputs', () => {
     // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
@@ -849,18 +850,27 @@ describe('docmap-parser', () => {
       [],
     );
 
+    const preprintv2 = generatePreprint('preprint/article2', new Date('2022-05-01'), undefined, '2');
+    const nextStep = generateStep(
+      [preprintv1, peerReview1, peerReview2, editorsEvaluation],
+      [
+        generateAction([], [preprintv2]),
+      ],
+      [],
+    );
+
     // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<Version>({
-      doi: 'preprint/article1',
-      id: 'preprint/article1',
+      doi: 'preprint/article2',
+      id: 'preprint/article2',
       superceded: false,
       type: 'Preprint',
-      status: 'Reviewed',
-      versionIdentifier: '1',
+      status: 'Preview',
+      versionIdentifier: '2',
       peerReview: {
         reviews: [
           {

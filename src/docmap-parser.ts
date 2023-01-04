@@ -199,6 +199,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       if (newVersion && newVersion !== version) {
         version.superceded = true;
         newVersion.supercedes = version;
+        newVersion.originalContentDoi = version.originalContentDoi ?? version.doi;
 
         // Update type
         newVersion.status = '(Preview) Reviewed';
@@ -214,6 +215,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     if (preprint && replacementPreprint) {
       preprint.superceded = true;
       replacementPreprint.supercedes = preprint;
+      replacementPreprint.originalContentDoi = preprint.originalContentDoi ?? preprint.doi;
     }
   } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
@@ -222,6 +224,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     if (outputVersion) {
       inputVersion.superceded = true;
       outputVersion.supercedes = inputVersion;
+      outputVersion.originalContentDoi = inputVersion.originalContentDoi ?? inputVersion.doi;
     }
   }
 
