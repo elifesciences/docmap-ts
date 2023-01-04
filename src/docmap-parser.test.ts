@@ -442,6 +442,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      superceded: false,
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
@@ -558,6 +559,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      superceded: false,
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
@@ -655,6 +657,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      superceded: false,
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
@@ -754,6 +757,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      superceded: false,
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
@@ -853,6 +857,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject<Version>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      superceded: false,
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',

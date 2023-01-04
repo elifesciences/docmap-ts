@@ -67,7 +67,7 @@ export type Version = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   originalContentDoi?: string
-  supercededBy?: Version,
+  superceded: boolean,
   supercedes?: Version,
 };
 
@@ -84,6 +84,7 @@ const getVersionFromExpression = (expression: Expression): Version => {
   }
   return {
     type: upperCaseFirstLetter(expression.type),
+    superceded: false,
     status: '',
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
@@ -196,7 +197,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     if (preprintInputs.length === 1 && preprintOutputs.length === 1) {
       const newVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
       if (newVersion && newVersion !== version) {
-        version.supercededBy = newVersion;
+        version.superceded = true;
         newVersion.supercedes = version;
 
         // Update type
@@ -211,7 +212,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     const preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0]);
     const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item);
     if (preprint && replacementPreprint) {
-      preprint.supercededBy = replacementPreprint;
+      preprint.superceded = true;
       replacementPreprint.supercedes = preprint;
     }
   } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
@@ -219,7 +220,7 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
     const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
     if (outputVersion) {
-      inputVersion.supercededBy = outputVersion;
+      inputVersion.superceded = true;
       outputVersion.supercedes = inputVersion;
     }
   }
@@ -315,9 +316,9 @@ const getEventsFromVersion = (version: Version): TimelineEvent[] => {
 const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versions.flatMap((version: Version): TimelineEvent[] => getEventsFromVersion(version));
 
 // Removes any that has collected a superceded By property
-const reducedSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.supercededBy);
+const removeSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.superceded);
 
-const removeLinksFromVersions = (versions: Version[]): Version[] => versions.map((version) => ({ ...version, supercedes: undefined, supercededBy: undefined }));
+const removeLinksFromVersions = (versions: Version[]): Version[] => versions.map((version) => ({ ...version, supercedes: undefined }));
 
 const parseDocMapJson = (docMapJson: string): DocMap => {
   const docMapStruct = JSON.parse(docMapJson, (key, value) => {
@@ -358,7 +359,7 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ParseResult => {
   }
 
   results.timeline = getTimelineFromVersions(results.versions);
-  results.versions = reducedSupercededVersions(results.versions);
+  results.versions = removeSupercededVersions(results.versions);
   results.versions = removeLinksFromVersions(results.versions);
   return results;
 };
