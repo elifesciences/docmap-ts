@@ -68,7 +68,6 @@ export type Version = {
   authorResponseDate?: Date,
   originalContentDoi?: string
   superceded: boolean,
-  supercedes?: Version,
 };
 
 export type ParseResult = {
@@ -198,7 +197,6 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
       const newVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
       if (newVersion !== version) {
         version.superceded = true;
-        newVersion.supercedes = version;
         newVersion.originalContentDoi = version.originalContentDoi ?? version.doi;
 
         // Update type
@@ -213,14 +211,12 @@ const parseStep = (step: Step, results: ParseResult): ParseResult => {
     const preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0]);
     const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item);
     preprint.superceded = true;
-    replacementPreprint.supercedes = preprint;
     replacementPreprint.originalContentDoi = preprint.originalContentDoi ?? preprint.doi;
   } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
     const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
     const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
     inputVersion.superceded = true;
-    outputVersion.supercedes = inputVersion;
     outputVersion.originalContentDoi = inputVersion.originalContentDoi ?? inputVersion.doi;
   }
 
@@ -317,8 +313,6 @@ const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versio
 // Removes any that has collected a superceded By property
 const removeSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.superceded);
 
-const removeLinksFromVersions = (versions: Version[]): Version[] => versions.map((version) => ({ ...version, supercedes: undefined }));
-
 const parseDocMapJson = (docMapJson: string): DocMap => {
   const docMapStruct = JSON.parse(docMapJson, (key, value) => {
     if (key === 'steps') {
@@ -359,6 +353,5 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ParseResult => {
 
   results.timeline = getTimelineFromVersions(results.versions);
   results.versions = removeSupercededVersions(results.versions);
-  results.versions = removeLinksFromVersions(results.versions);
   return results;
 };
