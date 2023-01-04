@@ -813,7 +813,7 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.failing('inference of revised preprint from input/outputs', () => {
+  it('inference of revised preprint from input/outputs', () => {
     // Arrange
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
@@ -851,13 +851,13 @@ describe('docmap-parser', () => {
     );
 
     const preprintv2 = generatePreprint('preprint/article2', new Date('2022-05-01'), undefined, '2');
-    const nextStep = generateStep(
+    addNextStep(firstStep, generateStep(
       [preprintv1, peerReview1, peerReview2, editorsEvaluation],
       [
         generateAction([], [preprintv2]),
       ],
       [],
-    );
+    ));
 
     // Act
     const parsedData = parseDocMapFromFirstStep(firstStep);
@@ -869,45 +869,11 @@ describe('docmap-parser', () => {
       id: 'preprint/article2',
       superceded: false,
       type: 'Preprint',
-      status: 'Preview',
+      status: '',
       versionIdentifier: '2',
-      peerReview: {
-        reviews: [
-          {
-            reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa1',
-            date: new Date('2022-04-06'),
-            participants: [{
-              name: 'anonymous',
-              role: 'peer-reviewer',
-              institution: 'unknown',
-            }],
-          },
-          {
-            reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa2',
-            date: new Date('2022-04-07'),
-            participants: [{
-              name: 'anonymous',
-              role: 'peer-reviewer',
-              institution: 'unknown',
-            }],
-          },
-        ],
-        evaluationSummary: {
-          reviewType: ReviewType.EvaluationSummary,
-          text: 'fetched content for https://content.com/12345.sa3',
-          date: new Date('2022-04-10'),
-          participants: [{
-            name: 'Daffy Duck',
-            role: 'editor',
-            institution: 'unknown',
-          }],
-        },
-      },
     });
 
-    expect(parsedData.timeline.length).toStrictEqual(2);
+    expect(parsedData.timeline.length).toStrictEqual(3);
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
@@ -919,6 +885,14 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
       date: new Date('2022-04-06'),
+    });
+    expect(parsedData.timeline[2]).toMatchObject({
+      name: 'Preprint v2 posted',
+      date: new Date('2022-05-01'),
+      link: {
+        text: 'Go to preprint',
+        url: 'https://doi.org/preprint/article2',
+      },
     });
   });
 
