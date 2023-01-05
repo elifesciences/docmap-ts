@@ -17,6 +17,7 @@ import {
   generateWebContent,
 } from './docmap-generator';
 import {
+  ContentType,
   parsePreprintDocMap,
   ParseResult,
   ReviewType,
@@ -117,13 +118,13 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('constructs a contentUrl from the doi', () => {
+  it('constructs a content from the doi', () => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep([preprint], [], []);
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0].contentUrls).toContain('https://doi.org/preprint/article1');
+    expect(parsedData.versions[0].content).toContainEqual({ type: ContentType.Article, url: 'https://doi.org/preprint/article1' });
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
@@ -142,9 +143,9 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0].contentUrls.length).toStrictEqual(2);
-    expect(parsedData.versions[0].contentUrls).toContain('https://doi.org/preprint/article1');
-    expect(parsedData.versions[0].contentUrls).toContain('https://somewhere.preprint/article1');
+    expect(parsedData.versions[0].content.length).toStrictEqual(2);
+    expect(parsedData.versions[0].content).toContainEqual({ type: ContentType.Article, url: 'https://doi.org/preprint/article1' });
+    expect(parsedData.versions[0].content).toContainEqual({ type: ContentType.Article, url: 'https://somewhere.preprint/article1' });
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
@@ -163,8 +164,8 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0].contentUrls.length).toStrictEqual(1);
-    expect(parsedData.versions[0].contentUrls).toContain('https://doi.org/preprint/article1');
+    expect(parsedData.versions[0].content.length).toStrictEqual(1);
+    expect(parsedData.versions[0].content).toContainEqual({ type: ContentType.Article, url: 'https://doi.org/preprint/article1' });
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
@@ -506,7 +507,7 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
-      contentUrls: ['https://doi.org/preprint/article1'],
+      content: [{ type: ContentType.Article, url: 'https://doi.org/preprint/article1' }],
       peerReview: {
         reviews: [
           {
@@ -624,7 +625,7 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
-      contentUrls: ['https://doi.org/preprint/article1'],
+      content: [{ type: ContentType.Article, url: 'https://doi.org/preprint/article1' }],
       peerReview: {
         reviews: [
           {
@@ -723,7 +724,7 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
-      contentUrls: ['https://doi.org/preprint/article1'],
+      content: [{ type: ContentType.Article, url: 'https://doi.org/preprint/article1' }],
       peerReview: {
         reviews: [
           {
@@ -824,7 +825,7 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: 'Reviewed',
       versionIdentifier: '1',
-      contentUrls: ['https://doi.org/preprint/article1'],
+      content: [{ type: ContentType.Article, url: 'https://doi.org/preprint/article1' }],
       peerReview: {
         reviews: [
           {
@@ -934,7 +935,7 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: '',
       versionIdentifier: '2',
-      contentUrls: ['https://doi.org/preprint/article1', 'https://doi.org/preprint/article2'],
+      content: [{ type: ContentType.Article, url: 'https://doi.org/preprint/article1' }, { type: ContentType.Article, url: 'https://doi.org/preprint/article2' }],
     });
 
     expect(parsedData.timeline.length).toStrictEqual(3);
