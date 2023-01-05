@@ -81,8 +81,8 @@ const fullReviewedPreprintv1 = generateEnhancedPreprint(
   '80494',
   '1',
   '10.7554/eLife.80494.1',
-  'https://doi.org/10.7554/eLife.80494.1',
-  [generateWebContent('https://elifesciences.org/review-preprints/80494v1')],
+  undefined,
+  [],
 );
 const reviewedPreprintv1 = simplifyExpression(fullReviewedPreprintv1);
 step = doStep(() => generateStep(

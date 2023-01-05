@@ -47,7 +47,7 @@ export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, v
   versionIdentifier: version,
 });
 
-export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url: Url, content: WebPage[], published?: Date): Preprint => ({
+export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url?: Url, content?: WebPage[], published?: Date): Preprint => ({
   identifier,
   versionIdentifier: version,
   type: ExpressionType.Preprint,
