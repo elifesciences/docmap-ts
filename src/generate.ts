@@ -81,8 +81,6 @@ const fullReviewedPreprintv1 = generateEnhancedPreprint(
   '80494',
   '1',
   '10.7554/eLife.80494.1',
-  undefined,
-  [],
 );
 const reviewedPreprintv1 = simplifyExpression(fullReviewedPreprintv1);
 step = doStep(() => generateStep(
