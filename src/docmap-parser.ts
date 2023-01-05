@@ -93,9 +93,8 @@ const getVersionFromExpression = (expression: Expression): Version => {
   if (!expression.doi) {
     throw Error('Cannot identify Expression by DOI');
   }
-
-  const content = [{ type: ContentType.Article, url: `https://doi.org/${expression.doi}` }];
-  if (expression.url && expression.url !== `https://doi.org/${expression.doi}`) {
+  const content = [];
+  if (expression.url) {
     content.push({ type: ContentType.Article, url: expression.url });
   }
 
