@@ -61,34 +61,38 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
-export type Content = {
-  type: ContentType,
-  url: string,
+export type Preprint = {
+  id: string,
+  versionIdentifier?: string,
+  publishedDate?: Date,
+  doi: string,
+  content?: string,
 };
 
-export type Version = {
+type ReviewedPreprint = {
   id: string,
   versionIdentifier?: string,
   doi: string,
-  type: string,
-  status: string,
-  peerReview?: PeerReview,
+  preprint: Preprint,
   publishedDate?: Date,
   sentForReviewDate?: Date,
+  peerReview?: PeerReview,
   reviewedDate?: Date,
   authorResponseDate?: Date,
-  content: Content[],
-  superceded: boolean,
 };
 
-export type ParseResult = {
+export type VersionedReviewedPreprint = ReviewedPreprint & {
+  versionIdentifier: string,
+  status: string,
+};
+
+export type ManuscriptData = {
+  id: string,
   timeline: TimelineEvent[],
-  versions: Version[],
+  versions: VersionedReviewedPreprint[],
 };
 
-const upperCaseFirstLetter = (string: string) => `${string.substring(0, 1).toUpperCase()}${string.substring(1)}`;
-
-const getVersionFromExpression = (expression: Expression): Version => {
+const getPreprintFromExpression = (expression: Expression): Preprint => {
   if (!expression.doi) {
     throw Error('Cannot identify Expression by DOI');
   }
@@ -98,45 +102,66 @@ const getVersionFromExpression = (expression: Expression): Version => {
   }
 
   return {
-    type: upperCaseFirstLetter(expression.type),
-    superceded: false,
-    status: '',
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
-    content,
-    versionIdentifier: expression.versionIdentifier,
+    content: expression.url,
     publishedDate: expression.published,
+    versionIdentifier: expression.versionIdentifier,
   };
 };
 
-const isVersionAboutExpression = (version: Version, expression: Expression): boolean => {
-  if (expression.doi !== version.doi) {
+const isPreprintAboutExpression = (preprint: Preprint, expression: Expression): boolean => {
+  if (expression.doi !== preprint.doi) {
     return false;
   }
 
-  if (expression.versionIdentifier && expression.versionIdentifier !== version.versionIdentifier) {
+  if (expression.versionIdentifier && expression.versionIdentifier !== preprint.versionIdentifier) {
     return false;
   }
 
   return true;
 };
-const isContentEqual = (contentA: Content, contentB: Content): boolean => contentA.url === contentB.url && contentA.type === contentB.type;
-const findVersionDescribedBy = (results: ParseResult, expression: Expression): Version | undefined => results.versions.find((version) => isVersionAboutExpression(version, expression));
-const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expression: Expression): Version => {
-  const foundVersion = findVersionDescribedBy(results, expression);
-  const newVersion = getVersionFromExpression(expression);
-  if (foundVersion) {
-    // update any fields, defaulting to existing values
-    foundVersion.type = newVersion.type ?? foundVersion.type;
-    foundVersion.status = newVersion.status ?? foundVersion.status;
-    foundVersion.publishedDate = newVersion.publishedDate ?? foundVersion.publishedDate;
+const createReviewedPreprintFrom = (expression: Expression): ReviewedPreprint => {
+  const newPreprint = getPreprintFromExpression(expression);
+  return {
+    ...newPreprint,
+    preprint: newPreprint,
+  };
+};
 
-    newVersion.content.forEach((contentEntry) => foundVersion.content.find((contentEntryInFoundVersion) => isContentEqual(contentEntryInFoundVersion, contentEntry)) || foundVersion.content.push(contentEntry));
+const findPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>):
+ReviewedPreprint | undefined => preprintCollection.find(
+  (preprint) => isPreprintAboutExpression(preprint, expression) || isPreprintAboutExpression(preprint, expression),
+);
 
-    return foundVersion;
+const addPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
+  console.log('adding');
+  console.log(expression);
+  const newPreprint = createReviewedPreprintFrom(expression);
+  preprintCollection.push(newPreprint);
+  return newPreprint;
+};
+
+const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
+  const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
+  if (!foundPreprint) {
+    return addPreprintDescribedBy(expression, preprintCollection);
   }
-  results.versions.push(newVersion);
-  return newVersion;
+  // Update fields, default to any data already there.
+  foundPreprint.publishedDate = expression.published ?? foundPreprint.publishedDate;
+  return foundPreprint;
+};
+
+const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint) => {
+  if (!expression.doi) {
+    throw Error('Cannot identify Expression by DOI');
+  }
+
+  const newPreprint = preprint;
+
+  newPreprint.id = expression.identifier ?? expression.doi;
+  newPreprint.doi = expression.doi;
+  newPreprint.publishedDate = expression.published;
 };
 
 const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => action.outputs.map((output) => {
@@ -165,129 +190,101 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   };
 })).filter((output): output is Evaluation => output !== undefined);
 
-const addEvaluationsToVersion = (version: Version, evaluations: Evaluation[]) => {
+const addEvaluationsToPreprint = (preprint: ReviewedPreprint, evaluations: Evaluation[]) => {
   const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.EvaluationSummary);
   const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.AuthorResponse);
   const reviews = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.Review);
 
-  const thisVersion = version;
-  if (!thisVersion.peerReview) {
-    thisVersion.peerReview = {
+  const thisPreprint = preprint;
+  if (!thisPreprint.peerReview) {
+    thisPreprint.peerReview = {
       reviews: [],
     };
   }
-  thisVersion.peerReview.reviews.push(...reviews);
-  thisVersion.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : thisVersion.peerReview.evaluationSummary;
-  thisVersion.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisVersion.peerReview.authorResponse;
+  thisPreprint.peerReview.reviews.push(...reviews);
+  thisPreprint.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : thisPreprint.peerReview.evaluationSummary;
+  thisPreprint.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisPreprint.peerReview.authorResponse;
 };
 
-const parseStep = (step: Step, results: ParseResult): ParseResult => {
+// push all reviews into peerReview (override if necessary)
+const setPeerReviewFrom = (actions: Action[], preprint: ReviewedPreprint) => {
+  addEvaluationsToPreprint(preprint, findAndFlatMapAllEvaluations(actions));
+};
+
+const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
+  console.log('step');
   // look for any preprint inputs that need importing
   const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
   const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
 
-  // create and import or update versions
-  [...preprintInputs, ...preprintOutputs].forEach((preprint) => findAndUpdateOrCreateVersionDescribedBy(results, preprint));
-
   // useful to infer actions from inputs and output types
   const evaluationTypes = [
-    ExpressionType.AuthorResponse.toString(),
     ExpressionType.EvaluationSummary.toString(),
     ExpressionType.PeerReview.toString(),
   ];
   const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
   const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
 
+  // Parse logic: A "published" Assertion means something was published
+  // Parse result: Create a Preprint for the published expression linked in the assertion
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published);
   if (preprintPublishedAssertion) {
-    findAndUpdateOrCreateVersionDescribedBy(results, preprintPublishedAssertion.item);
+    const reviewPreprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints);
+    // update published date if necessary
+    if (preprintPublishedAssertion?.happened) {
+      reviewPreprint.publishedDate = preprintPublishedAssertion.happened;
+    }
+  } else if (preprintInputs.length === 1 && step.actions.length === 0) {
+    // only 1 input preprint, no other output preprints or evaluations is ann inferred straightforward publish too
+    addPreprintDescribedBy(preprintInputs[0], preprints);
   }
 
+  // Parse logic: An "under-review" Assertion means something is out for review
+  // Parse result: Find a ReviewedPreprint for the published expression linked in the assertion and set the status
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
   if (preprintUnderReviewAssertion) {
     // Update type and sent for review date
-    const version = findAndUpdateOrCreateVersionDescribedBy(results, preprintUnderReviewAssertion.item);
-    version.sentForReviewDate = preprintUnderReviewAssertion.happened;
-    version.status = '(Preview) Reviewed';
-
-    // if there is an input and output preprint, let's assume it's a republish with the intent to review
-    if (preprintInputs.length === 1 && preprintOutputs.length === 1) {
-      const newVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
-      if (newVersion !== version) {
-        version.superceded = true;
-        // bring forward any content
-        newVersion.content = [
-          ...version.content,
-          ...newVersion.content,
-        ];
-
-        // Update type
-        newVersion.status = '(Preview) Reviewed';
-      }
-    }
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintUnderReviewAssertion.item, preprints);
+    preprint.sentForReviewDate = preprintUnderReviewAssertion.happened;
   }
 
   const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished);
   if (preprintRepublishedAssertion) {
     // assume there is only one input, which is the preprint
-    const preprint = findAndUpdateOrCreateVersionDescribedBy(results, step.inputs[0]);
-    const replacementPreprint = findAndUpdateOrCreateVersionDescribedBy(results, preprintRepublishedAssertion.item);
-    preprint.superceded = true;
-    // bring forward any content
-    replacementPreprint.content = [
-      ...preprint.content,
-      ...replacementPreprint.content,
-    ];
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(step.inputs[0], preprints);
+    republishPreprintAs(preprintRepublishedAssertion.item, preprint);
   } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
-    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
-    const outputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintOutputs[0]);
-    inputVersion.superceded = true;
-    // bring forward any content
-    outputVersion.content = [
-      ...inputVersion.content,
-      ...outputVersion.content,
-    ];
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+    // only republish if the previous version is not already evaluated - otherwise it's a new version
+    if (!preprint.peerReview?.evaluationSummary) {
+      republishPreprintAs(preprintOutputs[0], preprint);
+    } else {
+      addPreprintDescribedBy(preprintOutputs[0], preprints);
+    }
   }
 
   const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
   if (preprintPeerReviewedAssertion) {
-    const version = findVersionDescribedBy(results, preprintPeerReviewedAssertion.item);
-    if (version) {
-      // Update type and sent for review date
-      version.type = 'Preprint';
-      version.reviewedDate = preprintPeerReviewedAssertion.happened;
-      version.status = 'Reviewed';
-
-      // push all reviews into peerReview (override if necessary)
-      const evaluations = findAndFlatMapAllEvaluations(step.actions);
-      addEvaluationsToVersion(version, evaluations);
-    }
-  } else if (preprintInputs.length === 1 && evaluationOutputs.length > 0 && preprintOutputs.length === 0) {
-    // preprint input, evaluation output, but no preprint output = Reviewed Preprint (input)
-    const inputVersion = findAndUpdateOrCreateVersionDescribedBy(results, preprintInputs[0]);
-
-    const publishedDates = evaluationOutputs.map((evaluationOutput) => evaluationOutput.published).filter((publishedDate) => !!publishedDate);
-    if (publishedDates.length > 0) {
-      inputVersion.status = 'Reviewed';
-      inputVersion.reviewedDate = inputVersion.reviewedDate ?? publishedDates[0];
-      addEvaluationsToVersion(inputVersion, findAndFlatMapAllEvaluations(step.actions));
-    }
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintPeerReviewedAssertion.item, preprints);
+    setPeerReviewFrom(step.actions, preprint);
+    preprint.reviewedDate = preprintPeerReviewedAssertion.happened;
+  } else if (preprintInputs.length === 1 && evaluationOutputs.length > 0 && preprintOutputs.length === 0 && evaluationInputs.length === 0) {
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+    setPeerReviewFrom(step.actions, preprint);
+    preprint.reviewedDate = preprint.peerReview?.evaluationSummary?.date;
   }
 
-  // Enhanced can cover a multitude of enhancements to the paper.
-  const enhancedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Enhanced);
-  if (enhancedAssertion) {
-    const version = findVersionDescribedBy(results, enhancedAssertion.item);
-    if (version) {
-      // Decide what to do by examining the outputs
-      const evaluations = findAndFlatMapAllEvaluations(step.actions);
-      if (evaluations.length > 0) {
-        addEvaluationsToVersion(version, evaluations);
-      }
-    }
+  // Parse Logic: If we have an author response in output
+  // Parse result: include in the preprint evaluation
+  const authorResponseOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === ExpressionType.AuthorResponse));
+  if (authorResponseOutputs.length > 0) {
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+    setPeerReviewFrom(step.actions, preprint);
+    preprint.authorResponseDate = authorResponseOutputs[0].published;
   }
-  return results;
+
+  return preprints;
 };
 
 function* getSteps(docMap: DocMap): Generator<Step> {
@@ -307,33 +304,41 @@ function* getSteps(docMap: DocMap): Generator<Step> {
   }
 }
 
-const getEventsFromVersion = (version: Version): TimelineEvent[] => {
+const getEventsFromPreprints = (preprint: VersionedReviewedPreprint) => {
   const events = [];
-  if (version.publishedDate) {
-    const articleContent = version.content.filter((content) => content.type === 'article');
-    const bioRxiv = version.doi.startsWith('10.1101') ?? false;
-    const bioRxivUrl = bioRxiv ? `https://doi.org/${version.doi}` : undefined;
-    const url = (articleContent.length === 1) ? articleContent[0].url : bioRxivUrl;
+  if (preprint.preprint.publishedDate !== undefined) {
+    const contentUrl = preprint.preprint.content;
+    const bioRxiv = preprint.preprint.doi.startsWith('10.1101') ?? false;
+    const bioRxivUrl = bioRxiv ? `https://doi.org/${preprint.preprint.doi}` : undefined;
+    const url = contentUrl ?? bioRxivUrl;
     const link = url ? { text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url } : undefined;
+    const version = preprint.versionIdentifier ?? preprint.preprint.versionIdentifier;
 
     events.push({
-      name: `${version.type}${version.versionIdentifier ? ` v${version.versionIdentifier}` : ''} posted`,
-      date: version.publishedDate,
+      name: `Preprint ${version ? `v${version} ` : ''}posted`,
+      date: preprint.preprint.publishedDate,
       link,
     });
   }
 
-  if (version.sentForReviewDate) {
+  if (preprint.sentForReviewDate) {
     events.push({
-      name: `${version.type} sent for review`,
-      date: version.sentForReviewDate,
+      name: 'Preprint sent for review',
+      date: preprint.sentForReviewDate,
     });
   }
 
-  if (version.reviewedDate) {
+  if (preprint.reviewedDate) {
     events.push({
-      name: `Reviews received for ${version.type}`,
-      date: version.reviewedDate,
+      name: 'Reviews received for Preprint',
+      date: preprint.reviewedDate,
+    });
+  }
+
+  if (preprint.publishedDate && preprint.doi !== preprint.preprint.doi) {
+    events.push({
+      name: 'Reviewed Preprint posted',
+      date: preprint.publishedDate,
     });
   }
 
@@ -341,10 +346,7 @@ const getEventsFromVersion = (version: Version): TimelineEvent[] => {
   return events.sort((a, b) => a.date.getTime() - b.date.getTime());
 };
 
-const getTimelineFromVersions = (versions: Version[]): TimelineEvent[] => versions.flatMap((version: Version): TimelineEvent[] => getEventsFromVersion(version));
-
-// Removes any that has collected a superceded By property
-const removeSupercededVersions = (versions: Version[]): Version[] => versions.filter((version) => !version.superceded);
+const getTimelineFromPreprints = (preprints: VersionedReviewedPreprint[]): TimelineEvent[] => preprints.flatMap((preprint): TimelineEvent[] => getEventsFromPreprints(preprint));
 
 const parseDocMapJson = (docMapJson: string): DocMap => {
   const docMapStruct = JSON.parse(docMapJson, (key, value) => {
@@ -364,27 +366,45 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
   return docMapStruct as DocMap;
 };
 
-export const parsePreprintDocMap = (docMap: DocMap | string): ParseResult => {
-  const docMapStruct = typeof docMap === 'string' ? parseDocMapJson(docMap) : docMap;
+export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: string, versions: VersionedReviewedPreprint[] } => {
+  const versions = preprints.map((preprint, index) => ({
+    ...preprint,
+    versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
+    status: 'Reviewed Preprint',
+  }));
 
-  let results: ParseResult = {
-    timeline: [],
-    versions: [],
+  const { id } = preprints.slice(-1)[0];
+
+  return {
+    id,
+    versions,
   };
+};
+
+export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData | undefined => {
+  const docMapStruct = typeof docMap === 'string' ? parseDocMapJson(docMap) : docMap;
 
   const steps = Array.from(docMapStruct.steps.values());
   if (steps.length === 0) {
-    return results;
+    return undefined;
   }
 
   const stepsIterator = getSteps(docMapStruct);
   let currentStep = stepsIterator.next().value;
+  let preprints: Array<ReviewedPreprint> = [];
   while (currentStep) {
-    results = parseStep(currentStep, results);
+    preprints = parseStep(currentStep, preprints);
     currentStep = stepsIterator.next().value;
   }
 
-  results.timeline = getTimelineFromVersions(results.versions);
-  results.versions = removeSupercededVersions(results.versions);
-  return results;
+  if (preprints.length === 0) {
+    return undefined;
+  }
+
+  const { id, versions } = finaliseVersions(preprints);
+  return {
+    id,
+    versions,
+    timeline: getTimelineFromPreprints(versions),
+  };
 };

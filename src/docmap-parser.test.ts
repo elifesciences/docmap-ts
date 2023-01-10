@@ -19,9 +19,10 @@ import {
 import {
   ContentType,
   parsePreprintDocMap,
-  ParseResult,
+  ManuscriptData,
   ReviewType,
-  Version,
+  VersionedReviewedPreprint,
+  TimelineEvent,
 } from './docmap-parser';
 
 const publisher = {
@@ -35,9 +36,13 @@ const publisher = {
   },
 };
 
-const parseDocMapFromFirstStep = (step: Step): ParseResult => {
+const parseDocMapFromFirstStep = (step: Step): ManuscriptData => {
   const docmap = generateDocMap('test', publisher, step);
-  return parsePreprintDocMap(docmap);
+  const parsedDocMap = parsePreprintDocMap(docmap);
+  if (parsedDocMap === undefined) {
+    throw Error('This docmap resulted in an undefined return');
+  }
+  return parsedDocMap;
 };
 
 describe('docmap-parser', () => {
@@ -46,8 +51,7 @@ describe('docmap-parser', () => {
     docmap.steps = new Map();
     const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedData.timeline.length).toStrictEqual(0);
-    expect(parsedData.versions.length).toStrictEqual(0);
+    expect(parsedData).toBeUndefined();
   });
 
   it('returns empty result when it cant find the first step', () => {
@@ -55,8 +59,7 @@ describe('docmap-parser', () => {
     docmap['first-step'] = 'wrongid';
     const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedData.timeline.length).toStrictEqual(0);
-    expect(parsedData.versions.length).toStrictEqual(0);
+    expect(parsedData).toBeUndefined();
   });
 
   it('finds a published preprint from input step with URL', () => {
@@ -68,13 +71,12 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
       link: {
         text: 'Go to preprint',
         url: 'https://somewhere.org/preprint/article1',
@@ -103,12 +105,11 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
     });
   });
@@ -119,12 +120,11 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0].content.length).toStrictEqual(1);
-    expect(parsedData.versions[0].content).toContainEqual({ type: ContentType.Article, url: 'https://somewhere.preprint/article1' });
+    expect(parsedData.versions[0].preprint.content).toStrictEqual('https://somewhere.preprint/article1');
 
     expect(parsedData.timeline.length).toStrictEqual(1);
     expect(parsedData.timeline[0]).toMatchObject({
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
     });
   });
@@ -146,13 +146,17 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
-      status: '(Preview) Reviewed',
+      status: 'Reviewed Preprint',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+      },
     });
+
     expect(parsedData.timeline.length).toStrictEqual(2);
-    expect(parsedData.timeline[0]).toMatchObject({
+    expect(parsedData.timeline[0]).toMatchObject<TimelineEvent>({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
       link: {
         text: 'Go to preprint',
         url: 'https://something.org/preprint/article1',
@@ -181,14 +185,13 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
-      status: '(Preview) Reviewed',
+      status: 'Reviewed Preprint',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -218,14 +221,13 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
-      status: '(Preview) Reviewed',
+      status: 'Reviewed Preprint',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -256,20 +258,18 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
-      versionIdentifier: undefined,
+      versionIdentifier: '1',
     });
     expect(parsedData.versions[1]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
       versionIdentifier: '4',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -301,18 +301,17 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'elife/12345.1',
       id: 'elife/12345.1',
-      type: 'Preprint',
       versionIdentifier: '1',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
-      name: 'Preprint posted',
+      name: 'Preprint v1 posted',
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
-      name: 'Preprint v1 posted',
+      name: 'Reviewed Preprint posted',
     });
   });
 
@@ -340,13 +339,11 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      type: 'Preprint',
       versionIdentifier: '1',
     });
     expect(parsedData.versions[1]).toMatchObject({
       doi: 'preprint/article1v2',
       id: 'preprint/article1v2',
-      type: 'Preprint',
       versionIdentifier: '2',
     });
 
@@ -418,14 +415,16 @@ describe('docmap-parser', () => {
     });
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Version>({
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      superceded: false,
-      type: 'Preprint',
-      status: 'Reviewed',
+      status: 'Reviewed Preprint',
       versionIdentifier: '1',
-      content: [],
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
       peerReview: {
         reviews: [
           {
@@ -516,7 +515,7 @@ describe('docmap-parser', () => {
       [
         generateAction([author], [authorResponse]),
       ],
-      [generateEnhancedAssertion(preprintv1, new Date('2022-05-09'))],
+      [],
     ));
 
     const parsedData = parseDocMapFromFirstStep(firstStep);
@@ -532,14 +531,16 @@ describe('docmap-parser', () => {
     });
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Version>({
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      superceded: false,
-      type: 'Preprint',
-      status: 'Reviewed',
+      status: 'Reviewed Preprint',
       versionIdentifier: '1',
-      content: [],
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
       peerReview: {
         reviews: [
           {
@@ -631,14 +632,16 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Version>({
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      superceded: false,
-      type: 'Preprint',
-      status: 'Reviewed',
+      status: 'Reviewed Preprint',
       versionIdentifier: '1',
-      content: [],
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
       peerReview: {
         reviews: [
           {
@@ -728,14 +731,16 @@ describe('docmap-parser', () => {
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Version>({
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      superceded: false,
-      type: 'Preprint',
-      status: 'Reviewed',
+      status: 'Reviewed Preprint',
       versionIdentifier: '1',
-      content: [],
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
       peerReview: {
         reviews: [
           {
@@ -779,7 +784,7 @@ describe('docmap-parser', () => {
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
-      date: new Date('2022-04-06'),
+      date: new Date('2022-04-10'),
     });
   });
 
@@ -820,7 +825,7 @@ describe('docmap-parser', () => {
       [],
     );
 
-    const preprintv2 = generatePreprint('preprint/article2', new Date('2022-05-01'), undefined, '2');
+    const preprintv2 = generatePreprint('preprint/article1', new Date('2022-05-01'), undefined, '2');
     addNextStep(firstStep, generateStep(
       [preprintv1, peerReview1, peerReview2, editorsEvaluation],
       [
@@ -833,15 +838,32 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMapFromFirstStep(firstStep);
 
     // Assert
-    expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Version>({
-      doi: 'preprint/article2',
-      id: 'preprint/article2',
-      superceded: false,
-      type: 'Preprint',
-      status: '',
+    expect(parsedData.versions.length).toStrictEqual(2);
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      status: 'Reviewed Preprint',
+      publishedDate: new Date('2022-03-01'),
+      reviewedDate: new Date('2022-04-10'),
+      versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
+    });
+    expect(parsedData.versions[1]).toMatchObject<VersionedReviewedPreprint>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      status: 'Reviewed Preprint',
+      publishedDate: new Date('2022-05-01'),
       versionIdentifier: '2',
-      content: [],
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '2',
+        publishedDate: new Date('2022-05-01'),
+      },
     });
 
     expect(parsedData.timeline.length).toStrictEqual(3);
@@ -851,7 +873,7 @@ describe('docmap-parser', () => {
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
-      date: new Date('2022-04-06'),
+      date: new Date('2022-04-10'),
     });
     expect(parsedData.timeline[2]).toMatchObject({
       name: 'Preprint v2 posted',
