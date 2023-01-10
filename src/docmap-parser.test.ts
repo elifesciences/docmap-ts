@@ -68,7 +68,6 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      url: 'https://somewhere.org/preprint/article1',
       type: 'Preprint',
     });
 
@@ -83,7 +82,7 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('finds a bioRxiv preprint and labels it', () => {
+  it('finds a bioRxiv preprint and gives the timeline a link it', () => {
     const preprint = generatePreprint('10.1101/article1', new Date('2022-03-01'));
     const firstStep = generateStep([preprint], [], []);
     const parsedData = parseDocMapFromFirstStep(firstStep);
@@ -111,10 +110,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
   });
 
@@ -131,10 +126,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://somewhere.preprint/article1',
-      },
     });
   });
 
@@ -158,7 +149,6 @@ describe('docmap-parser', () => {
       type: 'Preprint',
       status: '(Preview) Reviewed',
     });
-
     expect(parsedData.timeline.length).toStrictEqual(2);
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
@@ -199,10 +189,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -240,10 +226,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -288,18 +270,10 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
       name: 'Preprint v4 posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
   });
 
@@ -335,10 +309,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-04-12'),
@@ -384,18 +354,10 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       date: new Date('2022-03-01'),
       name: 'Preprint v1 posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       date: new Date('2022-06-01'),
       name: 'Preprint v2 posted',
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1v2',
-      },
     });
   });
 
@@ -449,10 +411,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -567,10 +525,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -725,10 +679,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -826,10 +776,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -902,10 +848,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[0]).toMatchObject({
       name: 'Preprint v1 posted',
       date: new Date('2022-03-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article1',
-      },
     });
     expect(parsedData.timeline[1]).toMatchObject({
       name: 'Reviews received for Preprint',
@@ -914,10 +856,6 @@ describe('docmap-parser', () => {
     expect(parsedData.timeline[2]).toMatchObject({
       name: 'Preprint v2 posted',
       date: new Date('2022-05-01'),
-      link: {
-        text: 'Go to preprint',
-        url: 'https://doi.org/preprint/article2',
-      },
     });
   });
 

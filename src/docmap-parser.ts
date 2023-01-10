@@ -70,7 +70,6 @@ export type Version = {
   id: string,
   versionIdentifier?: string,
   doi: string,
-  url?: string,
   type: string,
   status: string,
   peerReview?: PeerReview,
@@ -104,7 +103,6 @@ const getVersionFromExpression = (expression: Expression): Version => {
     status: '',
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
-    url: expression.url ?? `https://doi.org/${expression.doi}`,
     content,
     versionIdentifier: expression.versionIdentifier,
     publishedDate: expression.published,
@@ -129,7 +127,6 @@ const findAndUpdateOrCreateVersionDescribedBy = (results: ParseResult, expressio
   const newVersion = getVersionFromExpression(expression);
   if (foundVersion) {
     // update any fields, defaulting to existing values
-    foundVersion.url = newVersion.url ?? foundVersion.url;
     foundVersion.type = newVersion.type ?? foundVersion.type;
     foundVersion.status = newVersion.status ?? foundVersion.status;
     foundVersion.publishedDate = newVersion.publishedDate ?? foundVersion.publishedDate;
@@ -313,9 +310,12 @@ function* getSteps(docMap: DocMap): Generator<Step> {
 const getEventsFromVersion = (version: Version): TimelineEvent[] => {
   const events = [];
   if (version.publishedDate) {
-    const url = version.url ?? (version.doi ? `https://doi.org/${version.doi}` : undefined);
-    const bioRxiv = version.doi?.startsWith('10.1101') ?? false;
+    const articleContent = version.content.filter((content) => content.type === 'article');
+    const bioRxiv = version.doi.startsWith('10.1101') ?? false;
+    const bioRxivUrl = bioRxiv ? `https://doi.org/${version.doi}` : undefined;
+    const url = (articleContent.length === 1) ? articleContent[0].url : bioRxivUrl;
     const link = url ? { text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url } : undefined;
+
     events.push({
       name: `${version.type}${version.versionIdentifier ? ` v${version.versionIdentifier}` : ''} posted`,
       date: version.publishedDate,
