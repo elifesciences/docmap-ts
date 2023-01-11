@@ -135,8 +135,6 @@ ReviewedPreprint | undefined => preprintCollection.find(
 );
 
 const addPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
-  console.log('adding');
-  console.log(expression);
   const newPreprint = createReviewedPreprintFrom(expression);
   preprintCollection.push(newPreprint);
   return newPreprint;
@@ -212,7 +210,6 @@ const setPeerReviewFrom = (actions: Action[], preprint: ReviewedPreprint) => {
 };
 
 const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
-  console.log('step');
   // look for any preprint inputs that need importing
   const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
   const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
