@@ -131,7 +131,7 @@ const createReviewedPreprintFrom = (expression: Expression): ReviewedPreprint =>
 
 const findPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>):
 ReviewedPreprint | undefined => preprintCollection.find(
-  (preprint) => isPreprintAboutExpression(preprint, expression) || isPreprintAboutExpression(preprint, expression),
+  (preprint) => isPreprintAboutExpression(preprint, expression) || isPreprintAboutExpression(preprint.preprint, expression),
 );
 
 const addPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
@@ -259,6 +259,10 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
     } else {
       addPreprintDescribedBy(preprintOutputs[0], preprints);
     }
+  } else if (preprintInputs.length === 1 && evaluationInputs.length === 0 && preprintOutputs.length === 1) {
+    // preprint input, preprint output, but no evaluations = superceed input preprint with output Reviewed Preprint
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+    republishPreprintAs(preprintOutputs[0], preprint);
   }
 
   const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
@@ -364,11 +368,15 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
 };
 
 export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: string, versions: VersionedReviewedPreprint[] } => {
-  const versions = preprints.map((preprint, index) => ({
-    ...preprint,
-    versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
-    status: 'Reviewed Preprint',
-  }));
+  const versions = preprints.map((preprint, index) => {
+    const reviewed = !!preprint.peerReview?.evaluationSummary;
+    const nameOfEnhancedPreprint = preprint.doi.split('/')[0] === '10.7554' ? 'Reviewed' : 'Enhanced';
+    return {
+      ...preprint,
+      versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
+      status: `${reviewed ? `${nameOfEnhancedPreprint} ` : ''}Preprint${!reviewed ? ' (preview)' : ''}`,
+    };
+  });
 
   const { id } = preprints.slice(-1)[0];
 
