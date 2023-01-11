@@ -254,7 +254,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
     // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
     const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
     // only republish if the previous version is not already evaluated - otherwise it's a new version
-    if (!preprint.peerReview?.evaluationSummary) {
+    if (!preprint.peerReview?.evaluationSummary || isPreprintAboutExpression(preprint, preprintOutputs[0])) {
       republishPreprintAs(preprintOutputs[0], preprint);
     } else {
       addPreprintDescribedBy(preprintOutputs[0], preprints);
