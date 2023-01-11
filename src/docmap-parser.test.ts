@@ -146,7 +146,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      status: 'Preprint (preview)',
+      status: 'Enhanced Preprint (preview)',
       preprint: {
         doi: 'preprint/article1',
         id: 'preprint/article1',
@@ -185,7 +185,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      status: 'Preprint (preview)',
+      status: 'Enhanced Preprint (preview)',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
@@ -221,7 +221,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      status: 'Preprint (preview)',
+      status: 'Enhanced Preprint (preview)',
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);
@@ -855,7 +855,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[1]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      status: 'Preprint (preview)',
+      status: 'Enhanced Preprint (preview)',
       publishedDate: new Date('2022-05-01'),
       versionIdentifier: '2',
       preprint: {

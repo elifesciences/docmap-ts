@@ -370,11 +370,10 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
 export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: string, versions: VersionedReviewedPreprint[] } => {
   const versions = preprints.map((preprint, index) => {
     const reviewed = !!preprint.peerReview?.evaluationSummary;
-    const nameOfEnhancedPreprint = preprint.doi.split('/')[0] === '10.7554' ? 'Reviewed' : 'Enhanced';
     return {
       ...preprint,
       versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
-      status: `${reviewed ? `${nameOfEnhancedPreprint} ` : ''}Preprint${!reviewed ? ' (preview)' : ''}`,
+      status: `Enhanced Preprint${!reviewed ? ' (preview)' : ''}`,
     };
   });
 
