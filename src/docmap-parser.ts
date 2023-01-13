@@ -61,7 +61,7 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
-export type Preprint = {
+type Preprint = {
   id: string,
   versionIdentifier?: string,
   publishedDate?: Date,
