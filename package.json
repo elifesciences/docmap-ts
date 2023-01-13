@@ -3,18 +3,18 @@
   "version": "0.0.7",
   "author": "Scott Aubrey <scott@aubrey.org.uk>",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/scottaubrey/docmap-ts.git"
   },
-  "main": "src/index.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "generate": "ts-node-esm --experimentalSpecifierResolution=node src/generate.ts",
-    "parse": "ts-node-esm --experimentalSpecifierResolution=node src/parse.ts",
+    "generate": "ts-node --experimentalSpecifierResolution=node src/generate.ts",
+    "parse": "ts-node --experimentalSpecifierResolution=node src/parse.ts",
     "fetch-and-test-data-hub-docmap": "ts-node src/fetch-and-parse.ts",
     "test": "jest",
-    "lint": "eslint --ext .tsx,.ts src/"
+    "lint": "eslint --ext .tsx,.ts src/",
+    "prepublish": "tsc"
   },
   "dependencies": {
     "@tsconfig/node18": "^1.0.1",

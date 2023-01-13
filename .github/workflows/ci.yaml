@@ -42,6 +42,7 @@ jobs:
         node-version: "${{ steps.nvm.outputs.NVMRC }}"
         cache: yarn
         registry-url: 'https://npm.pkg.github.com'
-    - run: npm publish
+    - run: yarn prepackage
+    - run: yarn publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
