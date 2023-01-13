@@ -22,6 +22,7 @@ import {
   generateUpdateSummary,
   generateVersionOfRecordAssertion,
   generateVersionOfRecord,
+  generateRepublishedAssertion,
 } from './docmap-generator';
 import { parsePreprintDocMap } from './docmap-parser';
 
@@ -86,7 +87,7 @@ const reviewedPreprintv1 = simplifyExpression(fullReviewedPreprintv1);
 step = doStep(() => generateStep(
   [preprintv1],
   [generateAction([], [fullReviewedPreprintv1])],
-  [generateUnderReviewAssertion(preprintv1, new Date('2022-08-02')), generateDraftAssertion(reviewedPreprintv1)],
+  [generateUnderReviewAssertion(preprintv1, new Date('2022-08-02')), generateRepublishedAssertion(preprintv1)],
 ), '02.sent_for_review_preprint', step);
 
 //
