@@ -4,7 +4,6 @@ import {
   generateAction,
   generateAuthorResponse,
   generateDocMap,
-  generateEnhancedAssertion,
   generateEvaluationSummary,
   generatePeerReview,
   generatePeerReviewedAssertion,
@@ -17,7 +16,6 @@ import {
   generateWebContent,
 } from './docmap-generator';
 import {
-  ContentType,
   parsePreprintDocMap,
   ManuscriptData,
   ReviewType,

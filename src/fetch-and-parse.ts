@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { exit } from 'process';
 import { DocMap } from './docmap';
 import { parsePreprintDocMap } from './docmap-parser';

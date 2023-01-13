@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { writeFileSync } from 'fs';
 import { Step } from './docmap';
 import {

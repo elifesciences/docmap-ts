@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { R_OK } from 'constants';
 import { accessSync, readFileSync } from 'fs';
 import { argv, exit } from 'process';
