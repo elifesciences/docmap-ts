@@ -100,7 +100,6 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
   if (expression.url) {
     content.push({ type: ContentType.Article, url: expression.url });
   }
-
   return {
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
@@ -229,10 +228,16 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
     const reviewPreprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints);
     // update published date if necessary
     if (preprintPublishedAssertion?.happened) {
-      reviewPreprint.publishedDate = preprintPublishedAssertion.happened;
+      reviewPreprint.preprint.publishedDate = preprintPublishedAssertion.happened;
+    } else if (preprintInputs.length === 1 && step.actions.length === 0 && preprintInputs[0].published) {
+      // set publishedDate if we can extract published date from the input
+      reviewPreprint.preprint.publishedDate = preprintInputs[0].published;
+    } else if (preprintInputs.length === 0 && preprintOutputs.length === 1 && preprintOutputs[0].published) {
+      // set publishedDate if we can extract published date from the output
+      reviewPreprint.preprint.publishedDate = preprintOutputs[0].published;
     }
   } else if (preprintInputs.length === 1 && step.actions.length === 0) {
-    // only 1 input preprint, no other output preprints or evaluations is ann inferred straightforward publish too
+    // only 1 input preprint, no other output preprints or evaluations is an inferred straightforward publish too
     addPreprintDescribedBy(preprintInputs[0], preprints);
   }
 

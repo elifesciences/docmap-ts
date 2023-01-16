@@ -879,6 +879,62 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('reads the published date from inputs when an assertion does not have a published date', () => {
+    // Arrange
+    const preprint = generatePreprint('preprint/article1');
+    const preprintWithDate = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const firstStep = generateStep(
+      [preprintWithDate],
+      [],
+      [generatePublishedAssertion(preprint)],
+    );
+
+    // Act
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    // Assert
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      status: 'Enhanced Preprint (preview)',
+    });
+
+    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(parsedData.timeline[0]).toMatchObject({
+      date: new Date('2022-03-01'),
+      name: 'Preprint v1 posted',
+    });
+  });
+
+  it('reads the published date from outputs when an assertion does not have a published date', () => {
+    // Arrange
+    const preprint = generatePreprint('preprint/article1');
+    const preprintWithDate = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const firstStep = generateStep(
+      [],
+      [generateAction([], [preprintWithDate])],
+      [generatePublishedAssertion(preprint)],
+    );
+
+    // Act
+    const parsedData = parseDocMapFromFirstStep(firstStep);
+
+    // Assert
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      status: 'Enhanced Preprint (preview)',
+    });
+
+    expect(parsedData.timeline.length).toStrictEqual(1);
+    expect(parsedData.timeline[0]).toMatchObject({
+      date: new Date('2022-03-01'),
+      name: 'Preprint v1 posted',
+    });
+  });
+
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
 });
