@@ -4,6 +4,7 @@ import {
   DocMap,
   Expression,
   ExpressionType,
+  Item,
   Step,
 } from './docmap';
 
@@ -208,7 +209,14 @@ const setPeerReviewFrom = (actions: Action[], preprint: ReviewedPreprint) => {
   addEvaluationsToPreprint(preprint, findAndFlatMapAllEvaluations(actions));
 };
 
-const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
+type ExtractedExpressions = {
+  preprintInputs: Item[],
+  preprintOutputs: Item[],
+  evaluationInputs: Item[],
+  evaluationOutputs: Item[],
+};
+
+const extractExpressions = (step: Step): ExtractedExpressions => {
   // look for any preprint inputs that need importing
   const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
   const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
@@ -221,28 +229,67 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
   const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
   const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => evaluationTypes.includes(output.type)));
 
-  // Parse logic: A "published" Assertion means something was published
-  // Parse result: Create a Preprint for the published expression linked in the assertion
-  const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published);
-  if (preprintPublishedAssertion) {
-    const reviewPreprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints);
-    // update published date if necessary
-    if (preprintPublishedAssertion?.happened) {
-      reviewPreprint.preprint.publishedDate = preprintPublishedAssertion.happened;
-    } else if (preprintInputs.length === 1 && step.actions.length === 0 && preprintInputs[0].published) {
-      // set publishedDate if we can extract published date from the input
-      reviewPreprint.preprint.publishedDate = preprintInputs[0].published;
-    } else if (preprintInputs.length === 0 && preprintOutputs.length === 1 && preprintOutputs[0].published) {
-      // set publishedDate if we can extract published date from the output
-      reviewPreprint.preprint.publishedDate = preprintOutputs[0].published;
-    }
-  } else if (preprintInputs.length === 1 && step.actions.length === 0) {
-    // only 1 input preprint, no other output preprints or evaluations is an inferred straightforward publish too
-    addPreprintDescribedBy(preprintInputs[0], preprints);
+  return {
+    preprintInputs,
+    preprintOutputs,
+    evaluationInputs,
+    evaluationOutputs,
+  };
+};
+
+const getPublishedPreprint = (step: Step): Item | false => {
+  const items = extractExpressions(step);
+  return (items.preprintInputs.length === 0
+    && items.preprintOutputs.length === 1
+    && items.evaluationInputs.length === 0
+    && items.evaluationOutputs.length === 0) ? items.preprintOutputs[0] : false;
+};
+
+const getRepublishedPreprint = (step: Step): {originalExpression: Item, republishedExpression: Item} | false => {
+  const items = extractExpressions(step);
+
+  return (items.preprintInputs.length === 1
+    && items.preprintOutputs.length === 1
+    && items.evaluationInputs.length === 0
+    && items.evaluationOutputs.length === 0) ? { originalExpression: items.preprintInputs[0], republishedExpression: items.preprintOutputs[0] } : false;
+};
+
+const getNewVersionPreprint = (step: Step): {previousVersionExpression: Item, newVersionExpression: Item, evaluations: Item[]} | false => {
+  const items = extractExpressions(step);
+
+  return (items.preprintInputs.length === 1
+    && items.preprintOutputs.length === 1
+    && items.evaluationInputs.length > 0
+    && items.evaluationOutputs.length === 0) ? { previousVersionExpression: items.preprintInputs[0], newVersionExpression: items.preprintOutputs[0], evaluations: items.evaluationInputs } : false;
+};
+
+const getPeerReviewedPreprint = (step: Step): {peerReviewedPreprint: Item, evaluations: Item[], republishedPreprint?: Item} | false => {
+  const items = extractExpressions(step);
+
+  return (items.preprintInputs.length === 1
+    && items.evaluationOutputs.length > 0
+    && items.evaluationInputs.length === 0)
+    ? {
+      peerReviewedPreprint: items.preprintInputs[0],
+      evaluations: items.evaluationOutputs,
+      republishedPreprint: items.preprintOutputs.length > 0 ? items.preprintOutputs[0] : undefined,
+
+    } : false;
+};
+
+const getAuthorResponse = (step: Step): { preprint: Item, authorResponse: Item } | false => {
+  const items = extractExpressions(step);
+
+  const authorResponseOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === ExpressionType.AuthorResponse));
+  return (authorResponseOutputs.length === 1 && items.preprintInputs.length === 1) ? { preprint: items.preprintInputs[0], authorResponse: authorResponseOutputs[0] } : false;
+};
+
+const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
+  const inferredPublished = getPublishedPreprint(step);
+  if (inferredPublished) {
+    addPreprintDescribedBy(inferredPublished, preprints);
   }
 
-  // Parse logic: An "under-review" Assertion means something is out for review
-  // Parse result: Find a ReviewedPreprint for the published expression linked in the assertion and set the status
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
   if (preprintUnderReviewAssertion) {
     // Update type and sent for review date
@@ -250,44 +297,36 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
     preprint.sentForReviewDate = preprintUnderReviewAssertion.happened;
   }
 
-  const preprintRepublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Republished);
-  if (preprintRepublishedAssertion) {
-    // assume there is only one input, which is the preprint
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(step.inputs[0], preprints);
-    republishPreprintAs(preprintRepublishedAssertion.item, preprint);
-  } else if (preprintInputs.length === 1 && evaluationInputs.length > 0 && preprintOutputs.length === 1) {
-    // preprint input, evaluation input, and preprint output = superceed input preprint with output Reviewed Preprint
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
-    // only republish if the previous version is not already evaluated - otherwise it's a new version
-    if (!preprint.peerReview?.evaluationSummary || isPreprintAboutExpression(preprint, preprintOutputs[0])) {
-      republishPreprintAs(preprintOutputs[0], preprint);
-    } else {
-      addPreprintDescribedBy(preprintOutputs[0], preprints);
-    }
-  } else if (preprintInputs.length === 1 && evaluationInputs.length === 0 && preprintOutputs.length === 1) {
+  const inferredRepublished = getRepublishedPreprint(step);
+  if (inferredRepublished) {
     // preprint input, preprint output, but no evaluations = superceed input preprint with output Reviewed Preprint
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
-    republishPreprintAs(preprintOutputs[0], preprint);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredRepublished.originalExpression, preprints);
+    republishPreprintAs(inferredRepublished.republishedExpression, preprint);
   }
 
-  const preprintPeerReviewedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.PeerReviewed);
-  if (preprintPeerReviewedAssertion) {
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintPeerReviewedAssertion.item, preprints);
-    setPeerReviewFrom(step.actions, preprint);
-    preprint.reviewedDate = preprintPeerReviewedAssertion.happened;
-  } else if (preprintInputs.length === 1 && evaluationOutputs.length > 0 && preprintOutputs.length === 0 && evaluationInputs.length === 0) {
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+  const inferredPeerReviewed = getPeerReviewedPreprint(step);
+  if (inferredPeerReviewed) {
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredPeerReviewed.peerReviewedPreprint, preprints);
     setPeerReviewFrom(step.actions, preprint);
     preprint.reviewedDate = preprint.peerReview?.evaluationSummary?.date;
+
+    // sometimes a new reviewed preprint is published as an output
+    if (inferredPeerReviewed.republishedPreprint) {
+      republishPreprintAs(inferredPeerReviewed.republishedPreprint, preprint);
+    }
   }
 
-  // Parse Logic: If we have an author response in output
-  // Parse result: include in the preprint evaluation
-  const authorResponseOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === ExpressionType.AuthorResponse));
-  if (authorResponseOutputs.length > 0) {
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintInputs[0], preprints);
+  const newVersionPreprint = getNewVersionPreprint(step);
+  if (newVersionPreprint) {
+    addPreprintDescribedBy(newVersionPreprint.newVersionExpression, preprints);
+  }
+
+  // sometimes author response is a separate step, find those and add the author response
+  const authorResponse = getAuthorResponse(step);
+  if (authorResponse) {
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(authorResponse.preprint, preprints);
     setPeerReviewFrom(step.actions, preprint);
-    preprint.authorResponseDate = authorResponseOutputs[0].published;
+    preprint.authorResponseDate = authorResponse.authorResponse.published;
   }
 
   return preprints;
