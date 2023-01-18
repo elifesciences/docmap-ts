@@ -277,7 +277,7 @@ describe('docmap-parser', () => {
 
   it('detect when a step makes a republished assertion', () => {
     // Arrange
-    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined);
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '4');
     const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1');
 
     const firstStep = generateStep(
@@ -300,6 +300,11 @@ describe('docmap-parser', () => {
       doi: 'elife/12345.1',
       id: 'elife/12345.1',
       versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '4',
+      },
     });
 
     expect(parsedData.timeline.length).toStrictEqual(2);

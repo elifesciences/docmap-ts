@@ -159,6 +159,7 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint)
 
   newPreprint.id = expression.identifier ?? expression.doi;
   newPreprint.doi = expression.doi;
+  newPreprint.versionIdentifier = expression.versionIdentifier;
   newPreprint.publishedDate = expression.published;
 };
 
