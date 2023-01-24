@@ -46,15 +46,6 @@ type PeerReview = {
   authorResponse?: Evaluation,
 };
 
-export type TimelineEvent = {
-  name: string,
-  date: Date,
-  link?: {
-    text: string,
-    url: string,
-  }
-};
-
 export enum ContentType {
   Article = 'article',
   EvaluationSummary = 'evaluation-summary',
@@ -89,7 +80,6 @@ export type VersionedReviewedPreprint = ReviewedPreprint & {
 
 export type ManuscriptData = {
   id: string,
-  timeline: TimelineEvent[],
   versions: VersionedReviewedPreprint[],
 };
 
@@ -350,50 +340,6 @@ function* getSteps(docMap: DocMap): Generator<Step> {
   }
 }
 
-const getEventsFromPreprints = (preprint: VersionedReviewedPreprint) => {
-  const events = [];
-  if (preprint.preprint.publishedDate !== undefined) {
-    const contentUrl = preprint.preprint.content;
-    const bioRxiv = preprint.preprint.doi.startsWith('10.1101') ?? false;
-    const bioRxivUrl = bioRxiv ? `https://doi.org/${preprint.preprint.doi}` : undefined;
-    const url = contentUrl ?? bioRxivUrl;
-    const link = url ? { text: bioRxiv ? 'Go to BioRxiv' : 'Go to preprint', url } : undefined;
-    const version = preprint.versionIdentifier ?? preprint.preprint.versionIdentifier;
-
-    events.push({
-      name: `Preprint ${version ? `v${version} ` : ''}posted`,
-      date: preprint.preprint.publishedDate,
-      link,
-    });
-  }
-
-  if (preprint.sentForReviewDate) {
-    events.push({
-      name: 'Preprint sent for review',
-      date: preprint.sentForReviewDate,
-    });
-  }
-
-  if (preprint.reviewedDate) {
-    events.push({
-      name: 'Reviews received for Preprint',
-      date: preprint.reviewedDate,
-    });
-  }
-
-  if (preprint.publishedDate && preprint.doi !== preprint.preprint.doi) {
-    events.push({
-      name: 'Reviewed Preprint posted',
-      date: preprint.publishedDate,
-    });
-  }
-
-  // sort by event dates
-  return events.sort((a, b) => a.date.getTime() - b.date.getTime());
-};
-
-const getTimelineFromPreprints = (preprints: VersionedReviewedPreprint[]): TimelineEvent[] => preprints.flatMap((preprint): TimelineEvent[] => getEventsFromPreprints(preprint));
-
 const parseDocMapJson = (docMapJson: string): DocMap => {
   const docMapStruct = JSON.parse(docMapJson, (key, value) => {
     if (key === 'steps') {
@@ -454,6 +400,5 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData | u
   return {
     id,
     versions,
-    timeline: getTimelineFromPreprints(versions),
   };
 };
