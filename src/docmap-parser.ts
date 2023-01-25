@@ -236,7 +236,7 @@ const getPublishedPreprint = (step: Step): Item | false => {
     && items.evaluationOutputs.length === 0) ? items.preprintOutputs[0] : false;
 };
 
-const getRepublishedPreprint = (step: Step): {originalExpression: Item, republishedExpression: Item} | false => {
+const getRepublishedPreprint = (step: Step): { originalExpression: Item, republishedExpression: Item } | false => {
   const items = extractExpressions(step);
 
   return (items.preprintInputs.length === 1
@@ -245,7 +245,7 @@ const getRepublishedPreprint = (step: Step): {originalExpression: Item, republis
     && items.evaluationOutputs.length === 0) ? { originalExpression: items.preprintInputs[0], republishedExpression: items.preprintOutputs[0] } : false;
 };
 
-const getNewVersionPreprint = (step: Step): {previousVersionExpression: Item, newVersionExpression: Item, evaluations: Item[]} | false => {
+const getNewVersionPreprint = (step: Step): { previousVersionExpression: Item, newVersionExpression: Item, evaluations: Item[] } | false => {
   const items = extractExpressions(step);
 
   return (items.preprintInputs.length === 1
@@ -254,7 +254,7 @@ const getNewVersionPreprint = (step: Step): {previousVersionExpression: Item, ne
     && items.evaluationOutputs.length === 0) ? { previousVersionExpression: items.preprintInputs[0], newVersionExpression: items.preprintOutputs[0], evaluations: items.evaluationInputs } : false;
 };
 
-const getPeerReviewedPreprint = (step: Step): {peerReviewedPreprint: Item, evaluations: Item[], republishedPreprint?: Item} | false => {
+const getPeerReviewedPreprint = (step: Step): { peerReviewedPreprint: Item, evaluations: Item[], republishedPreprint?: Item } | false => {
   const items = extractExpressions(step);
 
   return (items.preprintInputs.length === 1
