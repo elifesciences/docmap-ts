@@ -1,11 +1,11 @@
 {
-  "name": "@elifescience/docmap-ts",
+  "name": "@elifesciences/docmap-ts",
   "version": "0.0.12",
   "author": "Scott Aubrey <scott@aubrey.org.uk>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elifescience/docmap-ts.git"
+    "url": "https://github.com/elifesciences/docmap-ts.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
