@@ -164,7 +164,7 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   if (output.content.length === 0) {
     return undefined;
   }
-  const allContent = output.content.filter((content) => content.type === 'web-page');
+  const allContent = output.content.filter((content) => content.type === 'web-page' && content.url?.startsWith('https://sciety.org/evaluations/hypothesis:') && content.url?.endsWith('/content'));
   const text = (allContent.length === 1) ? `fetched content for ${allContent[0].url}` : undefined; // TODO
 
   return {
