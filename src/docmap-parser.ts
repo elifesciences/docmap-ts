@@ -33,7 +33,7 @@ type Participant = {
   institution: string,
 };
 
-type Evaluation = {
+export type Evaluation = {
   date: Date,
   reviewType: ReviewType,
   contentUrls: string[],
