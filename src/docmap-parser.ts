@@ -40,7 +40,7 @@ type Evaluation = {
   participants: Participant[],
 };
 
-type PeerReview = {
+export type PeerReview = {
   evaluationSummary?: Evaluation,
   reviews: Evaluation[],
   authorResponse?: Evaluation,

@@ -1,3 +1,3 @@
 export * from './docmap';
-export * from './docmap-parser';
-export * from './docmap-generator';
+export * as parser from './docmap-parser';
+export * as generator from './docmap-generator';
