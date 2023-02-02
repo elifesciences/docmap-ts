@@ -322,7 +322,7 @@ describe('docmap-parser', () => {
         reviews: [
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa1',
+            contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
             participants: [{
               name: 'anonymous',
@@ -332,7 +332,7 @@ describe('docmap-parser', () => {
           },
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa2',
+            contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
             participants: [{
               name: 'anonymous',
@@ -343,7 +343,7 @@ describe('docmap-parser', () => {
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
-          text: 'fetched content for https://content.com/12345.sa3',
+          contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
           participants: [{
             name: 'Daffy Duck',
@@ -353,7 +353,7 @@ describe('docmap-parser', () => {
         },
         authorResponse: {
           reviewType: ReviewType.AuthorResponse,
-          text: 'fetched content for https://content.com/12345.sa4',
+          contentUrls: ['https://content.com/12345.sa4'],
           date: new Date('2022-05-09'),
           participants: [{
             name: 'Bugs Bunny',
@@ -419,7 +419,7 @@ describe('docmap-parser', () => {
         reviews: [
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa1',
+            contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
             participants: [{
               name: 'anonymous',
@@ -429,7 +429,7 @@ describe('docmap-parser', () => {
           },
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa2',
+            contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
             participants: [{
               name: 'anonymous',
@@ -440,7 +440,7 @@ describe('docmap-parser', () => {
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
-          text: 'fetched content for https://content.com/12345.sa3',
+          contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
           participants: [{
             name: 'Daffy Duck',
@@ -508,7 +508,7 @@ describe('docmap-parser', () => {
         reviews: [
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa1',
+            contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
             participants: [{
               name: 'anonymous',
@@ -518,7 +518,7 @@ describe('docmap-parser', () => {
           },
           {
             reviewType: ReviewType.Review,
-            text: 'fetched content for https://content.com/12345.sa2',
+            contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
             participants: [{
               name: 'anonymous',
@@ -529,7 +529,7 @@ describe('docmap-parser', () => {
         ],
         evaluationSummary: {
           reviewType: ReviewType.EvaluationSummary,
-          text: 'fetched content for https://content.com/12345.sa3',
+          contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
           participants: [{
             name: 'Daffy Duck',
