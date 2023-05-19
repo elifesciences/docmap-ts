@@ -263,7 +263,6 @@ const getPeerReviewedPreprint = (step: Step): { peerReviewedPreprint: Item, eval
       peerReviewedPreprint: items.preprintInputs[0],
       evaluations: items.evaluationOutputs,
       republishedPreprint: items.preprintOutputs.length > 0 ? items.preprintOutputs[0] : undefined,
-
     } : false;
 };
 
@@ -322,7 +321,8 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
   return preprints;
 };
 
-function* getSteps(docMap: DocMap): Generator<Step> {
+// eslint-disable-next-line func-names
+const getSteps = function* (docMap: DocMap): Generator<Step> {
   let currentStep = docMap.steps.get(docMap['first-step']);
   if (currentStep === undefined) {
     return;
@@ -337,7 +337,7 @@ function* getSteps(docMap: DocMap): Generator<Step> {
       currentStep = currentStep['next-step'];
     }
   }
-}
+};
 
 const parseDocMapJson = (docMapJson: string): DocMap => {
   const docMapStruct = JSON.parse(docMapJson, (key, value) => {
@@ -375,12 +375,12 @@ export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: stri
   };
 };
 
-export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData | undefined => {
+export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData => {
   const docMapStruct = typeof docMap === 'string' ? parseDocMapJson(docMap) : docMap;
 
   const steps = Array.from(docMapStruct.steps.values());
   if (steps.length === 0) {
-    return undefined;
+    throw new Error('Docmap has no steps');
   }
 
   const stepsIterator = getSteps(docMapStruct);
@@ -392,7 +392,7 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData | u
   }
 
   if (preprints.length === 0) {
-    return undefined;
+    throw new Error('Docmap has no preprints');
   }
 
   const { id, versions } = finaliseVersions(preprints);
