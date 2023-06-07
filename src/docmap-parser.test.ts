@@ -125,7 +125,7 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.failing('finds a revised preprint from a docmap', () => {
+  it('finds a revised preprint from a docmap', () => {
     const parsedData = parseDocMap(fixtures.preprintAndRevision());
 
     expect(parsedData.versions.length).toStrictEqual(2);
