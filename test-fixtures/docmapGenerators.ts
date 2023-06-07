@@ -34,19 +34,19 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return docmap;
   },
 
-  generateDocmapFixture01: (): DocMap => {
+  simplePreprintAsOutput: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep([], [generateAction([], [preprint])], []);
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture02: (): DocMap => {
+  simplePreprintWithUrlAsOutput: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://somewhere.org/preprint/article1');
     const firstStep = generateStep([], [generateAction([], [preprint])], []);
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture03: (): DocMap => {
+  assertPreprintUnderReview: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://something.org/preprint/article1');
     const firstStep = generateStep(
       [],
@@ -56,17 +56,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture04: (): DocMap => {
-    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
-    const firstStep = generateStep(
-      [],
-      [],
-      [generateUnderReviewAssertion(preprint, new Date('2022-04-12'))],
-    );
-    return generateDocMap('test', publisher, firstStep);
-  },
-
-  generateDocmapFixture05: (): DocMap => {
+  assertPreprintPublishedThenUnderReview: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep(
       [],
@@ -82,7 +72,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture06: (): DocMap => {
+  assertTwoPreprintsUnderReview: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const preprintv2 = generatePreprint('preprint/article1', new Date('2022-04-12'), undefined, '4');
     const firstStep = generateStep(
@@ -99,7 +89,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture07: (): DocMap => {
+  preprintRepublishedViaAssertion: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '4');
     const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1');
 
@@ -117,9 +107,9 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture08: (): DocMap => {
+  preprintAndRevision: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const preprintv2 = generatePreprint('preprint/article1v2', new Date('2022-06-01'), undefined, '2');
+    const preprintv2 = generatePreprint('preprint/article1', new Date('2022-06-01'), undefined, '2');
 
     const firstStep = generateStep(
       [],
@@ -134,7 +124,48 @@ export const fixtures: { [key: string]: () => DocMap } = {
 
     return generateDocMap('test', publisher, firstStep);
   },
-  generateDocmapFixture09: (): DocMap => {
+
+  preprintReviewed: (): DocMap => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const peerReview1 = generatePeerReview(
+      new Date('2022-04-06'),
+      [
+        generateWebContent('https://content.com/12345.sa1'),
+      ],
+      'elife/eLife.12345.sa1',
+    );
+    const peerReview2 = generatePeerReview(
+      new Date('2022-04-07'),
+      [
+        generateWebContent('https://content.com/12345.sa2'),
+      ],
+      'elife/eLife.12345.sa2',
+    );
+    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editorsEvaluation = generateEvaluationSummary(
+      new Date('2022-04-10'),
+      [
+        generateWebContent('https://content.com/12345.sa3'),
+      ],
+      'elife/eLife.12345.sa3',
+    );
+
+    const firstStep = generateStep([], [generateAction([], [preprintv1])], []);
+    addNextStep(firstStep, generateStep(
+      [preprintv1],
+      [
+        generateAction([anonReviewerParticipant], [peerReview1]),
+        generateAction([anonReviewerParticipant], [peerReview2]),
+        generateAction([editor], [editorsEvaluation]),
+      ],
+      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-10'))],
+    ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  preprintReviewedAndAuthorResponded: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -189,47 +220,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture10: (): DocMap => {
-    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
-    const peerReview1 = generatePeerReview(
-      new Date('2022-04-06'),
-      [
-        generateWebContent('https://content.com/12345.sa1'),
-      ],
-      'elife/eLife.12345.sa1',
-    );
-    const peerReview2 = generatePeerReview(
-      new Date('2022-04-07'),
-      [
-        generateWebContent('https://content.com/12345.sa2'),
-      ],
-      'elife/eLife.12345.sa2',
-    );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
-    const editorsEvaluation = generateEvaluationSummary(
-      new Date('2022-04-10'),
-      [
-        generateWebContent('https://content.com/12345.sa3'),
-      ],
-      'elife/eLife.12345.sa3',
-    );
-
-    const firstStep = generateStep([], [generateAction([], [preprintv1])], []);
-    addNextStep(firstStep, generateStep(
-      [preprintv1],
-      [
-        generateAction([anonReviewerParticipant], [peerReview1]),
-        generateAction([anonReviewerParticipant], [peerReview2]),
-        generateAction([editor], [editorsEvaluation]),
-      ],
-      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-10'))],
-    ));
-
-    return generateDocMap('test', publisher, firstStep);
-  },
-
-  generateDocmapFixture11: (): DocMap => {
+  inferredReviewedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -268,7 +259,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture12: (): DocMap => {
+  inferredRevisedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
@@ -316,7 +307,7 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  generateDocmapFixture13: (): DocMap => {
+  preprintWithPublishedDateAndNoAssertedPublishDate: (): DocMap => {
     const preprint = generatePreprint('preprint/article1');
     const preprintWithDate = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep(

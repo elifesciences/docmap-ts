@@ -33,7 +33,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds a published preprint from output step with DOI', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture01());
+    const parsedData = parseDocMap(fixtures.simplePreprintAsOutput());
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
@@ -43,7 +43,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds a published preprint from output step with URL', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture02());
+    const parsedData = parseDocMap(fixtures.simplePreprintWithUrlAsOutput());
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
@@ -53,7 +53,7 @@ describe('docmap-parser', () => {
   });
 
   it('finds a preprint from a docmap describing under review assertion', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture03());
+    const parsedData = parseDocMap(fixtures.assertPreprintUnderReview());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
@@ -68,20 +68,8 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('finds a preprint from a docmap describing under review assertion without URL', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture04());
-
-    // Assert
-    expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject({
-      doi: 'preprint/article1',
-      id: 'preprint/article1',
-      status: 'Enhanced Preprint (preview)',
-    });
-  });
-
-  it('finds a single version when a step makes an assertion about an existing version', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture05());
+  it('only parses 1 version when a step makes an assertion about an existing version', () => {
+    const parsedData = parseDocMap(fixtures.assertPreprintPublishedThenUnderReview());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
@@ -93,7 +81,7 @@ describe('docmap-parser', () => {
   });
 
   it.failing('finds two versions when a step makes an assertion about a new version', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture06());
+    const parsedData = parseDocMap(fixtures.assertTwoPreprintsUnderReview());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
@@ -110,7 +98,7 @@ describe('docmap-parser', () => {
   });
 
   it('detect when a step makes a republished assertion', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture07());
+    const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
@@ -127,7 +115,7 @@ describe('docmap-parser', () => {
   });
 
   it.failing('finds a revised preprint from a docmap', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture08());
+    const parsedData = parseDocMap(fixtures.preprintAndRevision());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
@@ -143,8 +131,59 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('finds a reviewed preprint reviews and evaluations from a docmap', () => {
+    const parsedData = parseDocMap(fixtures.preprintReviewed());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      status: 'Enhanced Preprint',
+      versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
+      peerReview: {
+        reviews: [
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa1'],
+            date: new Date('2022-04-06'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          },
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa2'],
+            date: new Date('2022-04-07'),
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+              institution: 'unknown',
+            }],
+          },
+        ],
+        evaluationSummary: {
+          reviewType: ReviewType.EvaluationSummary,
+          contentUrls: ['https://content.com/12345.sa3'],
+          date: new Date('2022-04-10'),
+          participants: [{
+            name: 'Daffy Duck',
+            role: 'editor',
+            institution: 'unknown',
+          }],
+        },
+      },
+    });
+  });
+
   it('finds author response after publishing reviewed preprint', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture09());
+    const parsedData = parseDocMap(fixtures.preprintReviewedAndAuthorResponded());
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
@@ -204,59 +243,8 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('finds a revised preprint reviews and evaluations from a docmap', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture10());
-
-    expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
-      doi: 'preprint/article1',
-      id: 'preprint/article1',
-      status: 'Enhanced Preprint',
-      versionIdentifier: '1',
-      preprint: {
-        doi: 'preprint/article1',
-        id: 'preprint/article1',
-        versionIdentifier: '1',
-      },
-      peerReview: {
-        reviews: [
-          {
-            reviewType: ReviewType.Review,
-            contentUrls: ['https://content.com/12345.sa1'],
-            date: new Date('2022-04-06'),
-            participants: [{
-              name: 'anonymous',
-              role: 'peer-reviewer',
-              institution: 'unknown',
-            }],
-          },
-          {
-            reviewType: ReviewType.Review,
-            contentUrls: ['https://content.com/12345.sa2'],
-            date: new Date('2022-04-07'),
-            participants: [{
-              name: 'anonymous',
-              role: 'peer-reviewer',
-              institution: 'unknown',
-            }],
-          },
-        ],
-        evaluationSummary: {
-          reviewType: ReviewType.EvaluationSummary,
-          contentUrls: ['https://content.com/12345.sa3'],
-          date: new Date('2022-04-10'),
-          participants: [{
-            name: 'Daffy Duck',
-            role: 'editor',
-            institution: 'unknown',
-          }],
-        },
-      },
-    });
-  });
-
   it('inference of reviewed preprint from input/outputs', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture11());
+    const parsedData = parseDocMap(fixtures.inferredReviewedPreprint());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
@@ -308,7 +296,7 @@ describe('docmap-parser', () => {
   });
 
   it('inference of revised preprint from input/outputs', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture12());
+    const parsedData = parseDocMap(fixtures.inferredRevisedPreprint());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
@@ -341,7 +329,7 @@ describe('docmap-parser', () => {
   });
 
   it('reads the published date from output when an assertion does not have a published date', () => {
-    const parsedData = parseDocMap(fixtures.generateDocmapFixture13());
+    const parsedData = parseDocMap(fixtures.preprintWithPublishedDateAndNoAssertedPublishDate());
 
     // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
