@@ -82,7 +82,18 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.failing('finds two versions when a step makes an assertion about a new version', () => {
+  it('finds a preprint when a step makes an published assertion', () => {
+    const parsedData = parseDocMap(fixtures.assertPreprintPublished());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      versionIdentifier: '1',
+    });
+  });
+
+  it('finds two versions when a step makes an assertion about a new version', () => {
     const parsedData = parseDocMap(fixtures.assertTwoPreprintsUnderReview());
 
     expect(parsedData.versions.length).toStrictEqual(2);

@@ -61,6 +61,17 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  assertPreprintPublished: (): DocMap => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const firstStep = generateStep(
+      [],
+      [],
+      [generatePublishedAssertion(preprint, new Date('2022-03-01'))],
+    );
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   assertPreprintPublishedThenUnderReview: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep(
