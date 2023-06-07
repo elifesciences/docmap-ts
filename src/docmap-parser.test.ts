@@ -19,17 +19,15 @@ describe('docmap-parser', () => {
   it('returns empty result without any steps', () => {
     const docmap = fixtures.noSteps();
     docmap.steps = new Map();
-    const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedData).toBeUndefined();
+    expect(() => parsePreprintDocMap(docmap)).toThrowError('Docmap has no steps');
   });
 
   it('returns empty result when it cant find the first step', () => {
     const docmap = fixtures.noSteps();
     docmap['first-step'] = 'wrongid';
-    const parsedData = parsePreprintDocMap(docmap);
 
-    expect(parsedData).toBeUndefined();
+    expect(() => parsePreprintDocMap(docmap)).toThrowError('Docmap has no preprints');
   });
 
   it('finds a published preprint from output step with DOI', () => {
@@ -340,6 +338,5 @@ describe('docmap-parser', () => {
     });
   });
 
-  it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
 });
