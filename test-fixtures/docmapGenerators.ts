@@ -27,7 +27,7 @@ const publisher = {
   },
 };
 
-export const fixtures: { [key: string]: () => DocMap } = {
+export const fixtures = {
   noSteps: () => {
     const docmap = generateDocMap('test', publisher, { assertions: [], inputs: [], actions: [] });
     docmap.steps = new Map();
