@@ -125,7 +125,7 @@ export const fixtures = {
 
   preprintAndRevision: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const preprintv2 = generatePreprint('preprint/article1', new Date('2022-06-01'), undefined, '2');
+    const preprintv2 = generatePreprint('preprint/article1v2', new Date('2022-06-01'), undefined, '2');
 
     const firstStep = generateStep(
       [],
