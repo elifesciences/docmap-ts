@@ -283,7 +283,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
 
   const inferredPublished = getPublishedPreprint(step);
   if (inferredPublished) {
-    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints)
+    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints);
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
