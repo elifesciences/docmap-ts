@@ -59,7 +59,6 @@ describe('docmap-parser', () => {
   it('finds a preprint from a docmap describing under review assertion', () => {
     const parsedData = parseDocMap(fixtures.assertPreprintUnderReview());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -75,7 +74,6 @@ describe('docmap-parser', () => {
   it('only parses 1 version when a step makes an assertion about an existing version', () => {
     const parsedData = parseDocMap(fixtures.assertPreprintPublishedThenUnderReview());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -87,7 +85,6 @@ describe('docmap-parser', () => {
   it.failing('finds two versions when a step makes an assertion about a new version', () => {
     const parsedData = parseDocMap(fixtures.assertTwoPreprintsUnderReview());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -104,7 +101,6 @@ describe('docmap-parser', () => {
   it('detect when a step makes a republished assertion', () => {
     const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'elife/12345.1',
@@ -121,7 +117,6 @@ describe('docmap-parser', () => {
   it.failing('finds a revised preprint from a docmap', () => {
     const parsedData = parseDocMap(fixtures.preprintAndRevision());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
@@ -250,7 +245,6 @@ describe('docmap-parser', () => {
   it('inference of reviewed preprint from input/outputs', () => {
     const parsedData = parseDocMap(fixtures.inferredReviewedPreprint());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
@@ -302,7 +296,6 @@ describe('docmap-parser', () => {
   it('inference of revised preprint from input/outputs', () => {
     const parsedData = parseDocMap(fixtures.inferredRevisedPreprint());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(2);
     expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
@@ -335,7 +328,6 @@ describe('docmap-parser', () => {
   it('reads the published date from output when an assertion does not have a published date', () => {
     const parsedData = parseDocMap(fixtures.preprintWithPublishedDateAndNoAssertedPublishDate());
 
-    // Assert
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
