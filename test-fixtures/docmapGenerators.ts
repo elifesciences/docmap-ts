@@ -34,6 +34,11 @@ export const fixtures: { [key: string]: () => DocMap } = {
     return docmap;
   },
 
+  emptyStep: () => {
+    const firstStep = generateStep([], [], []);
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   simplePreprintAsOutput: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep([], [generateAction([], [preprint])], []);

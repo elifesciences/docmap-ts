@@ -16,16 +16,22 @@ const parseDocMap = (docmap: DocMap | string): ManuscriptData => {
 };
 
 describe('docmap-parser', () => {
-  it('returns empty result without any steps', () => {
+  it('returns error without any steps', () => {
     const docmap = fixtures.noSteps();
     docmap.steps = new Map();
 
     expect(() => parsePreprintDocMap(docmap)).toThrowError('Docmap has no steps');
   });
 
-  it('returns empty result when it cant find the first step', () => {
+  it('returns error when it cant find the first step', () => {
     const docmap = fixtures.noSteps();
     docmap['first-step'] = 'wrongid';
+
+    expect(() => parsePreprintDocMap(docmap)).toThrowError('Docmap has no steps');
+  });
+
+  it('returns error when it cant find any preprints', () => {
+    const docmap = fixtures.emptyStep();
 
     expect(() => parsePreprintDocMap(docmap)).toThrowError('Docmap has no preprints');
   });
