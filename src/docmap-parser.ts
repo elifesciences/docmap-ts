@@ -274,9 +274,16 @@ const getAuthorResponse = (step: Step): { preprint: Item, authorResponse: Item }
 };
 
 const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
+  const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published);
+  if (preprintPublishedAssertion) {
+    // Update type and sent for review date
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints);
+    preprint.publishedDate = preprintPublishedAssertion.happened ?? preprint.publishedDate;
+  }
+
   const inferredPublished = getPublishedPreprint(step);
   if (inferredPublished) {
-    addPreprintDescribedBy(inferredPublished, preprints);
+    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints);
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
