@@ -26,6 +26,7 @@ export enum ExpressionType {
 
 export enum ManifestationType {
   WebPage = 'web-page',
+  DigitalManifestation = 'digital-manifestation',
 }
 
 export type Expression = {

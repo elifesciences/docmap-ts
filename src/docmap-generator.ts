@@ -12,6 +12,7 @@ import {
   Item,
   JsonLDAddonFrame,
   JsonLDFrameUrl,
+  Manifestation,
   ManifestationType,
   Output,
   Participant,
@@ -31,23 +32,25 @@ type Steps = {
   steps: Map<string, Step>
 };
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
   published,
   versionIdentifier: version,
+  content,
 });
 
-export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string): RevisedPreprint => ({
+export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): RevisedPreprint => ({
   type: ExpressionType.RevisedPreprint,
   doi,
   url,
   published,
   versionIdentifier: version,
+  content,
 });
 
-export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url?: Url, content?: WebPage[], published?: Date): Preprint => ({
+export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url?: Url, content?: Manifestation[], published?: Date): Preprint => ({
   identifier,
   versionIdentifier: version,
   type: ExpressionType.Preprint,
@@ -95,6 +98,11 @@ export const generateVersionOfRecord = (published: Date, content: WebPage[], doi
   published,
   url,
   content,
+});
+
+export const generateContent = (type: ManifestationType, url: Url): Manifestation => ({
+  type,
+  url,
 });
 
 export const generateWebContent = (url: Url): WebPage => ({

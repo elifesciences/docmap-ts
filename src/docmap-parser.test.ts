@@ -57,6 +57,19 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('finds a published preprint from output step with URL', () => {
+    const parsedData = parseDocMap(fixtures.simplePreprintWithS3Manifestation());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      content: [
+        's3://bucket/path/to/article.meca',
+      ],
+    });
+  });
+
   it('finds a preprint from a docmap describing under review assertion', () => {
     const parsedData = parseDocMap(fixtures.assertPreprintUnderReview());
 
