@@ -58,6 +58,7 @@ type Preprint = {
   versionIdentifier?: string,
   publishedDate?: Date,
   doi: string,
+  url?: string,
   content?: string,
 };
 
@@ -91,12 +92,16 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
   if (expression.url) {
     content.push({ type: ContentType.Article, url: expression.url });
   }
+
+  const url = expression.url ? { url: expression.url } : {};
+
   return {
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
     content: expression.url,
     publishedDate: expression.published,
     versionIdentifier: expression.versionIdentifier,
+    ...url,
   };
 };
 

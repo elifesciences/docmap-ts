@@ -53,6 +53,7 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      url: 'https://somewhere.org/preprint/article1',
     });
   });
 
@@ -63,10 +64,12 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
+      url: 'https://something.org/preprint/article1',
       status: 'Enhanced Preprint (preview)',
       preprint: {
         doi: 'preprint/article1',
         id: 'preprint/article1',
+        url: 'https://something.org/preprint/article1',
       },
     });
   });
