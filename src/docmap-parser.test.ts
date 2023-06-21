@@ -64,9 +64,9 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0]).toMatchObject({
       doi: 'preprint/article1',
       id: 'preprint/article1',
-      content:[
+      content: [
         's3://bucket/path/to/article.meca',
-      ]
+      ],
     });
   });
 
