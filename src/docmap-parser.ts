@@ -314,7 +314,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
 
   const newVersionPreprint = getNewVersionPreprint(step);
   if (newVersionPreprint) {
-    addPreprintDescribedBy(newVersionPreprint.newVersionExpression, preprints);
+    findAndUpdateOrAddPreprintDescribedBy(newVersionPreprint.newVersionExpression, preprints);
   }
 
   // sometimes author response is a separate step, find those and add the author response
