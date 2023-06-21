@@ -1,8 +1,9 @@
-import { DocMap } from '../src';
+import { DocMap, ManifestationType } from '../src';
 import {
   addNextStep,
   generateAction,
   generateAuthorResponse,
+  generateContent,
   generateDocMap,
   generateEvaluationSummary,
   generatePeerReview,
@@ -47,6 +48,12 @@ export const fixtures = {
 
   simplePreprintWithUrlAsOutput: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://somewhere.org/preprint/article1');
+    const firstStep = generateStep([], [generateAction([], [preprint])], []);
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  simplePreprintWithS3Manifestation: (): DocMap => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, [generateContent(ManifestationType.DigitalManifestation, 's3://bucket/path/to/article.meca')]);
     const firstStep = generateStep([], [generateAction([], [preprint])], []);
     return generateDocMap('test', publisher, firstStep);
   },

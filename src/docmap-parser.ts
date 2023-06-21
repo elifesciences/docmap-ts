@@ -59,7 +59,7 @@ type Preprint = {
   publishedDate?: Date,
   doi: string,
   url?: string,
-  content?: string,
+  content?: string[],
 };
 
 type ReviewedPreprint = {
@@ -89,8 +89,8 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
     throw Error('Cannot identify Expression by DOI');
   }
   const content = [];
-  if (expression.url) {
-    content.push({ type: ContentType.Article, url: expression.url });
+  if (Array.isArray(expression.content) && expression.content.length > 0) {
+    content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
   }
 
   const url = expression.url ? { url: expression.url } : {};
@@ -98,7 +98,7 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
   return {
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
-    content: expression.url,
+    content,
     publishedDate: expression.published,
     versionIdentifier: expression.versionIdentifier,
     ...url,
