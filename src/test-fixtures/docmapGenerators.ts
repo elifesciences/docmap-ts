@@ -1,4 +1,4 @@
-import { DocMap, ManifestationType } from '../src';
+import { DocMap, ManifestationType } from '..';
 import {
   addNextStep,
   generateAction,
@@ -15,7 +15,7 @@ import {
   generateStep,
   generateUnderReviewAssertion,
   generateWebContent,
-} from '../src/docmap-generator';
+} from '../docmap-generator';
 
 const publisher = {
   id: 'https://elifesciences.org/',

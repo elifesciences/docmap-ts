@@ -5,7 +5,7 @@ import {
   ReviewType,
   VersionedReviewedPreprint,
 } from './docmap-parser';
-import { fixtures } from '../test-fixtures/docmapGenerators';
+import { fixtures } from './test-fixtures/docmapGenerators';
 
 const parseDocMap = (docmap: DocMap | string): ManuscriptData => {
   const parsedDocMap = parsePreprintDocMap(docmap);
