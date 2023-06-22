@@ -120,6 +120,35 @@ const createReviewedPreprintFrom = (expression: Expression): ReviewedPreprint =>
     preprint: newPreprint,
   };
 };
+const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expression: Expression): ReviewedPreprint => {
+  if (isPreprintAboutExpression(reviewedPreprint.preprint, expression)) {
+    const { preprint } = reviewedPreprint;
+
+    if (Array.isArray(expression.content) && expression.content.length > 0) {
+      if (!Array.isArray(preprint.content)) {
+        preprint.content = [];
+      }
+      preprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
+    }
+
+    if (expression.published) {
+      preprint.publishedDate = expression.published;
+    }
+
+    if (expression.url) {
+      preprint.url = expression.url;
+    }
+  }
+
+  if (isPreprintAboutExpression(reviewedPreprint, expression)) {
+    const reviewedPreprintToUpdate = reviewedPreprint;
+    if (expression.published) {
+      reviewedPreprintToUpdate.publishedDate = expression.published;
+    }
+  }
+
+  return reviewedPreprint;
+};
 
 const findPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>):
 ReviewedPreprint | undefined => preprintCollection.find(
@@ -138,7 +167,7 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
     return addPreprintDescribedBy(expression, preprintCollection);
   }
   // Update fields, default to any data already there.
-  foundPreprint.publishedDate = expression.published ?? foundPreprint.publishedDate;
+  updateReviewedPreprintFrom(foundPreprint, expression);
   return foundPreprint;
 };
 
