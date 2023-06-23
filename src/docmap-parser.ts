@@ -146,7 +146,6 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
       reviewedPreprintToUpdate.publishedDate = expression.published;
     }
   }
-
   return reviewedPreprint;
 };
 
