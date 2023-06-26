@@ -79,6 +79,46 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  preprintPublishedDataInLaterSteps: (): DocMap => {
+    const preprint1 = generatePreprint('preprint/article1');
+    const preprint2 = generatePreprint('preprint/article1', new Date('2023-06-23'));
+    const firstStep = generateStep(
+      [],
+      [generateAction([], [preprint1])],
+      [],
+    );
+    addNextStep(firstStep, generateStep(
+      [],
+      [generateAction([], [preprint2])],
+      [],
+    ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  preprintUrlAndContentDataInLaterSteps: (): DocMap => {
+    const preprint1 = generatePreprint('preprint/article1', new Date('2023-06-23'));
+    const preprint2 = generatePreprint(
+      'preprint/article1',
+      undefined,
+      'http://somewhere.org/preprint/article1',
+      undefined,
+      [generateContent(ManifestationType.DigitalManifestation, 's3://somewhere-org-storage-bucket/preprint/article1.meca')],
+    );
+    const firstStep = generateStep(
+      [],
+      [generateAction([], [preprint1])],
+      [],
+    );
+    addNextStep(firstStep, generateStep(
+      [],
+      [generateAction([], [preprint2])],
+      [],
+    ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   assertPreprintPublishedThenUnderReview: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
     const firstStep = generateStep(

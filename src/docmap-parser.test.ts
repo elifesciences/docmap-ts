@@ -363,5 +363,27 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('updates published date from a later step', () => {
+    const parsedData = parseDocMap(fixtures.preprintPublishedDataInLaterSteps());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      publishedDate: new Date('2023-06-23'),
+    });
+  });
+
+  it('updates url and content from a later step, but keeps published date from earlier step', () => {
+    const parsedData = parseDocMap(fixtures.preprintUrlAndContentDataInLaterSteps());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].preprint).toMatchObject({
+      publishedDate: new Date('2023-06-23'),
+      url: 'http://somewhere.org/preprint/article1',
+      content: [
+        's3://somewhere-org-storage-bucket/preprint/article1.meca',
+      ],
+    });
+  });
+
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
 });
