@@ -76,7 +76,6 @@ type ReviewedPreprint = {
 
 export type VersionedReviewedPreprint = ReviewedPreprint & {
   versionIdentifier: string,
-  status: string,
 };
 
 export type ManuscriptData = {
@@ -395,14 +394,10 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
 };
 
 export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: string, versions: VersionedReviewedPreprint[] } => {
-  const versions = preprints.map((preprint, index) => {
-    const reviewed = !!preprint.peerReview?.evaluationSummary;
-    return {
-      ...preprint,
-      versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
-      status: `Enhanced Preprint${!reviewed ? ' (preview)' : ''}`,
-    };
-  });
+  const versions = preprints.map((preprint, index) => ({
+    ...preprint,
+    versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
+  }));
 
   const { id } = preprints.slice(-1)[0];
 
