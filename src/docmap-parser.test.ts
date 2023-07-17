@@ -378,4 +378,11 @@ describe('docmap-parser', () => {
   });
 
   it.todo('finds a revised preprint evaluations, but no new reviews from a docmap');
+
+  it('extracts license url if in an expression', () => {
+    const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
+
+    expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/')
+    expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/')
+  })
 });

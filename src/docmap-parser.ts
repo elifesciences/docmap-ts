@@ -60,6 +60,7 @@ type Preprint = {
   doi: string,
   url?: string,
   content?: string[],
+  license?: string,
 };
 
 type ReviewedPreprint = {
@@ -72,6 +73,7 @@ type ReviewedPreprint = {
   peerReview?: PeerReview,
   reviewedDate?: Date,
   authorResponseDate?: Date,
+  license?: string,
 };
 
 export type VersionedReviewedPreprint = ReviewedPreprint & {
@@ -90,12 +92,14 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
 
   const content = (Array.isArray(expression.content) && expression.content.length > 0) ? { content: expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url) } : {};
   const url = expression.url ? { url: expression.url } : {};
+  const license = expression.license ? { license: expression.license } : {};
 
   return {
     id: expression.identifier ?? expression.doi,
     doi: expression.doi,
     publishedDate: expression.published,
     versionIdentifier: expression.versionIdentifier,
+    ...license,
     ...content,
     ...url,
   };
@@ -137,6 +141,10 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
     if (expression.url) {
       preprint.url = expression.url;
     }
+
+    if (expression.license) {
+      preprint.license = expression.license;
+    }
   }
 
   if (isPreprintAboutExpression(reviewedPreprint, expression)) {
@@ -144,6 +152,11 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
     if (expression.published) {
       reviewedPreprintToUpdate.publishedDate = expression.published;
     }
+
+    if (expression.license) {
+      reviewedPreprintToUpdate.license = expression.license;
+    }
+
   }
   return reviewedPreprint;
 };

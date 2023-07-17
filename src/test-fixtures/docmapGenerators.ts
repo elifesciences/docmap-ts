@@ -153,8 +153,8 @@ export const fixtures = {
   },
 
   preprintRepublishedViaAssertion: (): DocMap => {
-    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '4');
-    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1');
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '4', undefined, 'http://creativecommons.org/licenses/by/4.0/');
+    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1', undefined, 'http://creativecommons.org/licenses/by/4.0/');
 
     const firstStep = generateStep(
       [],

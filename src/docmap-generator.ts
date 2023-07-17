@@ -32,13 +32,14 @@ type Steps = {
   steps: Map<string, Step>
 };
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
   published,
   versionIdentifier: version,
   content,
+  license,
 });
 
 export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): RevisedPreprint => ({
@@ -50,7 +51,7 @@ export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, v
   content,
 });
 
-export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url?: Url, content?: Manifestation[], published?: Date): Preprint => ({
+export const generateEnhancedPreprint = (identifier: string, version: string, doi: DOI, url?: Url, content?: Manifestation[], published?: Date, license?: string): Preprint => ({
   identifier,
   versionIdentifier: version,
   type: ExpressionType.Preprint,
@@ -58,6 +59,7 @@ export const generateEnhancedPreprint = (identifier: string, version: string, do
   url,
   published,
   content,
+  license,
 });
 
 export const generatePeerReview = (published: Date, content: WebPage[], doi?: DOI, url?: Url): PeerReview => ({
