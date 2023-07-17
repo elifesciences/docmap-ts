@@ -36,7 +36,8 @@ export type Expression = {
   url?: Url,
   published?: Date,
   doi?: DOI,
-  content?: Manifestation[]
+  content?: Manifestation[],
+  license?: string,
 };
 
 export type Manifestation = {
