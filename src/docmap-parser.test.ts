@@ -382,7 +382,7 @@ describe('docmap-parser', () => {
   it('extracts license url if in an expression', () => {
     const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
 
-    expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/')
-    expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/')
-  })
+    expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
+    expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
+  });
 });

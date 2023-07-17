@@ -156,7 +156,6 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
     if (expression.license) {
       reviewedPreprintToUpdate.license = expression.license;
     }
-
   }
   return reviewedPreprint;
 };
