@@ -389,10 +389,10 @@ describe('docmap-parser', () => {
   it('extracts embodimentOf, if present', () => {
     const parsedData = parseDocMap(fixtures.preprintWithWorkAsOutput());
 
-    expect(parsedData.embodimentOf).toStrictEqual({
+    expect(parsedData.manuscript).toStrictEqual({
       doi: '10.1101/123456',
       volume: '1',
-      elocationId: 'RP123456',
+      eLocationId: 'RP123456',
     });
   });
 });
