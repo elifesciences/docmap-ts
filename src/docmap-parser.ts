@@ -190,13 +190,19 @@ const addPreprintDescribedBy = (expression: Expression, preprintCollection: Arra
   return newPreprint;
 };
 
-const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
+const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>, manuscript: Manuscript): ReviewedPreprint => {
   const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
   if (!foundPreprint) {
     return addPreprintDescribedBy(expression, preprintCollection);
   }
   // Update fields, default to any data already there.
   updateReviewedPreprintFrom(foundPreprint, expression);
+  const foundManuscriptData = getManuscriptFromExpression(expression);
+  if (foundManuscriptData) {
+    manuscript.doi = foundManuscriptData.doi;
+    manuscript.eLocationId = foundManuscriptData.eLocationId;
+    manuscript.volume = foundManuscriptData.volume;
+  }
   return foundPreprint;
 };
 
