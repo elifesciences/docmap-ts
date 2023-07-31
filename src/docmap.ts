@@ -118,7 +118,7 @@ export type Assertion = {
 
 export type Work = {
   type: 'manuscript',
-  doi: string,
+  doi: DOI,
   identifier: string,
   volumeIdentifier: string,
   electronicArticleIdentifier: string,
