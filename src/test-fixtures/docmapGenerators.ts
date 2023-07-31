@@ -54,6 +54,13 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  preprintWithPartialWorkAsOutput: (): DocMap => {
+    const work = generateWork('10.1101/123456', '123456', undefined, 'RP123456');
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, work);
+    const firstStep = generateStep([], [generateAction([], [preprint])], []);
+    return generateDocMap('test', publisher, firstStep);
+  },
+  
   simplePreprintWithUrlAsOutput: (): DocMap => {
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), 'https://somewhere.org/preprint/article1');
     const firstStep = generateStep([], [generateAction([], [preprint])], []);

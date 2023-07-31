@@ -194,9 +194,15 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
   const foundManuscriptData = getManuscriptFromExpression(expression);
   const existingManuscript = manuscript;
   if (foundManuscriptData) {
-    existingManuscript.doi = foundManuscriptData.doi;
-    existingManuscript.eLocationId = foundManuscriptData.eLocationId;
-    existingManuscript.volume = foundManuscriptData.volume;
+    if (foundManuscriptData.doi) {
+      existingManuscript.doi = foundManuscriptData.doi;
+    }
+    if (foundManuscriptData.eLocationId) {
+      existingManuscript.eLocationId = foundManuscriptData.eLocationId;
+    }
+    if (foundManuscriptData.volume) {
+      existingManuscript.volume = foundManuscriptData.volume;
+    }
   }
   const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
   if (!foundPreprint) {

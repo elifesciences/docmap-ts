@@ -395,4 +395,14 @@ describe('docmap-parser', () => {
       eLocationId: 'RP123456',
     });
   });
+
+  it('extracts partial embodimentOf, if present', () => {
+    const parsedData = parseDocMap(fixtures.preprintWithPartialWorkAsOutput());
+
+    expect(parsedData.manuscript).toStrictEqual({
+      doi: '10.1101/123456',
+      eLocationId: 'RP123456',
+    });
+  });
+
 });

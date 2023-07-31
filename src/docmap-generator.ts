@@ -114,7 +114,7 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateWork = (doi: DOI, identifier: string, volumeIdentifier: string, electronicArticleIdentifier: string): Work => ({
+export const generateWork = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Work => ({
   type: 'manuscript',
   doi,
   identifier,

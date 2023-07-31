@@ -118,10 +118,10 @@ export type Assertion = {
 
 export type Work = {
   type: 'manuscript',
-  doi: DOI,
-  identifier: string,
-  volumeIdentifier: string,
-  electronicArticleIdentifier: string,
+  doi?: DOI,
+  identifier?: string,
+  volumeIdentifier?: string,
+  electronicArticleIdentifier?: string,
 };
 
 export type Step = {
