@@ -391,9 +391,8 @@ describe('docmap-parser', () => {
 
     expect(parsedData.embodimentOf).toStrictEqual({
       doi: '10.1101/123456',
-      identifier: '123456',
-      volumeIdentifier: '1',
-      electronicArticleIdentifier: 'RP123456',
+      volume: '1',
+      elocationId: 'RP123456',
     });
   });
 });
