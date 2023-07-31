@@ -404,5 +404,4 @@ describe('docmap-parser', () => {
       eLocationId: 'RP123456',
     });
   });
-
 });
