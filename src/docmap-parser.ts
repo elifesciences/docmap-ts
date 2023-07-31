@@ -81,15 +81,14 @@ export type VersionedReviewedPreprint = ReviewedPreprint & {
 };
 
 export type Manuscript = {
-    doi?: string,
-    volume?: string,
-    eLocationId?: string,
-
+  doi?: string,
+  volume?: string,
+  eLocationId?: string,
 };
 
 export type ManuscriptData = {
   id: string,
-  manuscript: Manuscript,
+  manuscript?: Manuscript,
   versions: VersionedReviewedPreprint[],
 };
 
