@@ -82,6 +82,11 @@ export type VersionedReviewedPreprint = ReviewedPreprint & {
 
 export type ManuscriptData = {
   id: string,
+  embodimentOf?: {
+    doi?: string,
+    volume?: string,
+    eLocationId?: string,
+  }
   versions: VersionedReviewedPreprint[],
 };
 
