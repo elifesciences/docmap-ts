@@ -80,9 +80,28 @@ export type VersionedReviewedPreprint = ReviewedPreprint & {
   versionIdentifier: string,
 };
 
+export type Manuscript = {
+  doi?: string,
+  volume?: string,
+  eLocationId?: string,
+};
+
 export type ManuscriptData = {
   id: string,
+  manuscript?: Manuscript,
   versions: VersionedReviewedPreprint[],
+};
+
+const getManuscriptFromExpression = (expression: Expression): Manuscript | false => {
+  if (!expression.embodimentOf) {
+    return false;
+  }
+
+  return {
+    doi: expression.embodimentOf.doi,
+    volume: expression.embodimentOf.volumeIdentifier,
+    eLocationId: expression.embodimentOf.electronicArticleIdentifier,
+  };
 };
 
 const getPreprintFromExpression = (expression: Expression): Preprint => {
@@ -171,13 +190,27 @@ const addPreprintDescribedBy = (expression: Expression, preprintCollection: Arra
   return newPreprint;
 };
 
-const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>): ReviewedPreprint => {
+const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintCollection: Array<ReviewedPreprint>, manuscript: Manuscript): ReviewedPreprint => {
+  const foundManuscriptData = getManuscriptFromExpression(expression);
+  const existingManuscript = manuscript;
+  if (foundManuscriptData) {
+    if (foundManuscriptData.doi) {
+      existingManuscript.doi = foundManuscriptData.doi;
+    }
+    if (foundManuscriptData.eLocationId) {
+      existingManuscript.eLocationId = foundManuscriptData.eLocationId;
+    }
+    if (foundManuscriptData.volume) {
+      existingManuscript.volume = foundManuscriptData.volume;
+    }
+  }
   const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
   if (!foundPreprint) {
     return addPreprintDescribedBy(expression, preprintCollection);
   }
   // Update fields, default to any data already there.
   updateReviewedPreprintFrom(foundPreprint, expression);
+
   return foundPreprint;
 };
 
@@ -314,36 +347,36 @@ const getAuthorResponse = (step: Step): { preprint: Item, authorResponse: Item }
   return (authorResponseOutputs.length === 1 && items.preprintInputs.length === 1) ? { preprint: items.preprintInputs[0], authorResponse: authorResponseOutputs[0] } : false;
 };
 
-const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<ReviewedPreprint> => {
+const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: Manuscript): Array<ReviewedPreprint> => {
   const preprintPublishedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Published);
   if (preprintPublishedAssertion) {
     // Update type and sent for review date
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintPublishedAssertion.item, preprints, manuscript);
     preprint.publishedDate = preprintPublishedAssertion.happened ?? preprint.publishedDate;
   }
 
   const inferredPublished = getPublishedPreprint(step);
   if (inferredPublished) {
-    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints);
+    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints, manuscript);
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
   if (preprintUnderReviewAssertion) {
     // Update type and sent for review date
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintUnderReviewAssertion.item, preprints);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintUnderReviewAssertion.item, preprints, manuscript);
     preprint.sentForReviewDate = preprintUnderReviewAssertion.happened;
   }
 
   const inferredRepublished = getRepublishedPreprint(step);
   if (inferredRepublished) {
     // preprint input, preprint output, but no evaluations = superceed input preprint with output Reviewed Preprint
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredRepublished.originalExpression, preprints);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredRepublished.originalExpression, preprints, manuscript);
     republishPreprintAs(inferredRepublished.republishedExpression, preprint);
   }
 
   const inferredPeerReviewed = getPeerReviewedPreprint(step);
   if (inferredPeerReviewed) {
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredPeerReviewed.peerReviewedPreprint, preprints);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredPeerReviewed.peerReviewedPreprint, preprints, manuscript);
     setPeerReviewFrom(step.actions, preprint);
     preprint.reviewedDate = preprint.peerReview?.evaluationSummary?.date;
 
@@ -355,13 +388,13 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>): Array<Review
 
   const newVersionPreprint = getNewVersionPreprint(step);
   if (newVersionPreprint) {
-    findAndUpdateOrAddPreprintDescribedBy(newVersionPreprint.newVersionExpression, preprints);
+    findAndUpdateOrAddPreprintDescribedBy(newVersionPreprint.newVersionExpression, preprints, manuscript);
   }
 
   // sometimes author response is a separate step, find those and add the author response
   const authorResponse = getAuthorResponse(step);
   if (authorResponse) {
-    const preprint = findAndUpdateOrAddPreprintDescribedBy(authorResponse.preprint, preprints);
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(authorResponse.preprint, preprints, manuscript);
     setPeerReviewFrom(step.actions, preprint);
     preprint.authorResponseDate = authorResponse.authorResponse.published;
   }
@@ -430,8 +463,9 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData => 
   const stepsIterator = getSteps(docMapStruct);
   let currentStep = stepsIterator.next().value;
   let preprints: Array<ReviewedPreprint> = [];
+  const manuscript: Manuscript = {};
   while (currentStep) {
-    preprints = parseStep(currentStep, preprints);
+    preprints = parseStep(currentStep, preprints, manuscript);
     currentStep = stepsIterator.next().value;
   }
 
@@ -442,6 +476,7 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData => 
   const { id, versions } = finaliseVersions(preprints);
   return {
     id,
+    manuscript,
     versions,
   };
 };
