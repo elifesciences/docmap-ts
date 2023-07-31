@@ -80,14 +80,29 @@ export type VersionedReviewedPreprint = ReviewedPreprint & {
   versionIdentifier: string,
 };
 
-export type ManuscriptData = {
-  id: string,
-  embodimentOf?: {
+export type Manuscript = {
     doi?: string,
     volume?: string,
     eLocationId?: string,
-  }
+
+};
+
+export type ManuscriptData = {
+  id: string,
+  manuscript: Manuscript,
   versions: VersionedReviewedPreprint[],
+};
+
+const getManuscriptFromExpression = (expression: Expression): Manuscript | false => {
+  if (!expression.embodimentOf) {
+    return false;
+  }
+
+  return {
+    doi: expression.embodimentOf.doi,
+    volume: expression.embodimentOf.volumeIdentifier,
+    eLocationId: expression.embodimentOf.electronicArticleIdentifier,
+  };
 };
 
 const getPreprintFromExpression = (expression: Expression): Preprint => {
