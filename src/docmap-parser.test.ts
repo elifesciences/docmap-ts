@@ -385,4 +385,15 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
     expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
   });
+
+  it('extracts embodimentOf, if present', () => {
+    const parsedData = parseDocMap(fixtures.preprintWithWorkAsOutput());
+
+    expect(parsedData.embodimentOf).toStrictEqual({
+      doi: '10.1101/123456',
+      identifier: '123456',
+      volumeIdentifier: '1',
+      electronicArticleIdentifier: 'RP123456',
+    });
+  });
 });
