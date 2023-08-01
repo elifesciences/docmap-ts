@@ -5,6 +5,7 @@ import {
   generateAuthorResponse,
   generateContent,
   generateDocMap,
+  generateDraftAssertion,
   generateEvaluationSummary,
   generatePeerReview,
   generatePeerReviewedAssertion,
@@ -89,6 +90,17 @@ export const fixtures = {
       [],
       [],
       [generatePublishedAssertion(preprint, new Date('2022-03-01'))],
+    );
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  assertDraftPublished: (): DocMap => {
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'));
+    const firstStep = generateStep(
+      [],
+      [],
+      [generateDraftAssertion(preprint, new Date('2022-03-01'))],
     );
 
     return generateDocMap('test', publisher, firstStep);
