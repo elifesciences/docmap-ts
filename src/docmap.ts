@@ -38,6 +38,7 @@ export type Expression = {
   doi?: DOI,
   content?: Manifestation[],
   license?: string,
+  embodimentOf?: Work,
 };
 
 export type Manifestation = {
@@ -113,6 +114,14 @@ export type Assertion = {
   item: Item,
   status: AssertionStatus,
   happened?: Date,
+};
+
+export type Work = {
+  type: 'manuscript',
+  doi?: DOI,
+  identifier?: string,
+  volumeIdentifier?: string,
+  electronicArticleIdentifier?: string,
 };
 
 export type Step = {

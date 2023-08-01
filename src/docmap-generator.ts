@@ -25,6 +25,7 @@ import {
   Url,
   VersionOfRecord,
   WebPage,
+  Work,
 } from './docmap';
 
 type Steps = {
@@ -32,7 +33,7 @@ type Steps = {
   steps: Map<string, Step>
 };
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string, work?: Work): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
@@ -40,6 +41,7 @@ export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?
   versionIdentifier: version,
   content,
   license,
+  embodimentOf: work,
 });
 
 export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): RevisedPreprint => ({
@@ -110,6 +112,14 @@ export const generateContent = (type: ManifestationType, url: Url): Manifestatio
 export const generateWebContent = (url: Url): WebPage => ({
   type: ManifestationType.WebPage,
   url,
+});
+
+export const generateWork = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Work => ({
+  type: 'manuscript',
+  doi,
+  identifier,
+  volumeIdentifier,
+  electronicArticleIdentifier,
 });
 
 export const generatePersonParticipant = (name: string, role: string): Participant => ({

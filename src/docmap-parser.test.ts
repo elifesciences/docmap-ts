@@ -385,4 +385,23 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
     expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
   });
+
+  it('extracts embodimentOf, if present', () => {
+    const parsedData = parseDocMap(fixtures.preprintWithWorkAsOutput());
+
+    expect(parsedData.manuscript).toStrictEqual({
+      doi: '10.1101/123456',
+      volume: '1',
+      eLocationId: 'RP123456',
+    });
+  });
+
+  it('extracts partial embodimentOf, if present', () => {
+    const parsedData = parseDocMap(fixtures.preprintWithPartialWorkAsOutput());
+
+    expect(parsedData.manuscript).toStrictEqual({
+      doi: '10.1101/123456',
+      eLocationId: 'RP123456',
+    });
+  });
 });
