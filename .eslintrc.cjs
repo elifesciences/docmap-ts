@@ -9,5 +9,9 @@ module.exports = {
     rules: {
       "import/prefer-default-export": 0,
       "max-len": ["error", { "code": 240 }],
-    }
+    },
+    ignorePatterns: [
+      "src/**/*.test.ts",
+      "src/test-fixtures",
+    ],
   };
