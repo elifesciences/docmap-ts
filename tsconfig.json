@@ -3,6 +3,10 @@
   "compilerOptions": {
     "lib": ["es2021", "DOM"],
     "outDir": "./dist/",
-    "declaration": true,
+    "declaration": true
   },
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/test-fixtures"
+  ]
 }
