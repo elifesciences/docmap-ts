@@ -404,4 +404,20 @@ describe('docmap-parser', () => {
       eLocationId: 'RP123456',
     });
   });
+
+  it('parse draft assertions for expressions', () => {
+    const parsedData = parseDocMap(fixtures.assertDraftPublished());
+
+    expect(parsedData.versions[0]).toMatchObject({
+      id: 'preprint/article1',
+      doi: 'preprint/article1',
+      preprint: {
+        id: 'preprint/article1',
+        doi: 'preprint/article1',
+        publishedDate: new Date('2022-03-01'),
+      },
+      publishedDate: new Date('2022-03-01'),
+      versionIdentifier: '1',
+    });
+  });
 });
