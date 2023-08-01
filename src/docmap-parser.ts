@@ -399,6 +399,12 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
     preprint.authorResponseDate = authorResponse.authorResponse.published;
   }
 
+  const draftAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Draft);
+  if (draftAssertion) {
+    // Update type and sent for review date
+    findAndUpdateOrAddPreprintDescribedBy(draftAssertion.item, preprints, manuscript);
+  }
+
   return preprints;
 };
 
