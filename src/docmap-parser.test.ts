@@ -420,4 +420,84 @@ describe('docmap-parser', () => {
       versionIdentifier: '1',
     });
   });
+
+
+  it('matches preprints by for expressions', () => {
+    const docmap = `
+    {
+      "@context": "https://w3id.org/docmaps/context.jsonld",
+      "type": "docmap",
+      "id": "http://mock-datahub/enhanced-preprints/docmaps/v1/by-publisher/elife/get-by-doi/10.1101%2F000002",
+      "created": "2022-11-28T11:30:05+00:00",
+      "updated": "2022-11-28T11:30:05+00:00",
+      "publisher": {
+        "account": {
+          "id": "https://sciety.org/groups/elife",
+          "service": "https://sciety.org"
+        },
+        "homepage": "https://elifesciences.org/",
+        "id": "https://elifesciences.org/",
+        "logo": "https://sciety.org/static/groups/elife--b560187e-f2fb-4ff9-a861-a204f3fc0fb0.png",
+        "name": "eLife"
+      },
+      "first-step": "_:b0",
+      "steps": {
+        "_:b0": {
+          "actions": [
+            {
+              "participants": [],
+              "outputs": [
+                {
+                  "type": "preprint",
+                  "identifier": "000002",
+                  "doi": "10.7554/000002.1",
+                  "versionIdentifier": "2",
+                  "license": "http://creativecommons.org/licenses/by/4.0/"
+                }
+              ]
+            }
+          ],
+          "assertions": [
+            {
+              "item": {
+                "type": "preprint",
+                "doi": "10.1101/000002",
+                "versionIdentifier": "2"
+              },
+              "status": "under-review",
+              "happened": "2023-05-07T09:03:08+00:00"
+            },
+            {
+              "item": {
+                "type": "preprint",
+                "doi": "10.7554/000002.1",
+                "versionIdentifier": "1"
+              },
+              "status": "draft"
+            }
+          ],
+          "inputs": [
+            {
+              "type": "preprint",
+              "doi": "10.1101/000002",
+              "url": "https://www.biorxiv.org/content/10.1101/000002v2",
+              "versionIdentifier": "2",
+              "published": "2023-05-06",
+              "content": [
+                {
+                  "type": "computer-file",
+                  "url": "s3://biorxiv/dummy-2.meca"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+    `;
+    const parsedData = parseDocMap(docmap);
+
+    expect(parsedData.versions.length).toEqual(1);
+  });
 });
