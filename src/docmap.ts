@@ -149,24 +149,24 @@ export const JsonLDFrameUrl = 'https://w3id.org/docmaps/context.jsonld';
 /* eslint-disable @typescript-eslint/quotes */
 /* eslint-disable @typescript-eslint/comma-dangle */
 export const JsonLDAddonFrame = {
-  "updated": {
-    "@id": "dcterms:updated",
-    "@type": "xsd:date"
+  'updated': {
+    '@id': 'dcterms:updated',
+    '@type': 'xsd:date'
   },
-  "author-response": "fabio:Reply",
-  "decision-letter": "fabio:Letter",
-  "preprint": "fabio:Preprint",
-  "version-of-record": "fabio:DefinitiveVersion",
-  "update-summary": "fabio:ExecutiveSummary",
-  "draft": "pso:draft",
-  "manuscript-published": "pso:published",
-  "republished": "pso:republished",
-  "identifier": "dcterms:identifier",
-  "happened": {
-    "@id": "pwo:happened",
-    "@type": "xsd:date"
+  'author-response': 'fabio:Reply',
+  'decision-letter': 'fabio:Letter',
+  'preprint': 'fabio:Preprint',
+  'version-of-record': 'fabio:DefinitiveVersion',
+  'update-summary': 'fabio:ExecutiveSummary',
+  'draft': 'pso:draft',
+  'manuscript-published': 'pso:published',
+  'republished': 'pso:republished',
+  'identifier': 'dcterms:identifier',
+  'happened': {
+    '@id': 'pwo:happened',
+    '@type': 'xsd:date'
   },
-  "versionIdentifier": "prism:versionIdentifier"
+  'versionIdentifier': 'prism:versionIdentifier'
 };
 /* eslint-enable quote-props */
 /* eslint-enable @typescript-eslint/quotes */
