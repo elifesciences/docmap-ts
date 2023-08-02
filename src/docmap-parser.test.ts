@@ -387,7 +387,7 @@ describe('docmap-parser', () => {
   });
 
   it('extracts partOf, if present', () => {
-    const parsedData = parseDocMap(fixtures.preprintWithWorkAsOutput());
+    const parsedData = parseDocMap(fixtures.preprintWithManuscriptAsOutput());
 
     expect(parsedData.manuscript).toStrictEqual({
       doi: '10.1101/123456',
@@ -397,7 +397,7 @@ describe('docmap-parser', () => {
   });
 
   it('extracts partial embodimentOf, if present', () => {
-    const parsedData = parseDocMap(fixtures.preprintWithPartialWorkAsOutput());
+    const parsedData = parseDocMap(fixtures.preprintWithPartialManuscriptAsOutput());
 
     expect(parsedData.manuscript).toStrictEqual({
       doi: '10.1101/123456',
