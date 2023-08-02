@@ -9,6 +9,7 @@ module.exports = {
     rules: {
       "import/prefer-default-export": 0,
       "max-len": ["error", { "code": 240 }],
+      "quotes": ["error", "single"],
     },
     ignorePatterns: [
       "src/**/*.test.ts",
