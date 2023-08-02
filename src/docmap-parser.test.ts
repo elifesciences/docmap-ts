@@ -386,8 +386,8 @@ describe('docmap-parser', () => {
     expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
   });
 
-  it('extracts embodimentOf, if present', () => {
-    const parsedData = parseDocMap(fixtures.preprintWithWorkAsOutput());
+  it('extracts partOf, if present', () => {
+    const parsedData = parseDocMap(fixtures.preprintWithManuscriptAsOutput());
 
     expect(parsedData.manuscript).toStrictEqual({
       doi: '10.1101/123456',
@@ -397,7 +397,7 @@ describe('docmap-parser', () => {
   });
 
   it('extracts partial embodimentOf, if present', () => {
-    const parsedData = parseDocMap(fixtures.preprintWithPartialWorkAsOutput());
+    const parsedData = parseDocMap(fixtures.preprintWithPartialManuscriptAsOutput());
 
     expect(parsedData.manuscript).toStrictEqual({
       doi: '10.1101/123456',
@@ -418,6 +418,19 @@ describe('docmap-parser', () => {
       },
       publishedDate: new Date('2022-03-01'),
       versionIdentifier: '1',
+    });
+  });
+
+  it('parses umbrella expressions from multiple locations', () => {
+    const docmap = fixtures.preprintWithUmbrellaExpressionsFromMultipleLocations();
+    const parsedData = parseDocMap(docmap);
+
+    expect(parsedData.versions.length).toEqual(1);
+
+    expect(parsedData.manuscript).toStrictEqual({
+      doi: '10.1101/123456',
+      volume: '1',
+      eLocationId: 'RP123456',
     });
   });
 });

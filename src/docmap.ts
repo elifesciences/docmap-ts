@@ -38,7 +38,7 @@ export type Expression = {
   doi?: DOI,
   content?: Manifestation[],
   license?: string,
-  embodimentOf?: Work,
+  partOf?: Manuscript,
 };
 
 export type Manifestation = {
@@ -116,7 +116,7 @@ export type Assertion = {
   happened?: Date,
 };
 
-export type Work = {
+export type Manuscript = {
   type: 'manuscript',
   doi?: DOI,
   identifier?: string,
