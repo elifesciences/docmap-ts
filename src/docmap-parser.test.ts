@@ -477,11 +477,11 @@ describe('docmap-parser', () => {
                 "doi": "10.7554/000001.1",
                 "versionIdentifier": "1",
                 "partOf": {
-                    "type": "manuscript",
-                    "doi": "10.7554/000001",
-                    "identifier": "000001",
-                    "electronicArticleIdentifier": "RP000001"
-                  }
+                  "type": "manuscript",
+                  "doi": "10.7554/000001",
+                  "identifier": "000001",
+                  "electronicArticleIdentifier": "RP000001"
+                }
               },
               "status": "draft"
             }

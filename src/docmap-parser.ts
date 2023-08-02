@@ -214,11 +214,23 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
   return foundPreprint;
 };
 
-const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint) => {
+const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint, manuscript: Manuscript) => {
   if (!expression.doi) {
     throw Error('Cannot identify Expression by DOI');
   }
-
+  const foundManuscriptData = getManuscriptFromExpression(expression);
+  const existingManuscript = manuscript;
+  if (foundManuscriptData) {
+    if (foundManuscriptData.doi) {
+      existingManuscript.doi = foundManuscriptData.doi;
+    }
+    if (foundManuscriptData.eLocationId) {
+      existingManuscript.eLocationId = foundManuscriptData.eLocationId;
+    }
+    if (foundManuscriptData.volume) {
+      existingManuscript.volume = foundManuscriptData.volume;
+    }
+  }
   const newPreprint = preprint;
 
   newPreprint.id = expression.identifier ?? expression.doi;
@@ -371,7 +383,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
   if (inferredRepublished) {
     // preprint input, preprint output, but no evaluations = superceed input preprint with output Reviewed Preprint
     const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredRepublished.originalExpression, preprints, manuscript);
-    republishPreprintAs(inferredRepublished.republishedExpression, preprint);
+    republishPreprintAs(inferredRepublished.republishedExpression, preprint, manuscript);
   }
 
   const inferredPeerReviewed = getPeerReviewedPreprint(step);
@@ -382,7 +394,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
 
     // sometimes a new reviewed preprint is published as an output
     if (inferredPeerReviewed.republishedPreprint) {
-      republishPreprintAs(inferredPeerReviewed.republishedPreprint, preprint);
+      republishPreprintAs(inferredPeerReviewed.republishedPreprint, preprint, manuscript);
     }
   }
 
