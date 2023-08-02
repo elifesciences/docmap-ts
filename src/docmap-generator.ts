@@ -14,6 +14,7 @@ import {
   JsonLDFrameUrl,
   Manifestation,
   ManifestationType,
+  Manuscript,
   Output,
   Participant,
   PeerReview,
@@ -25,7 +26,6 @@ import {
   Url,
   VersionOfRecord,
   WebPage,
-  Manuscript,
 } from './docmap';
 
 type Steps = {
@@ -33,7 +33,7 @@ type Steps = {
   steps: Map<string, Step>
 };
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string, work?: Manuscript): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string, manuscript?: Manuscript): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
@@ -41,7 +41,7 @@ export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?
   versionIdentifier: version,
   content,
   license,
-  partOf: work,
+  partOf: manuscript,
 });
 
 export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): RevisedPreprint => ({
@@ -114,7 +114,7 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateWork = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Manuscript => ({
+export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Manuscript => ({
   type: 'manuscript',
   doi,
   identifier,
