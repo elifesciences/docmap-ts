@@ -93,14 +93,14 @@ export type ManuscriptData = {
 };
 
 const getManuscriptFromExpression = (expression: Expression): Manuscript | false => {
-  if (!expression.embodimentOf) {
+  if (!expression.partOf) {
     return false;
   }
 
   return {
-    doi: expression.embodimentOf.doi,
-    volume: expression.embodimentOf.volumeIdentifier,
-    eLocationId: expression.embodimentOf.electronicArticleIdentifier,
+    doi: expression.partOf.doi,
+    volume: expression.partOf.volumeIdentifier,
+    eLocationId: expression.partOf.electronicArticleIdentifier,
   };
 };
 

@@ -38,7 +38,7 @@ export type Expression = {
   doi?: DOI,
   content?: Manifestation[],
   license?: string,
-  embodimentOf?: Work,
+  partOf?: Work,
 };
 
 export type Manifestation = {

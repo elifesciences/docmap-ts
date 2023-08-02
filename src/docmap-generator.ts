@@ -41,7 +41,7 @@ export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?
   versionIdentifier: version,
   content,
   license,
-  embodimentOf: work,
+  partOf: work,
 });
 
 export const generateRevisedPreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[]): RevisedPreprint => ({
