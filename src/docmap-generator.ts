@@ -25,7 +25,7 @@ import {
   Url,
   VersionOfRecord,
   WebPage,
-  Work,
+  Manuscript,
 } from './docmap';
 
 type Steps = {
@@ -33,7 +33,7 @@ type Steps = {
   steps: Map<string, Step>
 };
 
-export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string, work?: Work): Preprint => ({
+export const generatePreprint = (doi: DOI, published?: Date, url?: Url, version?: string, content?: Manifestation[], license?: string, work?: Manuscript): Preprint => ({
   type: ExpressionType.Preprint,
   doi,
   url,
@@ -114,7 +114,7 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateWork = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Work => ({
+export const generateWork = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string): Manuscript => ({
   type: 'manuscript',
   doi,
   identifier,
