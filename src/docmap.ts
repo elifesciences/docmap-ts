@@ -122,6 +122,7 @@ export type Manuscript = {
   identifier?: string,
   volumeIdentifier?: string,
   electronicArticleIdentifier?: string,
+  subjectDisciplines?: string[],
 };
 
 export type Step = {

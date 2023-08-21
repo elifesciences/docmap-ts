@@ -49,7 +49,7 @@ export const fixtures = {
   },
 
   preprintWithManuscriptAsOutput: (): DocMap => {
-    const manuscript = generateManuscript('10.1101/123456', '123456', '1', 'RP123456');
+    const manuscript = generateManuscript('10.1101/123456', '123456', '1', 'RP123456', ['Biochemistry and Chemical Biology', 'Neuroscience']);
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript);
     const firstStep = generateStep([], [generateAction([], [preprint])], []);
     return generateDocMap('test', publisher, firstStep);
@@ -64,7 +64,7 @@ export const fixtures = {
 
   preprintWithUmbrellaExpressionsFromMultipleLocations: (): DocMap => {
     const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456');
-    const manuscript2 = generateManuscript('10.1101/123456', '123456', "1");
+    const manuscript2 = generateManuscript('10.1101/123456', '123456', "1", undefined, ['subject 1']);
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript);
     const preprint2 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript2);
     const assertion = generateDraftAssertion(preprint2);

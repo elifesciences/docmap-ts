@@ -84,6 +84,7 @@ export type Manuscript = {
   doi?: string,
   volume?: string,
   eLocationId?: string,
+  subjects?: string[],
 };
 
 export type ManuscriptData = {
@@ -101,6 +102,7 @@ const getManuscriptFromExpression = (expression: Expression): Manuscript | false
     doi: expression.partOf.doi,
     volume: expression.partOf.volumeIdentifier,
     eLocationId: expression.partOf.electronicArticleIdentifier,
+    subjects: expression.partOf.subjectDisciplines,
   };
 };
 
@@ -203,6 +205,9 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
     if (foundManuscriptData.volume) {
       existingManuscript.volume = foundManuscriptData.volume;
     }
+    if (foundManuscriptData.subjects) {
+      existingManuscript.subjects = foundManuscriptData.subjects;
+    }
   }
   const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
   if (!foundPreprint) {
@@ -229,6 +234,9 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint,
     }
     if (foundManuscriptData.volume) {
       existingManuscript.volume = foundManuscriptData.volume;
+    }
+    if (foundManuscriptData.subjects) {
+      existingManuscript.subjects = foundManuscriptData.subjects;
     }
   }
   const newPreprint = preprint;
