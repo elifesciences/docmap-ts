@@ -396,7 +396,7 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('extracts partial embodimentOf, if present', () => {
+  it('extracts partial partOf, if present', () => {
     const parsedData = parseDocMap(fixtures.preprintWithPartialManuscriptAsOutput());
 
     expect(parsedData.manuscript).toStrictEqual({

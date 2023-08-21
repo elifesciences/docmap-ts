@@ -24,8 +24,8 @@
   ],
   "type": "docmap",
   "id": "http://docmaps.elifesciences.org/testid.docmap.json",
-  "created": "2023-01-13T13:49:49.879Z",
-  "updated": "2023-01-13T13:49:49.879Z",
+  "created": "2023-08-21T11:41:18.630Z",
+  "updated": "2023-08-21T11:41:18.630Z",
   "publisher": {
     "id": "https://elifesciences.org/",
     "name": "eLife",
@@ -297,15 +297,7 @@
           "item": {
             "type": "preprint",
             "doi": "10.7554/eLife.80494.1",
-            "versionIdentifier": "1",
-            "publicationYear": 2022,
-            "embodimentOf": {
-              "type": "manuscript",
-              "doi": "10.7554/eLife.80494",
-              "identifier": "80494",
-              "volumeIdentifier": "11",
-              "electronicArticleIdentifier": "RP80494"
-            }
+            "versionIdentifier": "1"
           },
           "status": "manuscript-published",
           "happened": "2022-10-20T00:00:00.000Z"
