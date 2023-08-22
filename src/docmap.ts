@@ -80,7 +80,7 @@ export type WebPage = Manifestation & {
   type: ManifestationType.WebPage,
 };
 
-export type Item = Preprint | PeerReview | PeerReview | EvaluationSummary | VersionOfRecord | Expression;
+export type Item = Preprint | PeerReview | EvaluationSummary | VersionOfRecord | Expression;
 export type Input = Item;
 export type Output = Item;
 
