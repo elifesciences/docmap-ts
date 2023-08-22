@@ -393,6 +393,10 @@ describe('docmap-parser', () => {
       doi: '10.1101/123456',
       volume: '1',
       eLocationId: 'RP123456',
+      subjects: [
+        'Biochemistry and Chemical Biology',
+        'Neuroscience',
+      ],
     });
   });
 
@@ -431,6 +435,9 @@ describe('docmap-parser', () => {
       doi: '10.1101/123456',
       volume: '1',
       eLocationId: 'RP123456',
+      subjects: [
+        'subject 1',
+      ],
     });
   });
 });
