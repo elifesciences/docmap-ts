@@ -114,13 +114,14 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[]): Manuscript => ({
+export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[], publishedDate?: Date): Manuscript => ({
   type: 'manuscript',
   doi,
   identifier,
   volumeIdentifier,
   electronicArticleIdentifier,
   subjectDisciplines,
+  publishedDate,
 });
 
 export const generatePersonParticipant = (name: string, role: string): Participant => ({

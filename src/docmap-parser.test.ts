@@ -440,4 +440,11 @@ describe('docmap-parser', () => {
       ],
     });
   });
+
+  it('parses publishedDate', () => {
+    const docmap = fixtures.preprintWithPartialManuscriptWithPublishedDate();
+    const parsedData = parseDocMap(docmap);
+
+    expect(parsedData.manuscript?.publishedDate).toEqual(new Date('2022-03-01'));
+  });
 });

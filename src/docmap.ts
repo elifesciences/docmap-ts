@@ -123,6 +123,7 @@ export type Manuscript = {
   volumeIdentifier?: string,
   electronicArticleIdentifier?: string,
   subjectDisciplines?: string[],
+  publishedDate?: Date,
 };
 
 export type Step = {
