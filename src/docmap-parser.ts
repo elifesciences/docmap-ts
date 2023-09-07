@@ -84,6 +84,7 @@ export type Manuscript = {
   doi?: string,
   volume?: string,
   eLocationId?: string,
+  publishedDate?: Date,
   subjects?: string[],
 };
 
