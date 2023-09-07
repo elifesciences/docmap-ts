@@ -210,6 +210,9 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
     if (foundManuscriptData.subjects) {
       existingManuscript.subjects = foundManuscriptData.subjects;
     }
+    if (foundManuscriptData.publishedDate) {
+      existingManuscript.publishedDate = foundManuscriptData.publishedDate;
+    }
   }
   const foundPreprint = findPreprintDescribedBy(expression, preprintCollection);
   if (!foundPreprint) {
