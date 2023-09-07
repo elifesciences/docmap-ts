@@ -62,6 +62,13 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  preprintWithPartialManuscriptWithPublishedDate: (): DocMap => {
+    const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456', undefined, new Date('2022-03-01'));
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript);
+    const firstStep = generateStep([], [generateAction([], [preprint])], []);
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   preprintWithUmbrellaExpressionsFromMultipleLocations: (): DocMap => {
     const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456');
     const manuscript2 = generateManuscript('10.1101/123456', '123456', "1", undefined, ['subject 1']);
