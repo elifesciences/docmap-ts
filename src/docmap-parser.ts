@@ -104,7 +104,7 @@ const getManuscriptFromExpression = (expression: Expression): Manuscript | false
     volume: expression.partOf.volumeIdentifier,
     eLocationId: expression.partOf.electronicArticleIdentifier,
     subjects: expression.partOf.subjectDisciplines,
-    publishedDate: expression.partOf.publishedDate,
+    publishedDate: expression.partOf.published,
   };
 };
 
