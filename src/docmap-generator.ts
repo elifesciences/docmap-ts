@@ -19,7 +19,7 @@ import {
   Participant,
   PeerReview,
   Preprint,
-  Publisher,
+  Publisher, Reply,
   RevisedPreprint,
   Step,
   UpdateSummary,
@@ -82,6 +82,14 @@ export const generateEvaluationSummary = (published: Date, content: WebPage[], d
 
 export const generateAuthorResponse = (published: Date, content: WebPage[], doi?: DOI, url?: Url): AuthorResponse => ({
   type: ExpressionType.AuthorResponse,
+  doi,
+  published,
+  url,
+  content,
+});
+
+export const generateReply = (published: Date, content: WebPage[], doi?: DOI, url?: Url): Reply => ({
+  type: ExpressionType.Reply,
   doi,
   published,
   url,

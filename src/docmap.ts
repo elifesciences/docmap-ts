@@ -21,6 +21,7 @@ export enum ExpressionType {
   EvaluationSummary = 'evaluation-summary',
   VersionOfRecord = 'version-of-record',
   AuthorResponse = 'author-response',
+  Reply = 'reply',
   UpdateSummary = 'update-summary',
 }
 
@@ -62,6 +63,10 @@ export type EvaluationSummary = Expression & {
 
 export type AuthorResponse = Expression & {
   type: ExpressionType.AuthorResponse,
+};
+
+export type Reply = Expression & {
+  type: ExpressionType.Reply,
 };
 
 export type RevisedPreprint = Expression & {

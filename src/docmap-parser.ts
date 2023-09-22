@@ -18,7 +18,7 @@ const stringToReviewType = (reviewTypeString: string): ReviewType | undefined =>
   if (reviewTypeString === ReviewType.EvaluationSummary) {
     return ReviewType.EvaluationSummary;
   }
-  if (reviewTypeString === ReviewType.AuthorResponse) {
+  if (reviewTypeString === ReviewType.AuthorResponse || reviewTypeString === 'reply') { // reply is also a valid author response value
     return ReviewType.AuthorResponse;
   }
   if (reviewTypeString === ReviewType.Review) {
@@ -368,7 +368,7 @@ const getPeerReviewedPreprint = (step: Step): { peerReviewedPreprint: Item, eval
 const getAuthorResponse = (step: Step): { preprint: Item, authorResponse: Item } | false => {
   const items = extractExpressions(step);
 
-  const authorResponseOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === ExpressionType.AuthorResponse));
+  const authorResponseOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => stringToReviewType(output.type) === ReviewType.AuthorResponse));
   return (authorResponseOutputs.length === 1 && items.preprintInputs.length === 1) ? { preprint: items.preprintInputs[0], authorResponse: authorResponseOutputs[0] } : false;
 };
 
