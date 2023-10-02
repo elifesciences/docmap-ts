@@ -139,6 +139,23 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('detect when a republish is inferred from a step', () => {
+    const parsedData = parseDocMap(fixtures.inferRepublishedPreprint());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject({
+      doi: 'elife/12345.1',
+      id: 'elife/12345.1',
+      versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '4',
+      },
+      license: 'http://creativecommons.org/licenses/by/4.0/',
+    });
+  });
+
   it('finds a revised preprint from a docmap', () => {
     const parsedData = parseDocMap(fixtures.preprintAndRevision());
 

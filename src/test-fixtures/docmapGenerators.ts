@@ -215,6 +215,19 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  inferRepublishedPreprint: (): DocMap => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '4', undefined);
+    const preprintv2 = generatePreprint('elife/12345.1', new Date('2022-04-12'), undefined, '1', undefined, 'http://creativecommons.org/licenses/by/4.0/');
+
+    const firstStep = generateStep(
+      [preprintv1],
+      [generateAction([], [preprintv2])],
+      [],
+    );
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   preprintAndRevision: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const preprintv2 = generatePreprint('preprint/article1v2', new Date('2022-06-01'), undefined, '2');
