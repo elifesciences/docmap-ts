@@ -250,6 +250,7 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint,
   newPreprint.doi = expression.doi;
   newPreprint.versionIdentifier = expression.versionIdentifier;
   newPreprint.publishedDate = expression.published;
+  newPreprint.license = expression.license;
 };
 
 const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => action.outputs.map((output) => {
