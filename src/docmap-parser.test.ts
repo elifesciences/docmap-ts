@@ -191,6 +191,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -201,6 +202,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -212,6 +214,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.EvaluationSummary,
           contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
@@ -241,6 +244,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -251,6 +255,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -262,6 +267,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.EvaluationSummary,
           contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
@@ -272,6 +278,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.AuthorResponse,
           contentUrls: ['https://content.com/12345.sa4'],
           date: new Date('2022-05-09'),
+          doi: 'elife/eLife.12345.sa4',
           participants: [{
             name: 'Bugs Bunny',
             role: 'author',
@@ -301,6 +308,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -311,6 +319,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -322,6 +331,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.EvaluationSummary,
           contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
@@ -332,6 +342,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.AuthorResponse,
           contentUrls: ['https://content.com/12345.sa4'],
           date: new Date('2022-05-09'),
+          doi: 'elife/eLife.12345.sa4',
           participants: [{
             name: 'Bugs Bunny',
             role: 'author',
@@ -361,6 +372,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa1'],
             date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -371,6 +383,7 @@ describe('docmap-parser', () => {
             reviewType: ReviewType.Review,
             contentUrls: ['https://content.com/12345.sa2'],
             date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
@@ -382,6 +395,7 @@ describe('docmap-parser', () => {
           reviewType: ReviewType.EvaluationSummary,
           contentUrls: ['https://content.com/12345.sa3'],
           date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
