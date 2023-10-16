@@ -35,6 +35,7 @@ type Participant = {
 
 export type Evaluation = {
   date: Date,
+  doi: string,
   reviewType: ReviewType,
   contentUrls: string[],
   participants: Participant[],
@@ -269,6 +270,7 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   return {
     reviewType: stringToReviewType(output.type),
     date: output.published,
+    doi: output.doi,
     participants: action.participants.map((participant) => ({
       name: participant.actor.name,
       institution: 'unknown', // TODO
