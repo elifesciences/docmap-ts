@@ -89,9 +89,16 @@ export type Item = Preprint | PeerReview | EvaluationSummary | VersionOfRecord |
 export type Input = Item;
 export type Output = Item;
 
+export type Affiliation = {
+  type: string,
+  name: string,
+  location?: string,
+};
+
 export type Person = {
   type: string,
   name: string,
+  affiliation: Affiliation,
 };
 
 export type Participant = {

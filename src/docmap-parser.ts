@@ -273,7 +273,7 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
     doi: output.doi,
     participants: action.participants.map((participant) => ({
       name: participant.actor.name,
-      institution: 'unknown', // TODO
+      institution: participant.actor.affiliation.name,
       role: participant.role,
     })),
     contentUrls,

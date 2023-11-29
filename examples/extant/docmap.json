@@ -124,7 +124,12 @@
                             "actor": {
                                 "name": "Aloke Finn",
                                 "type": "person",
-                                "_relatesToOrganization": "CVPath Institute, United States"
+                                "_relatesToOrganization": "CVPath Institute, United States",
+                                "affiliation": {
+                                    "type": "organization",
+                                    "name": "CVPath Institute",
+                                    "location": "United States"
+                                }
                             },
                             "role": "editor"
                         },
@@ -132,7 +137,12 @@
                             "actor": {
                                 "name": "Carlos Isales",
                                 "type": "person",
-                                "_relatesToOrganization": "Medical College of Georgia at Augusta University, United States"
+                                "_relatesToOrganization": "Medical College of Georgia at Augusta University, United States",
+                                "affiliation": {
+                                    "type": "organization",
+                                    "name": "Medical College of Georgia at Augusta University",
+                                    "location": "United States"
+                                }
                             },
                             "role": "senior-editor"
                         }
