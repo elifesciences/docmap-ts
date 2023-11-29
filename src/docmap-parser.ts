@@ -27,10 +27,15 @@ const stringToReviewType = (reviewTypeString: string): ReviewType | undefined =>
   return undefined;
 };
 
+type Institution = {
+  name: string,
+  location?: string,
+};
+
 type Participant = {
   name: string,
   role: string,
-  institution: string,
+  institution: Institution,
 };
 
 export type Evaluation = {
@@ -273,7 +278,10 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
     doi: output.doi,
     participants: action.participants.map((participant) => ({
       name: participant.actor.name,
-      institution: participant.actor.affiliation.name,
+      institution: {
+        name: participant.actor.affiliation.name,
+        ...(participant.actor.affiliation.location ? { location: participant.actor.affiliation.location } : {}),
+      },
       role: participant.role,
     })),
     contentUrls,
