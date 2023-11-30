@@ -1,5 +1,5 @@
 import {
-  Action, Affiliation,
+  Action,
   Assertion,
   AssertionStatus,
   AuthorResponse,
@@ -15,6 +15,7 @@ import {
   Manifestation,
   ManifestationType,
   Manuscript,
+  Organization,
   Output,
   Participant,
   PeerReview,
@@ -132,13 +133,13 @@ export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentif
   published,
 });
 
-export const generatePersonParticipantAffiliation = (name: string, location?: string): Affiliation => ({
+export const generateOrganization = (name: string, location?: string): Organization => ({
   type: 'organization',
   name,
   ...(location ? { location } : {}),
 });
 
-export const generatePersonParticipant = (name: string, role: string, affiliation: Affiliation): Participant => ({
+export const generatePersonParticipant = (name: string, role: string, affiliation: Organization): Participant => ({
   actor: {
     name,
     type: 'person',

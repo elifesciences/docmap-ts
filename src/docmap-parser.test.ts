@@ -174,7 +174,6 @@ describe('docmap-parser', () => {
 
   it('finds a reviewed preprint reviews and evaluations from a docmap', () => {
     const parsedData = parseDocMap(fixtures.preprintReviewed());
-    console.log();
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({

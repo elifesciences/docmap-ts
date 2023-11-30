@@ -89,7 +89,7 @@ export type Item = Preprint | PeerReview | EvaluationSummary | VersionOfRecord |
 export type Input = Item;
 export type Output = Item;
 
-export type Affiliation = {
+export type Organization = {
   type: string,
   name: string,
   location?: string,
@@ -98,7 +98,7 @@ export type Affiliation = {
 export type Person = {
   type: string,
   name: string,
-  affiliation: Affiliation,
+  affiliation: Organization,
 };
 
 export type Participant = {

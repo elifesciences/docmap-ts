@@ -6,7 +6,7 @@ import {
   generateAction,
   generateDocMap,
   generatePersonParticipant,
-  generatePersonParticipantAffiliation,
+  generateOrganization,
   generateStep,
   generatePreprint,
   generateWebContent,
@@ -94,7 +94,7 @@ step = doStep(() => generateStep(
 
 //
 
-const anonymousReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generatePersonParticipantAffiliation('anonymous affiliation'));
+const anonymousReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
 const fullPeerReview1 = generatePeerReview(
   new Date('2022-09-06'),
   [
@@ -126,8 +126,8 @@ const fullPeerReview3 = generatePeerReview(
   'https://doi.org/10.7554/eLife.80494.sa3',
 );
 
-const editor1 = generatePersonParticipant('Aloke Finn', 'editor', generatePersonParticipantAffiliation('CVPath Institute', 'United States'));
-const editor2 = generatePersonParticipant('Carlos Isales', 'senior-editor', generatePersonParticipantAffiliation('Medical College of Georgia at Augusta University', 'United States'));
+const editor1 = generatePersonParticipant('Aloke Finn', 'editor', generateOrganization('CVPath Institute', 'United States'));
+const editor2 = generatePersonParticipant('Carlos Isales', 'senior-editor', generateOrganization('Medical College of Georgia at Augusta University', 'United States'));
 const fullEditorsEvaluation = generateEvaluationSummary(
   new Date('2022-09-06'),
   [
