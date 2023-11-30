@@ -1,4 +1,4 @@
-import { DocMap, ManifestationType } from '..';
+import {DocMap, ManifestationType} from '..';
 import {
   addNextStep,
   generateAction,
@@ -8,6 +8,7 @@ import {
   generateDocMap,
   generateDraftAssertion,
   generateEvaluationSummary,
+  generateOrganization,
   generatePeerReview,
   generatePeerReviewedAssertion,
   generatePersonParticipant,
@@ -248,7 +249,7 @@ export const fixtures = {
 
   preprintReviewed: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -263,7 +264,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa2',
     );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
     const editorsEvaluation = generateEvaluationSummary(
       new Date('2022-04-10'),
       [
@@ -288,7 +289,7 @@ export const fixtures = {
 
   preprintReviewedAndAuthorResponded: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -303,7 +304,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa2',
     );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
     const editorsEvaluation = generateEvaluationSummary(
       new Date('2022-04-10'),
       [
@@ -311,7 +312,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa3',
     );
-    const author = generatePersonParticipant('Bugs Bunny', 'author');
+    const author = generatePersonParticipant('Bugs Bunny', 'author', generateOrganization('Acme Looniversity', 'United States'));
     const authorResponse = generateAuthorResponse(
       new Date('2022-05-09'),
       [
@@ -343,7 +344,7 @@ export const fixtures = {
 
   preprintReviewedAndAuthorReplied: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -358,7 +359,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa2',
     );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
     const editorsEvaluation = generateEvaluationSummary(
       new Date('2022-04-10'),
       [
@@ -366,7 +367,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa3',
     );
-    const author = generatePersonParticipant('Bugs Bunny', 'author');
+    const author = generatePersonParticipant('Bugs Bunny', 'author', generateOrganization('Acme Looniversity', 'United States'));
     const authorResponse = generateReply(
       new Date('2022-05-09'),
       [
@@ -398,7 +399,7 @@ export const fixtures = {
 
   inferredReviewedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -413,7 +414,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa2',
     );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
     const editorsEvaluation = generateEvaluationSummary(
       new Date('2022-04-10'),
       [
@@ -437,7 +438,7 @@ export const fixtures = {
 
   inferredRevisedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -452,7 +453,7 @@ export const fixtures = {
       ],
       'elife/eLife.12345.sa2',
     );
-    const editor = generatePersonParticipant('Daffy Duck', 'editor');
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
     const editorsEvaluation = generateEvaluationSummary(
       new Date('2022-04-10'),
       [

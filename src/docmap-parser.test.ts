@@ -195,7 +195,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
           {
@@ -206,7 +208,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
         ],
@@ -218,7 +222,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
       },
@@ -248,7 +255,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
           {
@@ -259,7 +268,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
         ],
@@ -271,7 +282,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
         authorResponse: {
@@ -282,7 +296,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Bugs Bunny',
             role: 'author',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
       },
@@ -312,7 +329,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
           {
@@ -323,7 +342,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
         ],
@@ -335,7 +356,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
         authorResponse: {
@@ -346,7 +370,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Bugs Bunny',
             role: 'author',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
       },
@@ -376,7 +403,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
           {
@@ -387,7 +416,9 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: 'unknown',
+              institution: {
+                name: 'anonymous affiliation',
+              },
             }],
           },
         ],
@@ -399,7 +430,10 @@ describe('docmap-parser', () => {
           participants: [{
             name: 'Daffy Duck',
             role: 'editor',
-            institution: 'unknown',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
           }],
         },
       },
