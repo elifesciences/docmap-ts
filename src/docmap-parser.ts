@@ -35,7 +35,7 @@ type Institution = {
 type Participant = {
   name: string,
   role: string,
-  institution: Institution,
+  institution?: Institution,
 };
 
 export type Evaluation = {
