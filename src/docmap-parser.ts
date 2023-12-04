@@ -277,10 +277,11 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
     date: output.published,
     doi: output.doi,
     participants: action.participants.map((participant) => {
-      const institution = participant.actor.affiliation ? { institution: {
-        name: participant.actor.affiliation.name,
-        ...(participant.actor.affiliation.location ? { location: participant.actor.affiliation.location } : {}),
-        }
+      const institution = participant.actor.affiliation ? {
+        institution: {
+          name: participant.actor.affiliation.name,
+          ...(participant.actor.affiliation.location ? { location: participant.actor.affiliation.location } : {}),
+        },
       } : {};
 
       return ({
