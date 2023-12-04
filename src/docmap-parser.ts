@@ -276,14 +276,19 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
     reviewType: stringToReviewType(output.type),
     date: output.published,
     doi: output.doi,
-    participants: action.participants.map((participant) => ({
-      name: participant.actor.name,
-      institution: {
+    participants: action.participants.map((participant) => {
+      const institution = participant.actor.affiliation ? { institution: {
         name: participant.actor.affiliation.name,
         ...(participant.actor.affiliation.location ? { location: participant.actor.affiliation.location } : {}),
-      },
-      role: participant.role,
-    })),
+        }
+      } : {};
+
+      return ({
+        name: participant.actor.name,
+        ...institution,
+        role: participant.role,
+      })
+    }),
     contentUrls,
   };
 })).filter((output): output is Evaluation => output !== undefined);
