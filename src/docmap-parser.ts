@@ -288,7 +288,7 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
         name: participant.actor.name,
         ...institution,
         role: participant.role,
-      })
+      });
     }),
     contentUrls,
   };
