@@ -98,7 +98,7 @@ export type Organization = {
 export type Person = {
   type: string,
   name: string,
-  affiliation: Organization,
+  affiliation?: Organization,
 };
 
 export type Participant = {

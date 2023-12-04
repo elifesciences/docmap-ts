@@ -195,9 +195,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
           {
@@ -208,9 +205,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
         ],
@@ -255,9 +249,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
           {
@@ -268,9 +259,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
         ],
@@ -329,9 +317,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
           {
@@ -342,9 +327,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
         ],
@@ -403,9 +385,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
           {
@@ -416,9 +395,6 @@ describe('docmap-parser', () => {
             participants: [{
               name: 'anonymous',
               role: 'peer-reviewer',
-              institution: {
-                name: 'anonymous affiliation',
-              },
             }],
           },
         ],

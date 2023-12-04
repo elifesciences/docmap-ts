@@ -249,7 +249,7 @@ export const fixtures = {
 
   preprintReviewed: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -289,7 +289,7 @@ export const fixtures = {
 
   preprintReviewedAndAuthorResponded: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -344,7 +344,7 @@ export const fixtures = {
 
   preprintReviewedAndAuthorReplied: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -399,7 +399,7 @@ export const fixtures = {
 
   inferredReviewedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [
@@ -438,7 +438,7 @@ export const fixtures = {
 
   inferredRevisedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
-    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer', generateOrganization('anonymous affiliation'));
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
     const peerReview1 = generatePeerReview(
       new Date('2022-04-06'),
       [

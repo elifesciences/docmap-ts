@@ -139,11 +139,11 @@ export const generateOrganization = (name: string, location?: string): Organizat
   ...(location ? { location } : {}),
 });
 
-export const generatePersonParticipant = (name: string, role: string, affiliation: Organization): Participant => ({
+export const generatePersonParticipant = (name: string, role: string, affiliation?: Organization): Participant => ({
   actor: {
     name,
     type: 'person',
-    affiliation,
+    ...(affiliation ? { affiliation } : {}),
   },
   role,
 });
