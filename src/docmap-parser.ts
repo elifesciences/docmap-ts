@@ -294,7 +294,8 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   };
 })).filter((output): output is Evaluation => output !== undefined);
 
-const addAuthorResponseToPreprint = (preprint: ReviewedPreprint, evaluations: Evaluation[]) => {
+const addAuthorResponseToPreprint = (preprint: ReviewedPreprint, actions: Action[]) => {
+  const evaluations = findAndFlatMapAllEvaluations(actions);
   const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.AuthorResponse);
 
   const thisPreprint = preprint;
@@ -306,7 +307,8 @@ const addAuthorResponseToPreprint = (preprint: ReviewedPreprint, evaluations: Ev
   thisPreprint.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisPreprint.peerReview.authorResponse;
 };
 
-const addEvaluationsToPreprint = (preprint: ReviewedPreprint, evaluations: Evaluation[]) => {
+const addEvaluationsToPreprint = (preprint: ReviewedPreprint, actions: Action[]) => {
+  const evaluations = findAndFlatMapAllEvaluations(actions);
   const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.EvaluationSummary);
   const reviews = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.Review);
 
@@ -424,7 +426,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
   const inferredPeerReviewed = getPeerReviewedPreprint(step);
   if (inferredPeerReviewed) {
     const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredPeerReviewed.peerReviewedPreprint, preprints, manuscript);
-    addEvaluationsToPreprint(preprint, findAndFlatMapAllEvaluations(step.actions));
+    addEvaluationsToPreprint(preprint, step.actions);
     preprint.reviewedDate = preprint.peerReview?.evaluationSummary?.date;
 
     // sometimes a new reviewed preprint is published as an output
@@ -442,7 +444,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
   const authorResponse = getAuthorResponse(step);
   if (authorResponse) {
     const preprint = findAndUpdateOrAddPreprintDescribedBy(authorResponse.preprint, preprints, manuscript);
-    addAuthorResponseToPreprint(preprint, findAndFlatMapAllEvaluations(step.actions));
+    addAuthorResponseToPreprint(preprint, step.actions);
     preprint.authorResponseDate = authorResponse.authorResponse.published;
   }
 
