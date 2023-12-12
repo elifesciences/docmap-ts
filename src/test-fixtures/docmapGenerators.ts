@@ -1,4 +1,4 @@
-import {DocMap, ManifestationType} from '..';
+import {DocMap, generateVersionOfRecord, generateVersionOfRecordAssertion, ManifestationType} from '..';
 import {
   addNextStep,
   generateAction,
@@ -392,6 +392,80 @@ export const fixtures = {
         generateAction([author], [authorResponse]),
       ],
       [],
+    ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  preprintReviewedAndAuthorRepliedAndVersionOfRecord: (): DocMap => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const peerReview1 = generatePeerReview(
+      new Date('2022-04-06'),
+      [
+        generateWebContent('https://content.com/12345.sa1'),
+      ],
+      'elife/eLife.12345.sa1',
+    );
+    const peerReview2 = generatePeerReview(
+      new Date('2022-04-07'),
+      [
+        generateWebContent('https://content.com/12345.sa2'),
+      ],
+      'elife/eLife.12345.sa2',
+    );
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
+    const editorsEvaluation = generateEvaluationSummary(
+      new Date('2022-04-10'),
+      [
+        generateWebContent('https://content.com/12345.sa3'),
+      ],
+      'elife/eLife.12345.sa3',
+    );
+    const author = generatePersonParticipant('Bugs Bunny', 'author', generateOrganization('Acme Looniversity', 'United States'));
+    const authorResponse = generateReply(
+      new Date('2022-05-09'),
+      [
+        generateWebContent('https://content.com/12345.sa4'),
+      ],
+      'elife/eLife.12345.sa4',
+    );
+
+    const firstStep = generateStep([], [generateAction([], [preprintv1])], []);
+    const secondStep = addNextStep(firstStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([anonReviewerParticipant], [peerReview1]),
+        generateAction([anonReviewerParticipant], [peerReview2]),
+        generateAction([editor], [editorsEvaluation]),
+      ],
+      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-01'))],
+    ));
+    const thirdStep = addNextStep(secondStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([author], [authorResponse]),
+      ],
+      [],
+    ));
+
+    const versionOfRecord = generateVersionOfRecord(
+      new Date('2022-04-01'),
+      [
+        generateWebContent('https://elifesciences.org/articles/12345'),
+      ],
+      '10.7554/eLife.12345.2',
+      'https://doi.org/10.7554/12345.2',
+    );
+
+    addNextStep(thirdStep, generateStep( //
+      [preprintv1],
+      [
+        generateAction([], [versionOfRecord]),
+      ],
+      [
+        generateVersionOfRecordAssertion(versionOfRecord),
+      ],
     ));
 
     return generateDocMap('test', publisher, firstStep);

@@ -362,6 +362,75 @@ describe('docmap-parser', () => {
     });
   });
 
+  it.only('finds version of record after author repl and publishing reviewed preprint', () => {
+    const parsedData = parseDocMap(fixtures.preprintReviewedAndAuthorRepliedAndVersionOfRecord());
+    console.log(JSON.stringify(parsedData, undefined, '  '));
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
+      peerReview: {
+        reviews: [
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa1'],
+            date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+            }],
+          },
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa2'],
+            date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+            }],
+          },
+        ],
+        evaluationSummary: {
+          reviewType: ReviewType.EvaluationSummary,
+          contentUrls: ['https://content.com/12345.sa3'],
+          date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
+          participants: [{
+            name: 'Daffy Duck',
+            role: 'editor',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
+          }],
+        },
+        authorResponse: {
+          reviewType: ReviewType.AuthorResponse,
+          contentUrls: ['https://content.com/12345.sa4'],
+          date: new Date('2022-05-09'),
+          doi: 'elife/eLife.12345.sa4',
+          participants: [{
+            name: 'Bugs Bunny',
+            role: 'author',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
+          }],
+        },
+      },
+    });
+  });
+
   it('inference of reviewed preprint from input/outputs', () => {
     const parsedData = parseDocMap(fixtures.inferredReviewedPreprint());
 
