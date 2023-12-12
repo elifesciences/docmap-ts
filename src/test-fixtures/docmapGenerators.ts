@@ -397,6 +397,55 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  preprintReviewedAndAuthorRepliedSameStep: (): DocMap => {
+    const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
+    const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');
+    const peerReview1 = generatePeerReview(
+      new Date('2022-04-06'),
+      [
+        generateWebContent('https://content.com/12345.sa1'),
+      ],
+      'elife/eLife.12345.sa1',
+    );
+    const peerReview2 = generatePeerReview(
+      new Date('2022-04-07'),
+      [
+        generateWebContent('https://content.com/12345.sa2'),
+      ],
+      'elife/eLife.12345.sa2',
+    );
+    const editor = generatePersonParticipant('Daffy Duck', 'editor', generateOrganization('Acme Looniversity', 'United States'));
+    const editorsEvaluation = generateEvaluationSummary(
+      new Date('2022-04-10'),
+      [
+        generateWebContent('https://content.com/12345.sa3'),
+      ],
+      'elife/eLife.12345.sa3',
+    );
+    const author = generatePersonParticipant('Bugs Bunny', 'author', generateOrganization('Acme Looniversity', 'United States'));
+    const authorResponse = generateReply(
+      new Date('2022-05-09'),
+      [
+        generateWebContent('https://content.com/12345.sa4'),
+      ],
+      'elife/eLife.12345.sa4',
+    );
+
+    const firstStep = generateStep([], [generateAction([], [preprintv1])], []);
+    addNextStep(firstStep, generateStep(
+      [preprintv1],
+      [
+        generateAction([anonReviewerParticipant], [peerReview1]),
+        generateAction([anonReviewerParticipant], [peerReview2]),
+        generateAction([editor], [editorsEvaluation]),
+        generateAction([author], [authorResponse]),
+      ],
+      [generatePeerReviewedAssertion(preprintv1, new Date('2022-04-01'))],
+    ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   inferredReviewedPreprint: (): DocMap => {
     const preprintv1 = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, '1');
     const anonReviewerParticipant = generatePersonParticipant('anonymous', 'peer-reviewer');

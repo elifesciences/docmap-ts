@@ -296,7 +296,73 @@ describe('docmap-parser', () => {
 
   it('finds author repl after publishing reviewed preprint', () => {
     const parsedData = parseDocMap(fixtures.preprintReviewedAndAuthorReplied());
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
+      doi: 'preprint/article1',
+      id: 'preprint/article1',
+      versionIdentifier: '1',
+      preprint: {
+        doi: 'preprint/article1',
+        id: 'preprint/article1',
+        versionIdentifier: '1',
+      },
+      peerReview: {
+        reviews: [
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa1'],
+            date: new Date('2022-04-06'),
+            doi: 'elife/eLife.12345.sa1',
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+            }],
+          },
+          {
+            reviewType: ReviewType.Review,
+            contentUrls: ['https://content.com/12345.sa2'],
+            date: new Date('2022-04-07'),
+            doi: 'elife/eLife.12345.sa2',
+            participants: [{
+              name: 'anonymous',
+              role: 'peer-reviewer',
+            }],
+          },
+        ],
+        evaluationSummary: {
+          reviewType: ReviewType.EvaluationSummary,
+          contentUrls: ['https://content.com/12345.sa3'],
+          date: new Date('2022-04-10'),
+          doi: 'elife/eLife.12345.sa3',
+          participants: [{
+            name: 'Daffy Duck',
+            role: 'editor',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
+          }],
+        },
+        authorResponse: {
+          reviewType: ReviewType.AuthorResponse,
+          contentUrls: ['https://content.com/12345.sa4'],
+          date: new Date('2022-05-09'),
+          doi: 'elife/eLife.12345.sa4',
+          participants: [{
+            name: 'Bugs Bunny',
+            role: 'author',
+            institution: {
+              name: 'Acme Looniversity',
+              location: 'United States',
+            },
+          }],
+        },
+      },
+    });
+  });
 
+  it('finds author repl after publishing reviewed preprint - same step', () => {
+    const parsedData = parseDocMap(fixtures.preprintReviewedAndAuthorRepliedSameStep());
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<VersionedReviewedPreprint>({
       doi: 'preprint/article1',
