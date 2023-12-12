@@ -294,9 +294,20 @@ const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => action
   };
 })).filter((output): output is Evaluation => output !== undefined);
 
+const addAuthorResponseToPreprint = (preprint: ReviewedPreprint, evaluations: Evaluation[]) => {
+  const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.AuthorResponse);
+
+  const thisPreprint = preprint;
+  if (!thisPreprint.peerReview) {
+    thisPreprint.peerReview = {
+      reviews: [],
+    };
+  }
+  thisPreprint.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisPreprint.peerReview.authorResponse;
+};
+
 const addEvaluationsToPreprint = (preprint: ReviewedPreprint, evaluations: Evaluation[]) => {
   const evaluationSummary = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.EvaluationSummary);
-  const authorResponse = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.AuthorResponse);
   const reviews = evaluations.filter((evaluation) => evaluation?.reviewType === ReviewType.Review);
 
   const thisPreprint = preprint;
@@ -307,12 +318,6 @@ const addEvaluationsToPreprint = (preprint: ReviewedPreprint, evaluations: Evalu
   }
   thisPreprint.peerReview.reviews.push(...reviews);
   thisPreprint.peerReview.evaluationSummary = evaluationSummary.length > 0 ? evaluationSummary[0] : thisPreprint.peerReview.evaluationSummary;
-  thisPreprint.peerReview.authorResponse = authorResponse.length > 0 ? authorResponse[0] : thisPreprint.peerReview.authorResponse;
-};
-
-// push all reviews into peerReview (override if necessary)
-const setPeerReviewFrom = (actions: Action[], preprint: ReviewedPreprint) => {
-  addEvaluationsToPreprint(preprint, findAndFlatMapAllEvaluations(actions));
 };
 
 type ExtractedExpressions = {
@@ -419,7 +424,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
   const inferredPeerReviewed = getPeerReviewedPreprint(step);
   if (inferredPeerReviewed) {
     const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredPeerReviewed.peerReviewedPreprint, preprints, manuscript);
-    setPeerReviewFrom(step.actions, preprint);
+    addEvaluationsToPreprint(preprint, findAndFlatMapAllEvaluations(step.actions));
     preprint.reviewedDate = preprint.peerReview?.evaluationSummary?.date;
 
     // sometimes a new reviewed preprint is published as an output
@@ -437,7 +442,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
   const authorResponse = getAuthorResponse(step);
   if (authorResponse) {
     const preprint = findAndUpdateOrAddPreprintDescribedBy(authorResponse.preprint, preprints, manuscript);
-    setPeerReviewFrom(step.actions, preprint);
+    addAuthorResponseToPreprint(preprint, findAndFlatMapAllEvaluations(step.actions));
     preprint.authorResponseDate = authorResponse.authorResponse.published;
   }
 
