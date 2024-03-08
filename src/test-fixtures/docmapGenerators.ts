@@ -19,6 +19,7 @@ import {
   generateUnderReviewAssertion,
   generateWebContent,
   generateManuscript,
+  generateComplement,
 } from '../docmap-generator';
 
 const publisher = {
@@ -64,8 +65,15 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
+  preprintWithPartialManuscriptWithRelatedContent: (): DocMap => {
+    const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456', undefined, [generateComplement('insight', 'Insight Title', 'https://somewhere.org/insight')]);
+    const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript);
+    const firstStep = generateStep([], [generateAction([], [preprint])], []);
+    return generateDocMap('test', publisher, firstStep);
+  },
+
   preprintWithPartialManuscriptWithPublishedDate: (): DocMap => {
-    const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456', undefined, new Date('2022-03-01'));
+    const manuscript = generateManuscript('10.1101/123456', '123456', undefined, 'RP123456', undefined, undefined, new Date('2022-03-01'));
     const preprint = generatePreprint('preprint/article1', new Date('2022-03-01'), undefined, undefined, undefined, undefined, manuscript);
     const firstStep = generateStep([], [generateAction([], [preprint])], []);
     return generateDocMap('test', publisher, firstStep);

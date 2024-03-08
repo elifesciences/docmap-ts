@@ -3,6 +3,7 @@ import {
   Assertion,
   AssertionStatus,
   AuthorResponse,
+  Complement,
   DocMap,
   DOI,
   EvaluationSummary,
@@ -123,13 +124,22 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[], published?: Date): Manuscript => ({
+export const generateComplement = (type: string, title: string, url: Url, content?: string, imageUrl?: Url) => ({
+  type,
+  title,
+  url,
+  content,
+  imageUrl,
+});
+
+export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[], complement?: Complement[], published?: Date): Manuscript => ({
   type: 'manuscript',
   doi,
   identifier,
   volumeIdentifier,
   electronicArticleIdentifier,
   subjectDisciplines,
+  complement,
   published,
 });
 

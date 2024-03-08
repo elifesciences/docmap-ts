@@ -128,6 +128,14 @@ export type Assertion = {
   happened?: Date,
 };
 
+export type Complement = {
+  type: string,
+  title: string,
+  url: Url,
+  description?: string,
+  imageUrl?: Url,
+};
+
 export type Manuscript = {
   type: 'manuscript',
   doi?: DOI,
@@ -135,6 +143,7 @@ export type Manuscript = {
   volumeIdentifier?: string,
   electronicArticleIdentifier?: string,
   subjectDisciplines?: string[],
+  complement?: Complement[],
   published?: Date,
 };
 
