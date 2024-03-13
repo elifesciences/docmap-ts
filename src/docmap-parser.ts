@@ -84,10 +84,10 @@ type ReviewedPreprint = {
 
 type RelatedContentItem = {
   type: string,
-  title: string,
-  url: string,
-  content?: string,
-  imageUrl?: string,
+  title?: string,
+  url?: string,
+  description?: string,
+  thumbnail?: string,
 };
 
 export type VersionedReviewedPreprint = ReviewedPreprint & {

@@ -3,13 +3,13 @@ import {
   Assertion,
   AssertionStatus,
   AuthorResponse,
-  Complement,
   DocMap,
   DOI,
   EvaluationSummary,
   Expression,
   ExpressionType,
   Input,
+  Insight,
   Item,
   JsonLDAddonFrame,
   JsonLDFrameUrl,
@@ -21,7 +21,8 @@ import {
   Participant,
   PeerReview,
   Preprint,
-  Publisher, Reply,
+  Publisher,
+  Reply,
   RevisedPreprint,
   Step,
   UpdateSummary,
@@ -114,6 +115,14 @@ export const generateVersionOfRecord = (published: Date, content: WebPage[], doi
   content,
 });
 
+export const generateInsight = (title: string, url: Url, description?: string, thumbnail?: Url): Insight => ({
+  type: ExpressionType.Insight,
+  title,
+  url,
+  description,
+  thumbnail,
+});
+
 export const generateContent = (type: ManifestationType, url: Url): Manifestation => ({
   type,
   url,
@@ -124,15 +133,7 @@ export const generateWebContent = (url: Url): WebPage => ({
   url,
 });
 
-export const generateComplement = (type: string, title: string, url: Url, content?: string, imageUrl?: Url) => ({
-  type,
-  title,
-  url,
-  content,
-  imageUrl,
-});
-
-export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[], complement?: Complement[], published?: Date): Manuscript => ({
+export const generateManuscript = (doi?: DOI, identifier?: string, volumeIdentifier?: string, electronicArticleIdentifier?: string, subjectDisciplines?: string[], complement?: Expression[], published?: Date): Manuscript => ({
   type: 'manuscript',
   doi,
   identifier,

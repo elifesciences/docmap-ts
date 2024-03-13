@@ -23,6 +23,7 @@ export enum ExpressionType {
   AuthorResponse = 'author-response',
   Reply = 'reply',
   UpdateSummary = 'update-summary',
+  Insight = 'insight',
 }
 
 export enum ManifestationType {
@@ -81,6 +82,14 @@ export type VersionOfRecord = Expression & {
   type: ExpressionType.VersionOfRecord,
 };
 
+export type Insight = Expression & {
+  type: ExpressionType.Insight,
+  title: string,
+  url: Url,
+  description?: string,
+  thumbnail?: Url,
+};
+
 export type WebPage = Manifestation & {
   type: ManifestationType.WebPage,
 };
@@ -128,14 +137,6 @@ export type Assertion = {
   happened?: Date,
 };
 
-export type Complement = {
-  type: string,
-  title: string,
-  url: Url,
-  description?: string,
-  imageUrl?: Url,
-};
-
 export type Manuscript = {
   type: 'manuscript',
   doi?: DOI,
@@ -143,7 +144,7 @@ export type Manuscript = {
   volumeIdentifier?: string,
   electronicArticleIdentifier?: string,
   subjectDisciplines?: string[],
-  complement?: Complement[],
+  complement?: Expression[],
   published?: Date,
 };
 
