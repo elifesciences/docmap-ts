@@ -41,6 +41,9 @@ export type Expression = {
   content?: Manifestation[],
   license?: string,
   partOf?: Manuscript,
+  title?: string,
+  description?: string,
+  thumbnail?: Url,
 };
 
 export type Manifestation = {
@@ -84,10 +87,6 @@ export type VersionOfRecord = Expression & {
 
 export type Insight = Expression & {
   type: ExpressionType.Insight,
-  title: string,
-  url: Url,
-  description?: string,
-  thumbnail?: Url,
 };
 
 export type WebPage = Manifestation & {
