@@ -82,6 +82,14 @@ type ReviewedPreprint = {
   license?: string,
 };
 
+type RelatedContentItem = {
+  type: string,
+  title?: string,
+  url?: string,
+  description?: string,
+  thumbnail?: string,
+};
+
 export type VersionedReviewedPreprint = ReviewedPreprint & {
   versionIdentifier: string,
 };
@@ -92,6 +100,7 @@ export type Manuscript = {
   eLocationId?: string,
   publishedDate?: Date,
   subjects?: string[],
+  relatedContent?: RelatedContentItem[],
 };
 
 export type ManuscriptData = {
@@ -110,6 +119,7 @@ const getManuscriptFromExpression = (expression: Expression): Manuscript | false
     volume: expression.partOf.volumeIdentifier,
     eLocationId: expression.partOf.electronicArticleIdentifier,
     subjects: expression.partOf.subjectDisciplines,
+    relatedContent: expression.partOf.complement,
     publishedDate: expression.partOf.published,
   };
 };
@@ -215,6 +225,9 @@ const findAndUpdateOrAddPreprintDescribedBy = (expression: Expression, preprintC
     }
     if (foundManuscriptData.subjects) {
       existingManuscript.subjects = foundManuscriptData.subjects;
+    }
+    if (foundManuscriptData.relatedContent) {
+      existingManuscript.relatedContent = foundManuscriptData.relatedContent;
     }
     if (foundManuscriptData.publishedDate) {
       existingManuscript.publishedDate = foundManuscriptData.publishedDate;

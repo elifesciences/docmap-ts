@@ -608,6 +608,17 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('parses relatedContent', () => {
+    const docmap = fixtures.preprintWithPartialManuscriptWithRelatedContent();
+    const parsedData = parseDocMap(docmap);
+
+    expect(parsedData.manuscript?.relatedContent).toEqual([{
+      type: 'insight',
+      title: 'Insight Title',
+      url: 'https://somewhere.org/insight',
+    }]);
+  });
+
   it('parses publishedDate', () => {
     const docmap = fixtures.preprintWithPartialManuscriptWithPublishedDate();
     const parsedData = parseDocMap(docmap);
