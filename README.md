@@ -23,6 +23,25 @@ import { parser } from '@elifesciences/docmap-ts';
 const parsedOutput = parser.parsePreprintDocMap();
 ```
 
+## Developing or using the repo
+
+### prerequisites
+
+- nodejs
+- yarn
+
 ## Running tests
 
 To run the test suite, just run `yarn test`.
+
+## test the parser
+
+run `yarn parse ./path/to/docmap.json`
+
+## regenerate the example docmaps
+
+run `yarn generate`
+
+## parse eLife's docmap index
+
+run `yarn fetch-and-test-data-hub-docmap`
