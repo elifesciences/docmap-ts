@@ -1,11 +1,11 @@
-import { DocMap } from './docmap';
+import { DocMap } from '../types/docmap';
 import {
   parsePreprintDocMap,
   ManuscriptData,
   ReviewType,
   VersionedReviewedPreprint,
 } from './docmap-parser';
-import { fixtures } from './test-fixtures/docmapGenerators';
+import { fixtures } from '../test-fixtures/docmap-parser';
 
 const parseDocMap = (docmap: DocMap | string): ManuscriptData => {
   const parsedDocMap = parsePreprintDocMap(docmap);

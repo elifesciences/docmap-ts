@@ -20,7 +20,7 @@ import {
   generateWebContent,
   generateManuscript,
   generateInsight,
-} from '../docmap-generator';
+} from '../generators/docmap-generators';
 
 const publisher = {
   id: 'https://elifesciences.org/',

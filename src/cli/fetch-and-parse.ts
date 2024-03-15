@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { exit } from 'process';
-import { DocMap } from './docmap';
-import { parsePreprintDocMap } from './docmap-parser';
+import { DocMap } from '../types/docmap';
+import { parsePreprintDocMap } from '../parser/docmap-parser';
 
 fetch('https://data-hub-api--stg.elifesciences.org/enhanced-preprints/docmaps/v1/index')
   .then((data) => data.json())

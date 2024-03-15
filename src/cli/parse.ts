@@ -2,7 +2,7 @@
 import { R_OK } from 'constants';
 import { accessSync, readFileSync } from 'fs';
 import { argv, exit } from 'process';
-import { parsePreprintDocMap } from './docmap-parser';
+import { parsePreprintDocMap } from '../parser/docmap-parser';
 
 if (argv[2] === undefined) {
   console.log('Please provide a filename');

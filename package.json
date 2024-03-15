@@ -10,9 +10,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "generate": "ts-node src/generate.ts",
-    "parse": "ts-node src/parse.ts",
-    "fetch-and-test-data-hub-docmap": "ts-node src/fetch-and-parse.ts",
+    "generate": "ts-node src/cli/generate.ts",
+    "parse": "ts-node src/cli/parse.ts",
+    "fetch-and-test-data-hub-docmap": "ts-node src/cli/fetch-and-parse.ts",
     "test": "jest",
     "lint": "eslint --ext .tsx,.ts src/",
     "prepublish": "tsc"

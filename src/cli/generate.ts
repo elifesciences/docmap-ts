@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { writeFileSync } from 'fs';
-import { Step } from './docmap';
+import { Step } from '../types/docmap';
 import {
   addNextStep,
   generateAction,
@@ -25,8 +25,8 @@ import {
   generateVersionOfRecordAssertion,
   generateVersionOfRecord,
   generateRepublishedAssertion,
-} from './docmap-generator';
-import { parsePreprintDocMap } from './docmap-parser';
+} from '../generators/docmap-generators';
+import { parsePreprintDocMap } from '../parser/docmap-parser';
 
 // used for outputting JSON
 const replacer = (key: string, value: any) => {
