@@ -1,4 +1,4 @@
-import { DocMap } from '../types/docmap';
+import { DocMap } from '../types';
 import {
   parsePreprintDocMap,
   ManuscriptData,

@@ -1,4 +1,4 @@
-import {DocMap, ManifestationType} from '..';
+import {DocMap, ManifestationType} from '../types';
 import {
   addNextStep,
   generateAction,

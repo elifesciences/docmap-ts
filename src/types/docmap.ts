@@ -1,10 +1,10 @@
+import { Expression } from './expressions';
+import { Url } from './properties';
+
 export type Account = {
   id: string,
   service: string,
 };
-
-export type Url = string;
-export type DOI = string;
 
 export type Publisher = {
   id: string,
@@ -14,86 +14,7 @@ export type Publisher = {
   account: Account,
 };
 
-export enum ExpressionType {
-  Preprint = 'preprint',
-  RevisedPreprint = 'postprint',
-  PeerReview = 'review-article',
-  EvaluationSummary = 'evaluation-summary',
-  VersionOfRecord = 'version-of-record',
-  AuthorResponse = 'author-response',
-  Reply = 'reply',
-  UpdateSummary = 'update-summary',
-  Insight = 'insight',
-}
-
-export enum ManifestationType {
-  WebPage = 'web-page',
-  DigitalManifestation = 'digital-manifestation',
-}
-
-export type Expression = {
-  type: ExpressionType,
-  identifier?: string,
-  versionIdentifier?: string,
-  url?: Url,
-  published?: Date,
-  doi?: DOI,
-  content?: Manifestation[],
-  license?: string,
-  partOf?: Manuscript,
-  title?: string,
-  description?: string,
-  thumbnail?: Url,
-};
-
-export type Manifestation = {
-  type: ManifestationType,
-  url?: Url,
-  published?: Date,
-  doi?: DOI,
-};
-
-export type Preprint = Expression & {
-  type: ExpressionType.Preprint,
-};
-
-export type PeerReview = Expression & {
-  type: ExpressionType.PeerReview,
-};
-
-export type EvaluationSummary = Expression & {
-  type: ExpressionType.EvaluationSummary,
-};
-
-export type AuthorResponse = Expression & {
-  type: ExpressionType.AuthorResponse,
-};
-
-export type Reply = Expression & {
-  type: ExpressionType.Reply,
-};
-
-export type RevisedPreprint = Expression & {
-  type: ExpressionType.RevisedPreprint,
-};
-
-export type UpdateSummary = Expression & {
-  type: ExpressionType.UpdateSummary,
-};
-
-export type VersionOfRecord = Expression & {
-  type: ExpressionType.VersionOfRecord,
-};
-
-export type Insight = Expression & {
-  type: ExpressionType.Insight,
-};
-
-export type WebPage = Manifestation & {
-  type: ManifestationType.WebPage,
-};
-
-export type Item = Preprint | PeerReview | EvaluationSummary | VersionOfRecord | Expression;
+export type Item = Expression;
 export type Input = Item;
 export type Output = Item;
 
@@ -134,17 +55,6 @@ export type Assertion = {
   item: Item,
   status: AssertionStatus,
   happened?: Date,
-};
-
-export type Manuscript = {
-  type: 'manuscript',
-  doi?: DOI,
-  identifier?: string,
-  volumeIdentifier?: string,
-  electronicArticleIdentifier?: string,
-  subjectDisciplines?: string[],
-  complement?: Expression[],
-  published?: Date,
 };
 
 export type Step = {

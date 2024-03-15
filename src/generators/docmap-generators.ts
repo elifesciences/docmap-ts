@@ -29,7 +29,7 @@ import {
   Url,
   VersionOfRecord,
   WebPage,
-} from '../types/docmap';
+} from '../types';
 
 type Steps = {
   'first-step': string,

@@ -6,7 +6,7 @@ import {
   ExpressionType,
   Item,
   Step,
-} from '../types/docmap';
+} from '../types';
 
 export enum ReviewType {
   EvaluationSummary = 'evaluation-summary',

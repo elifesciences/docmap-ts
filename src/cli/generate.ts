@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { writeFileSync } from 'fs';
-import { Step } from '../types/docmap';
+import { Step } from '../types';
 import {
   addNextStep,
   generateAction,
