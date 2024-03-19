@@ -262,6 +262,9 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint,
     if (foundManuscriptData.subjects) {
       existingManuscript.subjects = foundManuscriptData.subjects;
     }
+    if (foundManuscriptData.relatedContent) {
+      existingManuscript.relatedContent = foundManuscriptData.relatedContent;
+    }
   }
   const newPreprint = preprint;
 
@@ -431,7 +434,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
 
   const inferredRepublished = getRepublishedPreprint(step);
   if (inferredRepublished) {
-    // preprint input, preprint output, but no evaluations = superceed input preprint with output Reviewed Preprint
+    // preprint input, preprint output, but no evaluations = supersede input preprint with output Reviewed Preprint
     const preprint = findAndUpdateOrAddPreprintDescribedBy(inferredRepublished.originalExpression, preprints, manuscript);
     republishPreprintAs(inferredRepublished.republishedExpression, preprint, manuscript);
   }
