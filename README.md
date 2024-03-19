@@ -13,7 +13,7 @@ There are also additional tools in this repository, including:
 The library is not published to NPM as of time of writing, but you can import the library direct from git:
 
 ```
-yarn add  "@elifesciences/docmap-ts@https://github.com/elifesciences/docmap-ts#v0.0.35"
+yarn add  "@elifesciences/docmap-ts@https://github.com/elifesciences/docmap-ts#v0.0.37"
 ```
 
 The most useful part, the parser, can be invoked by passing a docmap as a string to `parseDocmap()`:
