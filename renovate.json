@@ -3,5 +3,16 @@
   "extends": [
     "config:base"
   ],
-  "dependencyDashboardTitle":"Dependency Dashboard - docmap-ts"
+  "dependencyDashboardTitle":"Dependency Dashboard - docmap-ts",
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    }
+  ]
 }
