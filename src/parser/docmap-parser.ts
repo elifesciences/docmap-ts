@@ -374,6 +374,11 @@ const extractExpressions = (step: Step): ExtractedExpressions => {
   };
 };
 
+const getPublishedVersionOfRecord = (step: Step): Item | false => {
+  const items = extractExpressions(step);
+  return (items.versionOfRecordOutputs.length === 1) ? items.versionOfRecordOutputs[0] : false;
+};
+
 const getPublishedPreprint = (step: Step): Item | false => {
   const items = extractExpressions(step);
   return (items.preprintInputs.length === 0
@@ -428,9 +433,14 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
     preprint.publishedDate = preprintPublishedAssertion.happened ?? preprint.publishedDate;
   }
 
-  const inferredPublished = getPublishedPreprint(step);
-  if (inferredPublished) {
-    findAndUpdateOrAddPreprintDescribedBy(inferredPublished, preprints, manuscript);
+  const inferredPublishedVersionOfRecord = getPublishedVersionOfRecord(step);
+  if (inferredPublishedVersionOfRecord) {
+    findAndUpdateOrAddPreprintDescribedBy(inferredPublishedVersionOfRecord, preprints, manuscript);
+  }
+
+  const inferredPublishedPreprint = getPublishedPreprint(step);
+  if (inferredPublishedPreprint) {
+    findAndUpdateOrAddPreprintDescribedBy(inferredPublishedPreprint, preprints, manuscript);
   }
 
   const preprintUnderReviewAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.UnderReview);
