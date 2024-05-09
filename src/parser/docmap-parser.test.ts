@@ -4,6 +4,7 @@ import {
   ManuscriptData,
   ReviewType,
   VersionedReviewedPreprint,
+  Preprint,
 } from './docmap-parser';
 import { fixtures } from '../test-fixtures/docmap-parser';
 
@@ -428,6 +429,23 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('can parse a docmap with an inference of version of record from input/outputs', () => {
+    const parsedData = parseDocMap(fixtures.inferredVersionOfRecord());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<Preprint>({
+      doi: 'vor/article1',
+      id: 'vor/article1',
+      publishedDate: new Date('2024-05-09'),
+      url: 'https://version-of-record',
+      content: [
+        'https://doi.org/version-of-record',
+      ],
+      versionIdentifier: '1',
+    });
+    expect(parsedData.versions[0]).not.toHaveProperty('preprint');
+  });
+
   it('inference of reviewed preprint from input/outputs', () => {
     const parsedData = parseDocMap(fixtures.inferredReviewedPreprint());
 
@@ -535,12 +553,14 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMap(fixtures.preprintUrlAndContentDataInLaterSteps());
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0].preprint).toMatchObject({
-      publishedDate: new Date('2023-06-23'),
-      url: 'http://somewhere.org/preprint/article1',
-      content: [
-        's3://somewhere-org-storage-bucket/preprint/article1.meca',
-      ],
+    expect(parsedData.versions[0]).toMatchObject({
+      preprint: {
+        publishedDate: new Date('2023-06-23'),
+        url: 'http://somewhere.org/preprint/article1',
+        content: [
+          's3://somewhere-org-storage-bucket/preprint/article1.meca',
+        ],
+      },
     });
   });
 
@@ -549,8 +569,12 @@ describe('docmap-parser', () => {
   it('extracts license url if in an expression', () => {
     const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
 
-    expect(parsedData.versions[0].preprint.license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
-    expect(parsedData.versions[0].license).toStrictEqual('http://creativecommons.org/licenses/by/4.0/');
+    expect(parsedData.versions[0]).toMatchObject({
+      preprint: {
+        license: 'http://creativecommons.org/licenses/by/4.0/',
+      },
+      license: 'http://creativecommons.org/licenses/by/4.0/',
+    });
   });
 
   it('extracts partOf, if present', () => {

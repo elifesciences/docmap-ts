@@ -59,7 +59,7 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
-type Preprint = {
+export type Preprint = {
   id: string,
   versionIdentifier?: string,
   publishedDate?: Date,
@@ -106,7 +106,7 @@ export type Manuscript = {
 export type ManuscriptData = {
   id: string,
   manuscript?: Manuscript,
-  versions: VersionedReviewedPreprint[],
+  versions: Array<VersionedReviewedPreprint | Preprint>,
 };
 
 const getManuscriptFromExpression = (expression: Expression): Manuscript | false => {
