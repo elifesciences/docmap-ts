@@ -19,7 +19,7 @@ import {
   generateUnderReviewAssertion,
   generateWebContent,
   generateManuscript,
-  generateInsight,
+  generateInsight, generateVersionOfRecord,
 } from '../generators/docmap-generators';
 
 const publisher = {
@@ -537,6 +537,13 @@ export const fixtures = {
       ],
       [],
     ));
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  inferredVersionOfRecord: (): DocMap => {
+    const versionOfRecord = generateVersionOfRecord(new Date('2024-05-09'), [generateWebContent('https://doi.org/version-of-record')], 'vor/article1', 'https://version-of-record');
+    const firstStep = generateStep([], [generateAction([], [versionOfRecord])], []);
 
     return generateDocMap('test', publisher, firstStep);
   },
