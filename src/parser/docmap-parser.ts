@@ -341,14 +341,20 @@ const addEvaluationsToPreprint = (preprint: ReviewedPreprint, actions: Action[])
 type ExtractedExpressions = {
   preprintInputs: Item[],
   preprintOutputs: Item[],
+  versionOfRecordInputs: Item[],
+  versionOfRecordOutputs: Item[],
   evaluationInputs: Item[],
   evaluationOutputs: Item[],
 };
 
 const extractExpressions = (step: Step): ExtractedExpressions => {
-  // look for any preprint inputs that need importing
+  // look for any preprint input and outputs that need importing
   const preprintInputs = step.inputs.filter((input) => input.type === 'preprint');
   const preprintOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'preprint'));
+
+  // look for any version of record input and outputs that need importing
+  const versionOfRecordInputs = step.inputs.filter((input) => input.type === 'version-of-record');
+  const versionOfRecordOutputs = step.actions.flatMap((action) => action.outputs.filter((output) => output.type === 'version-of-record'));
 
   // useful to infer actions from inputs and output types
   const evaluationTypes = [
@@ -361,6 +367,8 @@ const extractExpressions = (step: Step): ExtractedExpressions => {
   return {
     preprintInputs,
     preprintOutputs,
+    versionOfRecordInputs,
+    versionOfRecordOutputs,
     evaluationInputs,
     evaluationOutputs,
   };
