@@ -5,6 +5,7 @@ export {
   ManuscriptData,
   ReviewType,
   Evaluation,
+  Preprint,
 } from './parser/docmap-parser';
 
 // export parser and generators
