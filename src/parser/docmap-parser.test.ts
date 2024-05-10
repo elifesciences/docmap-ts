@@ -4,7 +4,7 @@ import {
   ManuscriptData,
   ReviewType,
   VersionedReviewedPreprint,
-  Preprint,
+  VersionedPreprint,
 } from './docmap-parser';
 import { fixtures } from '../test-fixtures/docmap-parser';
 
@@ -433,7 +433,7 @@ describe('docmap-parser', () => {
     const parsedData = parseDocMap(fixtures.inferredVersionOfRecord());
 
     expect(parsedData.versions.length).toStrictEqual(1);
-    expect(parsedData.versions[0]).toMatchObject<Preprint>({
+    expect(parsedData.versions[0]).toMatchObject<VersionedPreprint>({
       doi: 'vor/article1',
       id: 'vor/article1',
       publishedDate: new Date('2024-05-09'),
@@ -443,7 +443,6 @@ describe('docmap-parser', () => {
       ],
       versionIdentifier: '1',
     });
-    expect(parsedData.versions[0]).not.toHaveProperty('preprint');
   });
 
   it('inference of reviewed preprint from input/outputs', () => {
