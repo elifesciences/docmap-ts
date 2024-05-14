@@ -1,6 +1,7 @@
 // export types useful to use this as a library
 export * from './types/docmap';
 export {
+  VersionedPreprint,
   VersionedReviewedPreprint,
   ManuscriptData,
   ReviewType,

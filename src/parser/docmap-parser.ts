@@ -90,6 +90,10 @@ type RelatedContentItem = {
   thumbnail?: string,
 };
 
+export type VersionedPreprint = Preprint & {
+  versionIdentifier: string,
+};
+
 export type VersionedReviewedPreprint = ReviewedPreprint & {
   versionIdentifier: string,
 };
@@ -106,7 +110,7 @@ export type Manuscript = {
 export type ManuscriptData = {
   id: string,
   manuscript?: Manuscript,
-  versions: VersionedReviewedPreprint[],
+  versions: Array<VersionedReviewedPreprint | VersionedPreprint>,
 };
 
 const getManuscriptFromExpression = (expression: Expression): Manuscript | false => {
@@ -527,10 +531,10 @@ const parseDocMapJson = (docMapJson: string): DocMap => {
   return docMapStruct as DocMap;
 };
 
-export const finaliseVersions = (preprints: Array<ReviewedPreprint>): { id: string, versions: VersionedReviewedPreprint[] } => {
+export const finaliseVersions = (preprints: Array<ReviewedPreprint | Preprint>): { id: string, versions: Array<VersionedReviewedPreprint | VersionedPreprint> } => {
   const versions = preprints.map((preprint, index) => ({
     ...preprint,
-    versionIdentifier: preprint.versionIdentifier ?? preprint.preprint.versionIdentifier ?? `${index + 1}`,
+    versionIdentifier: preprint.versionIdentifier ?? (('preprint' in preprint) ? preprint.preprint.versionIdentifier : null) ?? `${index + 1}`,
   }));
 
   const { id } = preprints.slice(-1)[0];
