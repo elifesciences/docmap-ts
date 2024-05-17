@@ -7,6 +7,8 @@ import {
   Item,
   Step,
 } from '../types';
+import { PublishingEvent, parseStepToEvents } from './parse-step-to-events';
+import { reduceEventsToManuscripts } from './reduce-events-to-manuscripts';
 
 export enum ReviewType {
   EvaluationSummary = 'evaluation-summary',
@@ -572,4 +574,28 @@ export const parsePreprintDocMap = (docMap: DocMap | string): ManuscriptData => 
     manuscript,
     versions,
   };
+};
+
+export const parseDocmapToPublishingEvents = (docMap: DocMap | string) => {
+  const docMapStruct = typeof docMap === 'string' ? parseDocMapJson(docMap) : docMap;
+
+  const steps = Array.from(docMapStruct.steps.values());
+  if (steps.length === 0) {
+    throw new Error('Docmap has no steps');
+  }
+
+  const stepsIterator = getSteps(docMapStruct);
+  let currentStep = stepsIterator.next().value;
+  const events: Array<PublishingEvent> = [];
+  while (currentStep) {
+    events.push(...parseStepToEvents(currentStep));
+    currentStep = stepsIterator.next().value;
+  }
+
+  const manuscripts: Manuscript[] = reduceEventsToManuscripts(events);
+
+  return ({
+    events,
+    manuscripts,
+  });
 };
