@@ -56,47 +56,79 @@ type AuthorRespondedEvent = {
 
 export type PublishingEvent = PublishedEvent | DraftEvent | UnderReviewEvent | RepublishedEvent | PeerReviewedEvent | AuthorRespondedEvent;
 
-type ExtractedExpressions = {
-  manuscriptInputs: ManuscriptExpression[],
-  manuscriptOutputs: ManuscriptExpression[],
-  evaluationInputs: EvaluationExpression[],
-  evaluationOutputs: EvaluationExpression[],
+type Participant = {
+  name: string,
+  role: string,
+  institution?: {
+    name: string,
+    location?: string,
+  },
 };
 
 // useful categories of expressions
 const manuscriptTypes = [
-  ExpressionType.Preprint.toString(),
-  ExpressionType.VersionOfRecord.toString(),
+  ExpressionType.Preprint,
+  ExpressionType.VersionOfRecord,
 ];
-type ManuscriptExpression = Expression & {
+export type ManuscriptExpression = Expression & {
   type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
 };
 const isManuscript = (expression: Expression): expression is ManuscriptExpression => manuscriptTypes.includes(expression.type);
 
 const evaluationTypes = [
-  ExpressionType.EvaluationSummary.toString(),
-  ExpressionType.PeerReview.toString(),
+  ExpressionType.EvaluationSummary,
+  ExpressionType.PeerReview,
 ];
-type EvaluationExpression = Expression & {
+export type EvaluationExpression = Expression & {
   type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
+  participants?: Participant[],
 };
 const isEvaluation = (expression: Expression): expression is EvaluationExpression => evaluationTypes.includes(expression.type);
 
 const authorResponseTypes = [
   ExpressionType.AuthorResponse,
 ];
-type AuthorResponseExpression = Expression & {
+export type AuthorResponseExpression = Expression & {
   type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
+  participants?: Participant[],
 };
 const isAuthorResponse = (expression: Expression): expression is AuthorResponseExpression => authorResponseTypes.includes(expression.type);
 
 // useful to infer actions from inputs and output types
+type ExtractedExpressions = {
+  manuscriptInputs: ManuscriptExpression[],
+  manuscriptOutputs: ManuscriptExpression[],
+  evaluationInputs: EvaluationExpression[],
+  evaluationOutputs: EvaluationExpression[],
+};
 const extractExpressions = (step: Step): ExtractedExpressions => {
   const manuscriptInputs = step.inputs.filter(isManuscript);
   const manuscriptOutputs = step.actions.flatMap((action) => action.outputs.filter(isManuscript));
 
   const evaluationInputs = step.inputs.filter(isEvaluation);
-  const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter(isEvaluation));
+  const evaluationOutputs = step.actions.flatMap((action) => {
+    const outputs = action.outputs.filter(isEvaluation);
+    if (outputs.length === 0) {
+      return [];
+    }
+    return outputs.map((output) => ({
+      ...output,
+      participants: action.participants.map((participant) => {
+        const institution = participant.actor.affiliation ? {
+          institution: {
+            name: participant.actor.affiliation.name,
+            ...(participant.actor.affiliation.location ? { location: participant.actor.affiliation.location } : {}),
+          },
+        } : {};
+
+        return ({
+          name: participant.actor.name,
+          ...institution,
+          role: participant.role,
+        });
+      }),
+    }));
+  });
 
   return {
     manuscriptInputs,

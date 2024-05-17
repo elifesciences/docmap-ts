@@ -1,4 +1,4 @@
-import { generateAction, generateAuthorResponse, generateDraftAssertion, generatePeerReview, generatePreprint, generatePublishedAssertion, generateStep, generateUnderReviewAssertion } from '../generators/docmap-generators';
+import { generateAction, generateAuthorResponse, generateDraftAssertion, generateOrganization, generatePeerReview, generatePersonParticipant, generatePreprint, generatePublishedAssertion, generateStep, generateUnderReviewAssertion } from '../generators/docmap-generators';
 import { fixtures } from '../test-fixtures/docmap-parser';
 import { parseStepToEvents } from './docmap-events-parser';
 
@@ -75,13 +75,18 @@ describe('docmap-events-parser', () => {
     const preprint = generatePreprint('12345/12345');
     const eval1 = generatePeerReview(new Date('2024-05-18'), []);
     const eval2 = generatePeerReview(new Date('2024-05-19'), []);
+    const reviewer1 = generatePersonParticipant('Bugs Bunny', 'peer-reviewer');
+    const reviewer2 = generatePersonParticipant('Daffy Duck', 'peer-reviewer');
 
-    const events = parseStepToEvents(generateStep([preprint], [generateAction([], [eval1, eval2])], []));
+    const events = parseStepToEvents(generateStep([preprint], [generateAction([reviewer1], [eval1]), generateAction([reviewer2], [eval2])], []));
     expect(events).toStrictEqual([{
       type: 'PeerReviewed',
       asserted: false,
       item: preprint,
-      evaluations: [eval1, eval2],
+      evaluations: [
+        {...eval1, participants: [{name: 'Bugs Bunny', role: 'peer-reviewer'}]},
+        {...eval2, participants: [{name: 'Daffy Duck', role: 'peer-reviewer'}]}
+      ],
     }]);
   });
 
@@ -90,14 +95,19 @@ describe('docmap-events-parser', () => {
     const newPreprint = generatePreprint('12345/12346');
     const eval1 = generatePeerReview(new Date('2024-05-18'), []);
     const eval2 = generatePeerReview(new Date('2024-05-19'), []);
+    const reviewer1 = generatePersonParticipant('Bugs Bunny', 'peer-reviewer', generateOrganization('ACME Labs', 'California'));
+    const reviewer2 = generatePersonParticipant('Daffy Duck', 'peer-reviewer');
 
-    const events = parseStepToEvents(generateStep([oldPreprint], [generateAction([], [eval1, eval2, newPreprint])], []));
+    const events = parseStepToEvents(generateStep([oldPreprint], [generateAction([reviewer1], [eval1]), generateAction([reviewer2], [eval2]), generateAction([], [newPreprint])], []));
     expect(events).toStrictEqual([
       {
         type: 'PeerReviewed',
         asserted: false,
         item: oldPreprint,
-        evaluations: [eval1, eval2],
+        evaluations: [
+          {...eval1, participants: [{name: 'Bugs Bunny', role: 'peer-reviewer', institution: {name: 'ACME Labs', location: 'California'}}]},
+          {...eval2, participants: [{name: 'Daffy Duck', role: 'peer-reviewer'}]}
+        ],
       },
       {
         type: 'Republished',
