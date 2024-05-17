@@ -1,6 +1,6 @@
 import { Assertion, AssertionStatus, Expression, ExpressionType, Item, Step } from '../types';
 
-enum PublishingEventType {
+export enum PublishingEventType {
   Published = 'Published',
   Draft = 'Draft',
   UnderReview = 'UnderReview',
@@ -12,55 +12,55 @@ enum PublishingEventType {
 type PublishedEvent = {
   type: PublishingEventType.Published,
   asserted: boolean,
-  item: Expression,
+  item: ManuscriptExpression,
   date?: Date,
 };
 
 type DraftEvent = {
   type: PublishingEventType.Draft,
   asserted: boolean,
-  item: Expression,
+  item: ManuscriptExpression,
   date?: Date,
 };
 
 type UnderReviewEvent = {
   type: PublishingEventType.UnderReview,
   asserted: boolean,
-  item: Expression,
+  item: ManuscriptExpression,
   date?: Date,
 };
 
 type PeerReviewedEvent = {
   type: PublishingEventType.PeerReviewed,
   asserted: boolean,
-  item: Expression,
-  evaluations: Expression[],
+  item: ManuscriptExpression,
+  evaluations: EvaluationExpression[],
   date?: Date,
 };
 
 type RepublishedEvent = {
   type: PublishingEventType.Republished,
   asserted: boolean,
-  item: Expression,
+  item: ManuscriptExpression,
   date?: Date,
-  originalItem: Expression,
+  originalItem: ManuscriptExpression,
 };
 
 type AuthorRespondedEvent = {
   type: PublishingEventType.AuthorResponded,
   asserted: boolean,
-  item: Expression,
-  response: Expression,
+  item: ManuscriptExpression,
+  response: AuthorResponseExpression,
   date?: Date,
 };
 
-type PublishingEvent = PublishedEvent | DraftEvent | UnderReviewEvent | RepublishedEvent | PeerReviewedEvent | AuthorRespondedEvent;
+export type PublishingEvent = PublishedEvent | DraftEvent | UnderReviewEvent | RepublishedEvent | PeerReviewedEvent | AuthorRespondedEvent;
 
 type ExtractedExpressions = {
-  manuscriptInputs: Item[],
-  manuscriptOutputs: Item[],
-  evaluationInputs: Item[],
-  evaluationOutputs: Item[],
+  manuscriptInputs: ManuscriptExpression[],
+  manuscriptOutputs: ManuscriptExpression[],
+  evaluationInputs: EvaluationExpression[],
+  evaluationOutputs: EvaluationExpression[],
 };
 
 // useful categories of expressions
@@ -68,24 +68,34 @@ const manuscriptTypes = [
   ExpressionType.Preprint.toString(),
   ExpressionType.VersionOfRecord.toString(),
 ];
-const isManuscript = (expression: Expression): boolean => manuscriptTypes.includes(expression.type);
+type ManuscriptExpression = Expression & {
+  type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
+};
+const isManuscript = (expression: Expression): expression is ManuscriptExpression => manuscriptTypes.includes(expression.type);
+
 const evaluationTypes = [
   ExpressionType.EvaluationSummary.toString(),
   ExpressionType.PeerReview.toString(),
 ];
-const isEvaluation = (expression: Expression): boolean => evaluationTypes.includes(expression.type);
+type EvaluationExpression = Expression & {
+  type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
+};
+const isEvaluation = (expression: Expression): expression is EvaluationExpression => evaluationTypes.includes(expression.type);
 
 const authorResponseTypes = [
   ExpressionType.AuthorResponse,
 ];
-const isAuthorResponse = (expression: Expression): boolean => authorResponseTypes.includes(expression.type);
+type AuthorResponseExpression = Expression & {
+  type: ExpressionType.Preprint | ExpressionType.VersionOfRecord,
+};
+const isAuthorResponse = (expression: Expression): expression is AuthorResponseExpression => authorResponseTypes.includes(expression.type);
 
 // useful to infer actions from inputs and output types
 const extractExpressions = (step: Step): ExtractedExpressions => {
   const manuscriptInputs = step.inputs.filter(isManuscript);
   const manuscriptOutputs = step.actions.flatMap((action) => action.outputs.filter(isManuscript));
 
-  const evaluationInputs = step.inputs.filter((input) => evaluationTypes.includes(input.type));
+  const evaluationInputs = step.inputs.filter(isEvaluation);
   const evaluationOutputs = step.actions.flatMap((action) => action.outputs.filter(isEvaluation));
 
   return {
@@ -167,7 +177,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   const events: PublishingEvent[] = [];
 
   const manuscriptPublishedAssertion = getPublishedManuscriptAssertion(step);
-  if (manuscriptPublishedAssertion) {
+  if (manuscriptPublishedAssertion && isManuscript(manuscriptPublishedAssertion.item)) {
     events.push({
       type: PublishingEventType.Published,
       asserted: true,
@@ -177,7 +187,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   }
 
   const inferredPublishedManuscript = getInferredPublishedManuscript(step);
-  if (inferredPublishedManuscript) {
+  if (inferredPublishedManuscript && isManuscript(inferredPublishedManuscript)) {
     events.push({
       type: PublishingEventType.Published,
       asserted: false,
@@ -186,7 +196,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   }
 
   const manuscriptUnderReviewAssertion = getUnderReviewManuscriptAssertion(step);
-  if (manuscriptUnderReviewAssertion) {
+  if (manuscriptUnderReviewAssertion && isManuscript(manuscriptUnderReviewAssertion.item)) {
     events.push({
       type: PublishingEventType.UnderReview,
       asserted: true,
@@ -196,7 +206,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   }
 
   const inferredRepublished = getInferredRepublishedManuscript(step);
-  if (inferredRepublished) {
+  if (inferredRepublished && isManuscript(inferredRepublished.republishedExpression) && isManuscript(inferredRepublished.originalExpression)) {
     events.push({
       type: PublishingEventType.Republished,
       asserted: false,
@@ -206,16 +216,16 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   }
 
   const inferredPeerReviewed = getInferredPeerReviewedManuscript(step);
-  if (inferredPeerReviewed) {
+  if (inferredPeerReviewed && isManuscript(inferredPeerReviewed.expression)) {
     events.push({
       type: PublishingEventType.PeerReviewed,
       asserted: false,
       item: inferredPeerReviewed.expression,
-      evaluations: inferredPeerReviewed.evaluations,
+      evaluations: inferredPeerReviewed.evaluations.filter(isEvaluation),
     });
 
     // sometimes a new reviewed preprint is published as an output
-    if (inferredPeerReviewed.republishedAs) {
+    if (inferredPeerReviewed.republishedAs && isManuscript(inferredPeerReviewed.republishedAs)) {
       events.push({
         type: PublishingEventType.Republished,
         asserted: false,
@@ -227,7 +237,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
 
   // sometimes author response is a separate step, find those and add the author response
   const inferredAuthorResponse = getAuthorResponse(step);
-  if (inferredAuthorResponse) {
+  if (inferredAuthorResponse && isManuscript(inferredAuthorResponse.preprint) && isAuthorResponse(inferredAuthorResponse.authorResponse)) {
     events.push({
       type: PublishingEventType.AuthorResponded,
       asserted: false,
@@ -237,7 +247,7 @@ export const parseStepToEvents = (step: Step): Array<PublishingEvent> => {
   }
 
   const draftAssertion = getDraftManuscriptAssertion(step);
-  if (draftAssertion) {
+  if (draftAssertion && isManuscript(draftAssertion.item)) {
     events.push({
       type: PublishingEventType.Draft,
       asserted: true,
