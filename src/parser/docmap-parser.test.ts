@@ -445,6 +445,28 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('can parse a docmap with an inference of version of record corrected from input/outputs', () => {
+    const parsedData = parseDocMap(fixtures.inferredVersionOfRecordCorrected());
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0]).toMatchObject<VersionedPreprint>({
+      doi: 'vor/article1',
+      id: 'vor/article1',
+      publishedDate: new Date('2024-05-09'),
+      url: 'https://version-of-record',
+      content: [
+        'https://doi.org/version-of-record',
+        'https://doi.org/version-of-record-corrected',
+        'https://doi.org/version-of-record-corrected-again',
+      ],
+      versionIdentifier: '1',
+      correctedDate: [
+        new Date('2024-06-09'),
+        new Date('2024-06-10'),
+      ],
+    });
+  });
+
   it('inference of reviewed preprint from input/outputs', () => {
     const parsedData = parseDocMap(fixtures.inferredReviewedPreprint());
 

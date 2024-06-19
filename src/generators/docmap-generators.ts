@@ -209,6 +209,12 @@ export const generatePeerReviewedAssertion = (item: Item, date?: Date): Assertio
   happened: date,
 });
 
+export const generateCorrectedAssertion = (item: Item, date?: Date): Assertion => ({
+  item,
+  status: AssertionStatus.Corrected,
+  happened: date,
+});
+
 export const generateEnhancedAssertion = (item: Item, date?: Date): Assertion => ({
   item,
   status: AssertionStatus.Enhanced,

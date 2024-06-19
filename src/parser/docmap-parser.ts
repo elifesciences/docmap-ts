@@ -67,6 +67,7 @@ type Preprint = {
   url?: string,
   content?: string[],
   license?: string,
+  correctedDate?: Date[],
 };
 
 type ReviewedPreprint = {
@@ -80,6 +81,7 @@ type ReviewedPreprint = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   license?: string,
+  correctedDate?: Date[],
 };
 
 type RelatedContentItem = {
@@ -452,6 +454,18 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
     // Update type and sent for review date
     const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintUnderReviewAssertion.item, preprints, manuscript);
     preprint.sentForReviewDate = preprintUnderReviewAssertion.happened;
+  }
+
+  const preprintCorrectedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Corrected);
+  if (preprintCorrectedAssertion) {
+    // Update type and sent for review date
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintCorrectedAssertion.item, preprints, manuscript);
+    if (preprintCorrectedAssertion.happened) {
+      if (!Array.isArray(preprint.correctedDate)) {
+        preprint.correctedDate = [];
+      }
+      preprint.correctedDate.push(preprintCorrectedAssertion.happened);
+    }
   }
 
   const inferredRepublished = getRepublishedPreprint(step);
