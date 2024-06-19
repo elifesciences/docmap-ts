@@ -19,7 +19,9 @@ import {
   generateUnderReviewAssertion,
   generateWebContent,
   generateManuscript,
-  generateInsight, generateVersionOfRecord, generateCorrectedAssertion,
+  generateInsight,
+  generateVersionOfRecord,
+  generateCorrectedAssertion,
 } from '../generators/docmap-generators';
 
 const publisher = {
