@@ -462,9 +462,15 @@ describe('docmap-parser', () => {
       versionIdentifier: '1',
       corrections: [
         {
+          content: [
+            'https://doi.org/version-of-record-corrected',
+          ],
           correctedDate: new Date('2024-06-09'),
         },
         {
+          content: [
+            'https://doi.org/version-of-record-corrected-again',
+          ],
           correctedDate: new Date('2024-06-10'),
         },
       ],

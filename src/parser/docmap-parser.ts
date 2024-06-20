@@ -60,6 +60,7 @@ export enum ContentType {
 }
 
 type Correction = {
+  content?: string[],
   correctedDate: Date,
 };
 
@@ -468,7 +469,13 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
       if (!Array.isArray(preprint.corrections)) {
         preprint.corrections = [];
       }
-      preprint.corrections.push({ correctedDate: preprintCorrectedAssertion.happened });
+      const correction = { correctedDate: preprintCorrectedAssertion.happened };
+      const versionOfRecord = getPublishedVersionOfRecord(step);
+      const content = (versionOfRecord && versionOfRecord.content ? versionOfRecord.content : []).filter((manifestation) => manifestation.type === 'web-page' && manifestation.url).map((manifestation) => manifestation.url ?? '');
+      preprint.corrections.push({
+        ...correction,
+        ...(content.length > 0 ? { content } : {}),
+      });
     }
   }
 
