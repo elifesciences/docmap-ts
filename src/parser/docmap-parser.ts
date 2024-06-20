@@ -465,10 +465,10 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
     // Update preprint with corrections
     const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintCorrectedAssertion.item, preprints, manuscript);
     if (preprintCorrectedAssertion.happened) {
-      if (!Array.isArray(preprint.correctedDate)) {
-        preprint.correctedDate = [];
+      if (!Array.isArray(preprint.corrections)) {
+        preprint.corrections = [];
       }
-      preprint.correctedDate.push(preprintCorrectedAssertion.happened);
+      preprint.corrections.push({ correctedDate: preprintCorrectedAssertion.happened });
     }
   }
 
