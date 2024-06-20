@@ -462,7 +462,7 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
 
   const preprintCorrectedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Corrected);
   if (preprintCorrectedAssertion) {
-    // Update type and sent for review date
+    // Update preprint with corrections
     const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintCorrectedAssertion.item, preprints, manuscript);
     if (preprintCorrectedAssertion.happened) {
       if (!Array.isArray(preprint.correctedDate)) {
