@@ -445,8 +445,8 @@ describe('docmap-parser', () => {
     });
   });
 
-  it('can parse a docmap with an inference of version of record corrected from input/outputs', () => {
-    const parsedData = parseDocMap(fixtures.inferredVersionOfRecordCorrected());
+  it('can parse corrections on a published version of record', () => {
+    const parsedData = parseDocMap(fixtures.assertVersionOfRecordPublishedThenCorrected());
 
     expect(parsedData.versions.length).toStrictEqual(1);
     expect(parsedData.versions[0]).toMatchObject<VersionedPreprint>({

@@ -550,7 +550,7 @@ export const fixtures = {
     return generateDocMap('test', publisher, firstStep);
   },
 
-  inferredVersionOfRecordCorrected: (): DocMap => {
+  assertVersionOfRecordPublishedThenCorrected: (): DocMap => {
     const versionOfRecordOutput = generateVersionOfRecord(new Date('2024-05-09'), [generateWebContent('https://doi.org/version-of-record')], 'vor/article1', 'https://version-of-record');
     const versionOfRecord = {
       type: versionOfRecordOutput.type,
