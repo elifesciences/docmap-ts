@@ -385,6 +385,17 @@ const extractExpressions = (step: Step): ExtractedExpressions => {
   };
 };
 
+const getPublishedOutput = (step: Step): Item | false => {
+  const items = extractExpressions(step);
+  if (items.preprintOutputs.length === 1) {
+    return items.preprintOutputs[0];
+  }
+  if (items.versionOfRecordOutputs.length === 1) {
+    return items.versionOfRecordOutputs[0];
+  }
+  return false;
+};
+
 const getPublishedVersionOfRecord = (step: Step): Item | false => {
   const items = extractExpressions(step);
   return (items.versionOfRecordOutputs.length === 1) ? items.versionOfRecordOutputs[0] : false;
@@ -470,8 +481,8 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
         preprint.corrections = [];
       }
       const correction = { correctedDate: preprintCorrectedAssertion.happened };
-      const versionOfRecord = getPublishedVersionOfRecord(step);
-      const content = (versionOfRecord && versionOfRecord.content ? versionOfRecord.content : []).reduce<string[]>((ac, { type, url }) => {
+      const publishedOutput = getPublishedOutput(step);
+      const content = (publishedOutput && publishedOutput.content ? publishedOutput.content : []).reduce<string[]>((ac, { type, url }) => {
         if (type === 'web-page' && url) {
           ac.push(url);
         }
