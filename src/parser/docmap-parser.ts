@@ -471,7 +471,12 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
       }
       const correction = { correctedDate: preprintCorrectedAssertion.happened };
       const versionOfRecord = getPublishedVersionOfRecord(step);
-      const content = (versionOfRecord && versionOfRecord.content ? versionOfRecord.content : []).filter((manifestation) => manifestation.type === 'web-page' && manifestation.url).map((manifestation) => manifestation.url ?? '');
+      const content = (versionOfRecord && versionOfRecord.content ? versionOfRecord.content : []).reduce<string[]>((ac, { type, url }) => {
+        if (type === 'web-page' && url) {
+          ac.push(url);
+        }
+        return ac;
+      }, []);
       preprint.corrections.push({
         ...correction,
         ...(content.length > 0 ? { content } : {}),
