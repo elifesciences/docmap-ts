@@ -460,9 +460,13 @@ describe('docmap-parser', () => {
         'https://doi.org/version-of-record-corrected-again',
       ],
       versionIdentifier: '1',
-      correctedDate: [
-        new Date('2024-06-09'),
-        new Date('2024-06-10'),
+      corrections: [
+        {
+          correctedDate: new Date('2024-06-09'),
+        },
+        {
+          correctedDate: new Date('2024-06-10'),
+        },
       ],
     });
   });

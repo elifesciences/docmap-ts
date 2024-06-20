@@ -59,6 +59,10 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
+type Correction = {
+  correctedDate: Date,
+};
+
 type Preprint = {
   id: string,
   versionIdentifier?: string,
@@ -67,7 +71,7 @@ type Preprint = {
   url?: string,
   content?: string[],
   license?: string,
-  correctedDate?: Date[],
+  corrections?: Correction[],
 };
 
 type ReviewedPreprint = {
@@ -81,7 +85,7 @@ type ReviewedPreprint = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   license?: string,
-  correctedDate?: Date[],
+  corrections?: Correction[],
 };
 
 type RelatedContentItem = {
