@@ -49,6 +49,7 @@ export enum AssertionStatus {
   VersionOfRecord = 'version-of-record',
   Revised = 'revised',
   Republished = 'republished',
+  Corrected = 'corrected',
 }
 
 export type Assertion = {

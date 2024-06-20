@@ -19,7 +19,9 @@ import {
   generateUnderReviewAssertion,
   generateWebContent,
   generateManuscript,
-  generateInsight, generateVersionOfRecord,
+  generateInsight,
+  generateVersionOfRecord,
+  generateCorrectedAssertion,
 } from '../generators/docmap-generators';
 
 const publisher = {
@@ -544,6 +546,56 @@ export const fixtures = {
   inferredVersionOfRecord: (): DocMap => {
     const versionOfRecord = generateVersionOfRecord(new Date('2024-05-09'), [generateWebContent('https://doi.org/version-of-record')], 'vor/article1', 'https://version-of-record');
     const firstStep = generateStep([], [generateAction([], [versionOfRecord])], []);
+
+    return generateDocMap('test', publisher, firstStep);
+  },
+
+  assertVersionOfRecordPublishedThenCorrected: (): DocMap => {
+    const versionOfRecordOutput = generateVersionOfRecord(new Date('2024-05-09'), [generateWebContent('https://doi.org/version-of-record')], 'vor/article1', 'https://version-of-record');
+    const versionOfRecord = {
+      type: versionOfRecordOutput.type,
+      doi: versionOfRecordOutput.doi,
+      versionIdentifier: versionOfRecordOutput.versionIdentifier,
+    };
+    const firstStep = generateStep([], [generateAction([], [versionOfRecordOutput])], []);
+    const nextStep = addNextStep(firstStep, generateStep(
+      [{
+        ...versionOfRecord,
+        identifier: versionOfRecordOutput.identifier,
+      }],
+      [
+        generateAction([], [
+          {
+            ...versionOfRecord,
+            content: [
+              generateWebContent('https://doi.org/version-of-record-corrected')
+            ],
+          },
+        ]),
+      ],
+      [
+        generateCorrectedAssertion(versionOfRecord, new Date('2024-06-09')),
+      ],
+    ));
+    addNextStep(nextStep, generateStep(
+      [{
+        ...versionOfRecord,
+        identifier: versionOfRecordOutput.identifier,
+      }],
+      [
+        generateAction([], [
+          {
+            ...versionOfRecord,
+            content: [
+              generateWebContent('https://doi.org/version-of-record-corrected-again')
+            ],
+          },
+        ]),
+      ],
+      [
+        generateCorrectedAssertion(versionOfRecord, new Date('2024-06-10')),
+      ],
+    ));
 
     return generateDocMap('test', publisher, firstStep);
   },

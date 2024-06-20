@@ -59,6 +59,11 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
+type Correction = {
+  content?: string[],
+  correctedDate: Date,
+};
+
 type Preprint = {
   id: string,
   versionIdentifier?: string,
@@ -67,6 +72,7 @@ type Preprint = {
   url?: string,
   content?: string[],
   license?: string,
+  corrections?: Correction[],
 };
 
 type ReviewedPreprint = {
@@ -80,6 +86,7 @@ type ReviewedPreprint = {
   reviewedDate?: Date,
   authorResponseDate?: Date,
   license?: string,
+  corrections?: Correction[],
 };
 
 type RelatedContentItem = {
@@ -378,6 +385,17 @@ const extractExpressions = (step: Step): ExtractedExpressions => {
   };
 };
 
+const getPublishedOutput = (step: Step): Item | false => {
+  const items = extractExpressions(step);
+  if (items.preprintOutputs.length === 1) {
+    return items.preprintOutputs[0];
+  }
+  if (items.versionOfRecordOutputs.length === 1) {
+    return items.versionOfRecordOutputs[0];
+  }
+  return false;
+};
+
 const getPublishedVersionOfRecord = (step: Step): Item | false => {
   const items = extractExpressions(step);
   return (items.versionOfRecordOutputs.length === 1) ? items.versionOfRecordOutputs[0] : false;
@@ -452,6 +470,29 @@ const parseStep = (step: Step, preprints: Array<ReviewedPreprint>, manuscript: M
     // Update type and sent for review date
     const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintUnderReviewAssertion.item, preprints, manuscript);
     preprint.sentForReviewDate = preprintUnderReviewAssertion.happened;
+  }
+
+  const preprintCorrectedAssertion = step.assertions.find((assertion) => assertion.status === AssertionStatus.Corrected);
+  if (preprintCorrectedAssertion) {
+    // Update preprint with corrections
+    const preprint = findAndUpdateOrAddPreprintDescribedBy(preprintCorrectedAssertion.item, preprints, manuscript);
+    if (preprintCorrectedAssertion.happened) {
+      if (!Array.isArray(preprint.corrections)) {
+        preprint.corrections = [];
+      }
+      const correction = { correctedDate: preprintCorrectedAssertion.happened };
+      const publishedOutput = getPublishedOutput(step);
+      const content = (publishedOutput && publishedOutput.content ? publishedOutput.content : []).reduce<string[]>((ac, { type, url }) => {
+        if (type === 'web-page' && url) {
+          ac.push(url);
+        }
+        return ac;
+      }, []);
+      preprint.corrections.push({
+        ...correction,
+        ...(content.length > 0 ? { content } : {}),
+      });
+    }
   }
 
   const inferredRepublished = getRepublishedPreprint(step);
