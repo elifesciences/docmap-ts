@@ -66,7 +66,9 @@ describe('docmap-parser', () => {
       doi: 'preprint/article1',
       id: 'preprint/article1',
       content: [
-        's3://bucket/path/to/article.meca',
+        {
+          url: 's3://bucket/path/to/article.meca',
+        },
       ],
     });
   });
@@ -439,7 +441,9 @@ describe('docmap-parser', () => {
       publishedDate: new Date('2024-05-09'),
       url: 'https://version-of-record',
       content: [
-        'https://doi.org/version-of-record',
+        {
+          url: 'https://doi.org/version-of-record',
+        },
       ],
       versionIdentifier: '1',
     });
@@ -455,9 +459,15 @@ describe('docmap-parser', () => {
       publishedDate: new Date('2024-05-09'),
       url: 'https://version-of-record',
       content: [
-        'https://doi.org/version-of-record',
-        'https://doi.org/version-of-record-corrected',
-        'https://doi.org/version-of-record-corrected-again',
+        {
+          url: 'https://doi.org/version-of-record',
+        },
+        {
+          url: 'https://doi.org/version-of-record-corrected',
+        },
+        {
+          url: 'https://doi.org/version-of-record-corrected-again',
+        },
       ],
       versionIdentifier: '1',
       corrections: [
@@ -589,7 +599,9 @@ describe('docmap-parser', () => {
         publishedDate: new Date('2023-06-23'),
         url: 'http://somewhere.org/preprint/article1',
         content: [
-          's3://somewhere-org-storage-bucket/preprint/article1.meca',
+          {
+            url: 's3://somewhere-org-storage-bucket/preprint/article1.meca',
+          },
         ],
       },
     });

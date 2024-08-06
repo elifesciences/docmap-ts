@@ -59,6 +59,10 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
+type Content = {
+  url: string,
+};
+
 type Correction = {
   content?: string[],
   correctedDate: Date,
@@ -70,7 +74,7 @@ type Preprint = {
   publishedDate?: Date,
   doi: string,
   url?: string,
-  content?: string[],
+  content?: Content[],
   license?: string,
   corrections?: Correction[],
 };
@@ -140,7 +144,16 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
     throw Error('Cannot identify Expression by DOI');
   }
 
-  const content = (Array.isArray(expression.content) && expression.content.length > 0) ? { content: expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url) } : {};
+  const content = (Array.isArray(expression.content) && expression.content.length > 0)
+    ? {
+      content: expression.content
+        .map((contentItem) => contentItem.url)
+        .filter((url): url is string => !!url)
+        .map((url) => ({
+          url,
+        })),
+    }
+    : {};
   const url = expression.url ? { url: expression.url } : {};
   const license = expression.license ? { license: expression.license } : {};
 
@@ -181,7 +194,7 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
       if (!Array.isArray(preprint.content)) {
         preprint.content = [];
       }
-      preprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
+      preprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url).map((url) => ({ url })));
     }
 
     if (expression.published) {
