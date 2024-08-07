@@ -67,6 +67,7 @@ describe('docmap-parser', () => {
       id: 'preprint/article1',
       content: [
         {
+          type: 'preprint',
           url: 's3://bucket/path/to/article.meca',
         },
       ],
@@ -441,7 +442,7 @@ describe('docmap-parser', () => {
       publishedDate: new Date('2024-05-09'),
       url: 'https://version-of-record',
       content: [
-        {
+        { type: 'vor',
           url: 'https://doi.org/version-of-record',
         },
       ],
@@ -460,12 +461,15 @@ describe('docmap-parser', () => {
       url: 'https://version-of-record',
       content: [
         {
+          type: 'vor',
           url: 'https://doi.org/version-of-record',
         },
         {
+          type: 'vor-correction',
           url: 'https://doi.org/version-of-record-corrected',
         },
         {
+          type: 'vor-correction-two',
           url: 'https://doi.org/version-of-record-corrected-again',
         },
       ],
