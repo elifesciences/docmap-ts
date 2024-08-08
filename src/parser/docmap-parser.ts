@@ -59,10 +59,6 @@ export enum ContentType {
   AuthorResponse = 'author-response',
 }
 
-type Content = {
-  url: string,
-};
-
 type Correction = {
   content?: string[],
   correctedDate: Date,
@@ -74,7 +70,7 @@ type Preprint = {
   publishedDate?: Date,
   doi: string,
   url?: string,
-  content?: Content[],
+  content?: string[],
   license?: string,
   corrections?: Correction[],
 };
@@ -91,6 +87,7 @@ type ReviewedPreprint = {
   authorResponseDate?: Date,
   license?: string,
   corrections?: Correction[],
+  content?: string[],
 };
 
 type RelatedContentItem = {
@@ -148,10 +145,7 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
     ? {
       content: expression.content
         .map((contentItem) => contentItem.url)
-        .filter((url): url is string => !!url)
-        .map((url) => ({
-          url,
-        })),
+        .filter((url): url is string => !!url),
     }
     : {};
   const url = expression.url ? { url: expression.url } : {};
@@ -194,7 +188,7 @@ const updateReviewedPreprintFrom = (reviewedPreprint: ReviewedPreprint, expressi
       if (!Array.isArray(preprint.content)) {
         preprint.content = [];
       }
-      preprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url).map((url) => ({ url })));
+      preprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
     }
 
     if (expression.published) {
@@ -297,6 +291,12 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint,
   newPreprint.versionIdentifier = expression.versionIdentifier;
   newPreprint.publishedDate = expression.published;
   newPreprint.license = expression.license;
+  if (Array.isArray(expression.content) && expression.content.length > 0) {
+    if (!Array.isArray(newPreprint.content)) {
+      newPreprint.content = [];
+    }
+    newPreprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
+  }
 };
 
 const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => action.outputs.map((output) => {
