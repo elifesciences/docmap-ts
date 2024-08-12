@@ -87,6 +87,7 @@ type ReviewedPreprint = {
   authorResponseDate?: Date,
   license?: string,
   corrections?: Correction[],
+  content?: string[],
 };
 
 type RelatedContentItem = {
@@ -140,7 +141,13 @@ const getPreprintFromExpression = (expression: Expression): Preprint => {
     throw Error('Cannot identify Expression by DOI');
   }
 
-  const content = (Array.isArray(expression.content) && expression.content.length > 0) ? { content: expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url) } : {};
+  const content = (Array.isArray(expression.content) && expression.content.length > 0)
+    ? {
+      content: expression.content
+        .map((contentItem) => contentItem.url)
+        .filter((url): url is string => !!url),
+    }
+    : {};
   const url = expression.url ? { url: expression.url } : {};
   const license = expression.license ? { license: expression.license } : {};
 
@@ -284,6 +291,12 @@ const republishPreprintAs = (expression: Expression, preprint: ReviewedPreprint,
   newPreprint.versionIdentifier = expression.versionIdentifier;
   newPreprint.publishedDate = expression.published;
   newPreprint.license = expression.license;
+  if (Array.isArray(expression.content) && expression.content.length > 0) {
+    if (!Array.isArray(newPreprint.content)) {
+      newPreprint.content = [];
+    }
+    newPreprint.content.push(...expression.content.map((contentItem) => contentItem.url).filter((url): url is string => !!url));
+  }
 };
 
 const findAndFlatMapAllEvaluations = (actions: Action[]): Evaluation[] => actions.flatMap((action) => action.outputs.map((output) => {

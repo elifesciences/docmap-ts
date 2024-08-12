@@ -608,6 +608,16 @@ describe('docmap-parser', () => {
     });
   });
 
+  it('extracts a content array if in an expression', () => {
+    const parsedData = parseDocMap(fixtures.preprintRepublishedViaAssertion());
+
+    expect(parsedData.versions[0]).toMatchObject({
+      content: [
+        's3://somewhere-org-storage-bucket/preprint/article1.meca',
+      ],
+    });
+  });
+
   it('extracts partOf, if present', () => {
     const parsedData = parseDocMap(fixtures.preprintWithManuscriptAsOutput());
 
