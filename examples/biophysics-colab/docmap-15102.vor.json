@@ -331,65 +331,6 @@
               "identifier": "15102",
               "doi": "10.63204/15102.4",
               "versionIdentifier": "4",
-              "license": "http://creativecommons.org/licenses/by/4.0/"
-            }
-          ]
-        }
-      ],
-      "assertions": [
-        {
-          "item": {
-            "type": "preprint",
-            "doi": "10.1101/2024.05.24.592450",
-            "versionIdentifier": "3"
-          },
-          "status": "under-review"
-        }
-      ],
-      "inputs": [
-        {
-          "type": "preprint",
-          "doi": "10.1101/2024.05.24.592450",
-          "url": "https://www.biorxiv.org/content/10.1101/2024.05.24.592450v3",
-          "versionIdentifier": "3",
-          "published": "2025-03-03",
-          "content": [
-            {
-              "type": "computer-file",
-              "url": "s3://biorxiv-src-daily/Current_Content/March_2025/03_Mar_25_Batch_2270/bbc7c685-7299-1014-9620-82cc47f8af9d.meca"
-            }
-          ]
-        }
-      ],
-      "previous-step": "_:b5",
-      "next-step": "_:b7"
-    },
-    "_:b7": {
-      "actions": [
-        {
-          "participants": [],
-          "outputs": [
-            {
-              "type": "evaluation-summary",
-              "published": "2025-03-14T16:57:27.069274+00:00",
-              "url": "https://sciety.org/evaluations/hypothesis:aLn0dAD1EfCSxWdguYFRIQ/content",
-              "content": [
-                {
-                  "type": "web-page",
-                  "url": "https://sciety.org/evaluations/hypothesis:aLn0dAD1EfCSxWdguYFRIQ/content"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "participants": [],
-          "outputs": [
-            {
-              "type": "version-of-record",
-              "identifier": "15102",
-              "doi": "10.63204/15102.4",
-              "versionIdentifier": "4",
               "license": "http://creativecommons.org/licenses/by/4.0/",
               "published": "2025-04-14T00:00:00+00:00"
             }
@@ -405,7 +346,7 @@
           "versionIdentifier": "3"
         }
       ],
-      "previous-step": "_:b6"
+      "previous-step": "_:b5"
     }
   }
 }
