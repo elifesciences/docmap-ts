@@ -226,6 +226,19 @@ describe('docmap-parser', () => {
       },
     });
   });
+  it('supports multiple types of content urls', () => {
+    const parsedData = parseDocMap(fixtures.preprintReviewed());
+
+    if (!('peerReview' in parsedData.versions[0])) {
+      throw new Error('Unexpected return from the parsed DocMap');
+    }
+    if (parsedData.versions[0].peerReview === undefined) {
+      throw new Error('Expected to have peer review');
+    }
+
+    expect(parsedData.versions.length).toStrictEqual(1);
+    expect(parsedData.versions[0].peerReview.reviews[0].contentUrls).toStrictEqual(['https://content.com/12345.sa1']);
+  });
 
   it('finds author response after publishing reviewed preprint', () => {
     const parsedData = parseDocMap(fixtures.preprintReviewedAndAuthorResponded());
